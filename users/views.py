@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions
 from .serializers import CustomUserSerializer, RegisterSerializer
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken #logout func
+from .permissions import IsOwnerOrReadOnly
 
 User = get_user_model()
 
@@ -13,9 +11,10 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
-class UserProfileView(generics.RetrieveAPIView):
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    lookup_field = 'id' # default is 'pk' but our url uses 'id'
 
 
-
-
-# Create your views here.
