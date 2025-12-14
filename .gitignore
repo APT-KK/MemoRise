@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+
+# Environments
+.env
+.venv/
+venv/
+
+# Django
+staticfiles/
+media/
+
+# IDE/Editor
+.vscode/
+*.swp
+*.swo
