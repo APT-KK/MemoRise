@@ -5,7 +5,7 @@ from .models import CustomUser
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
 
-    list_display = ['email', 'full_name', 'role', 'is_verified', 'is_staff']
+    list_display = ['id','email', 'full_name', 'role', 'is_verified', 'is_staff']
     list_filter = ['role', 'is_verified', 'is_staff', 'is_superuser']
     # fieldsets means what admin can change in the user form
     fieldsets = (
@@ -26,4 +26,5 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ['email', 'full_name']
     ordering = ['email']
 
+# customUserAdmin as we dont need to see hashed password in admin panel
 admin.site.register(CustomUser, CustomUserAdmin)
