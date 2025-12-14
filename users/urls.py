@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, UserProfileView, LogoutView
+from .views import RegisterView, UserProfileView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView, # login func
     TokenRefreshView, # refresh token --> to get new access token using refresh token

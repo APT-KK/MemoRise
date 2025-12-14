@@ -4,7 +4,7 @@ from rest_framework import permissions
 # others can still view it
 class IsOwnerOrReadOnly(permissions.BasePermission):
 
-    def has_object_permission(self, request, obj):
+    def has_object_permission(self, request, view, obj):
         # safe methods are GET, HEAD, OPTIONS
         # allowing read-only access for these methods
         if request.method in permissions.SAFE_METHODS:
