@@ -1,6 +1,8 @@
 from .models import Photo, Album, Event
 from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer
 from rest_framework import viewsets, permissions, parsers
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 # we use ViewSets as we need CRUD op for these models
 
@@ -13,6 +15,12 @@ class PhotoViewSet(viewsets.ModelViewSet):
         parsers.FormParser,
         parsers.JSONParser
     ]
+
+    #filtering using django-filters
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['event', 'album', 'photographer']
+    search_fields = ['manual_tags', 'ai_tags', 'exif_data']
+    ordering_fields = ['uploaded_at', 'likes_cnt']
 
     def perform_create(self, serializer):
         serializer.save(photographer=self.request.user)

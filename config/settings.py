@@ -38,7 +38,7 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('D
 INSTALLED_APPS = [
     'gallery',
     'users',
-     'django_filters',
+    'django_filters',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
