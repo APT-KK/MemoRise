@@ -15,6 +15,6 @@ class AlbumAdmin(admin.ModelAdmin):
 
 @admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'album', 'event', 'uploaded_by', 'uploaded_at']
+    list_display = ['id', 'album', 'event', 'photographer', 'uploaded_at']
     list_filter = ('event', 'album', 'photographer')
     ordering = ['-uploaded_at']
