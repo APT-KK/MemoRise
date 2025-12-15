@@ -75,7 +75,7 @@ class Photo(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='uploaded_photos',
-        limit_choices_to={'role': 'photographer'} 
+        limit_choices_to={'role': 'Photographer'} 
     )
 
     exif_data = models.JSONField(default=dict, blank=True)

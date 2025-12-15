@@ -10,7 +10,8 @@ class PhotoViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [
         parsers.MultiPartParser,
-        parsers.FormParser
+        parsers.FormParser,
+        parsers.JSONParser
     ]
 
     def perform_create(self, serializer):
