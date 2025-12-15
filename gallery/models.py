@@ -16,6 +16,7 @@ class Event(models.Model):
     coordinator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
+        null=True,
         related_name='events',
         limit_choices_to={'role': 'coordinator'} 
         # only users with role coordinator can be assigned in admin panel
@@ -53,7 +54,8 @@ class Photo(models.Model):
 
     event = models.ForeignKey(
         Event, 
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
+        null= True, 
         blank=True, 
         related_name='photos'
     )
@@ -62,6 +64,7 @@ class Photo(models.Model):
         Album,
         on_delete=models.CASCADE,
         blank=True,
+        null=True,
         related_name='photos'
     )
 
