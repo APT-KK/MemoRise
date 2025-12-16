@@ -32,15 +32,6 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
 
-# firebase connection
-import firebase_admin
-from firebase_admin import credentials
-
-cred_path = os.path.join(BASE_DIR, 'firebase_config.json')
-cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred)
-
-
 # Application definition
 
 INSTALLED_APPS = [
