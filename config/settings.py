@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'users',
     'django_filters',
     'corsheaders',
+    'channels',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -78,6 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'

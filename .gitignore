@@ -21,3 +21,5 @@ media/
 
 # Firebase
 users/firebase_config.json
+
+notifications
