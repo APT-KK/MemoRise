@@ -1,7 +1,6 @@
 from django.apps import AppConfig
 import firebase_admin
 from firebase_admin import credentials
-import os
 
 class UsersConfig(AppConfig):
     name = 'users'
