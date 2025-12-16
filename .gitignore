@@ -20,4 +20,4 @@ media/
 *.swo
 
 # Firebase
-firebase_config.json
+users/firebase_config.json
