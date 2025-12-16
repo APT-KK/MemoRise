@@ -24,6 +24,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email'
         ]
 
+        def validate_full_name(self, value):
+            user = self.instance
+            # If the user exists and their name is NOT 'Guest', they cannot change it.
+            if user and user.full_name != 'Guest' and user.full_name != value:
+                raise serializers.ValidationError("You have already set your full name and cannot change it again.")
+            return value
+
 # When user registers
 class RegisterSerializer(serializers.ModelSerializer):
     # write_only => we dont send it as output response
@@ -39,3 +46,5 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
     
+class FirebaseLoginSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)   
