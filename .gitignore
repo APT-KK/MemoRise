@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+# Ignore Firebase config (security)
+firebase_config.json
+>>>>>>> 7346b7d (fix key loc)
 # Python
 __pycache__/
 *.py[cod]

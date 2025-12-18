@@ -10,8 +10,9 @@ class UsersConfig(AppConfig):
 
         if not firebase_admin._apps:
             try:
-                cred_path = os.path.join('users', 'firebase_config.json')
+                # Use correct path relative to backend directory
+                cred_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'firebase_config.json')
                 cred = credentials.Certificate(cred_path)
                 firebase_admin.initialize_app(cred)
             except Exception as e:
-                print(f"Error initializing Firebase Admin SDK: {e}")
+                print(f"Error initializing Firebase Admin SDK: {e}. Path tried: {cred_path}")

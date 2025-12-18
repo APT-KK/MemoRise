@@ -59,6 +59,9 @@ class GoogleLoginView(APIView):
             },status = status.HTTP_200_OK)
         
         except Exception as e:
+            import traceback
+            print('GoogleLoginView error:', e)
+            traceback.print_exc()
             return Response({'error': str(e)}, status=400)
 
 
