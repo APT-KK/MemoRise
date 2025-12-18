@@ -1,15 +1,15 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-// Firebase configuration
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyDJY_m1BZ237BtFPTyp63i8JA4zRxwuAGI",
-  authDomain: "imgp-20315.firebaseapp.com",
-  projectId: "imgp-20315",
-  storageBucket: "imgp-20315.firebasestorage.app",
-  messagingSenderId: "181038428072",
-  appId: "1:181038428072:web:61c326acd511793e57f79d",
-  measurementId: "G-W7QXBY7Z45"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase only if it hasn't been initialized already

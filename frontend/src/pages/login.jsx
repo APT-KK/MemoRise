@@ -15,26 +15,17 @@ const Login = () => {
   const navigate = useNavigate();
 
   const loginUser = async (email, password) => {
-    setLoading(true);
+    const response = await api.post('/login/', {
+        email: email, 
+        password: password
+    });
 
-    try {
-        const response = await api.post('/login/', {
-            email: email, 
-            password: password
-        });
-
-        if(response.status === 200) {
-            toast.success('Login successful.');
-            localStorage.setItem('authTokens', JSON.stringify(response.data));
-            navigate('/');
-        }
+    if(response.status === 200) {
+        toast.success('Login successful.');
+        localStorage.setItem('authTokens', JSON.stringify(response.data));
+        navigate('/');
     }
-    catch (err) {
-        toast.error('Login failed. Please check your credentials and try again.');
-    }
-    finally {
-        setLoading(false);
-    }    
+    return response;
  };
 
   const handleGoogleSignIn = async () => {
@@ -62,15 +53,20 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         
         if (!email || !password) {
             toast.error("Please fill in all the fields!");
-            setLoading(false);
             return;
         }
-        await loginUser(email, password);
-        setLoading(false);
+        
+        setLoading(true);
+        try {
+            await loginUser(email, password);
+        } catch (err) {
+            toast.error('Login failed. Please check your credentials and try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
    return (

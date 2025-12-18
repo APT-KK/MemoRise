@@ -7,11 +7,13 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-
         if not firebase_admin._apps:
             try:
-                # Use correct path - firebase_config.json is in the same directory as this file
-                cred_path = os.path.join(os.path.dirname(__file__), 'firebase_config.json')
+                # Firebase config is at project root (one level up from backend)
+                backend_dir = os.path.dirname(os.path.dirname(__file__))
+                cred_path = os.path.join(backend_dir, '..', 'firebase_config.json')
+                cred_path = os.path.normpath(cred_path)
+                
                 if os.path.exists(cred_path):
                     cred = credentials.Certificate(cred_path)
                     firebase_admin.initialize_app(cred)
@@ -19,3 +21,4 @@ class UsersConfig(AppConfig):
                     print(f"Firebase config file not found at: {cred_path}")
             except Exception as e:
                 print(f"Error initializing Firebase Admin SDK: {e}. Path tried: {cred_path}")
+
