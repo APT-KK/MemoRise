@@ -3,21 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axios'; 
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDJY_m1BZ237BtFPTyp63i8JA4zRxwuAGI",
-  authDomain: "imgp-20315.firebaseapp.com",
-  projectId: "imgp-20315",
-  storageBucket: "imgp-20315.firebasestorage.app",
-  messagingSenderId: "181038428072",
-  appId: "1:181038428072:web:61c326acd511793e57f79d",
-  measurementId: "G-W7QXBY7Z45"
-};
-
-const app = firebaseConfig.apiKey !== "YOUR_API_KEY" ? initializeApp(firebaseConfig) : null;
-const auth = app ? getAuth(app) : null;
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from '../config/firebase';
 
 const Login = () => {
     
@@ -52,7 +39,7 @@ const Login = () => {
 
   const handleGoogleSignIn = async () => {
     if (!auth) {
-        toast.error("Firebase config missing in Login.jsx");
+        toast.error("Firebase authentication not available");
         return;
     }
     try {
@@ -165,3 +152,4 @@ const Login = () => {
 };
 
 export default Login;
+
