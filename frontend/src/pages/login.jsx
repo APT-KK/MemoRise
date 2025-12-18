@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axios'; 
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from '../config/firebase';
 
 const Login = () => {
     
@@ -27,29 +25,6 @@ const Login = () => {
     }
     return response;
  };
-
-  const handleGoogleSignIn = async () => {
-    if (!auth) {
-        toast.error("Firebase authentication not available");
-        return;
-    }
-    try {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const token = await result.user.getIdToken();
-
-        const response = await api.post('/google-login/', { token });
-
-        if (response.status === 200) {
-            localStorage.setItem('authTokens', JSON.stringify(response.data));
-            toast.success("Logged in with Google!");
-            navigate('/');
-        }
-    } catch (err) {
-        console.error("Google Login Error:", err);
-        toast.error("Google Login failed.");
-    }
-  };
 
   const handleSubmit = async (e) => {
         e.preventDefault();
