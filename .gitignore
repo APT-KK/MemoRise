@@ -20,6 +20,6 @@ media/
 *.swo
 
 # Firebase
-users/firebase_config.json
+backend/users/firebase_config.json
 
 notifications
