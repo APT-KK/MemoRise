@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axios'; 
-import { useNavigate } from 'react-router-dom';
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -28,8 +27,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const loginUser = async (event) => {
-    event.preventDefault();
+  const loginUser = async (email, password) => {
     setLoading(true);
 
     try {
@@ -150,7 +148,7 @@ const Login = () => {
                           disabled={loading}
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition duration-200"
                       >
-                          {loading ? 'Signing In...' : 'Sign In'}
+                          {loading ? 'Logging In...' : 'Log In'}
                       </button>
                   </form>
   
