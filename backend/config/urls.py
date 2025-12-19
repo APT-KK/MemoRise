@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
     path('api/gallery/', include('gallery.urls')),
+    path('api/interactions/', include('interactions.urls')),
 ]
 
 # in development mode , we can serve media files using this
