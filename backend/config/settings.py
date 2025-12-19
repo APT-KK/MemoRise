@@ -35,6 +35,8 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('D
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'gallery',
     'users',
     'django_filters',
@@ -63,6 +65,17 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+ASGI_APPLICATION = 'config.asgi.application' 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 TEMPLATES = [
     {
