@@ -22,6 +22,7 @@ const Signup = () => {
     setLoading(true);
     setError('');
     try {
+      console.log('Sending signup data:', formData); // Debugging log
       await api.post('/register/', formData);
       toast.success('Account created successfully! Please log in.');
       window.location.href = '/login';
@@ -46,15 +47,6 @@ const Signup = () => {
         {error && (
           <div className="mb-4 p-3 bg-red-700 text-white rounded text-sm">{error}</div>
         )}
-
-        <button 
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="w-full mb-4 flex justify-center items-center gap-2 bg-white text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition"
-        >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5" alt="Google" />
-            Sign up with Google
-        </button>
 
         <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
@@ -116,7 +108,6 @@ const Signup = () => {
               onChange={e => setFormData({ ...formData, role: e.target.value })}
             >
               <option value="" disabled>Select Role</option>
-              {/* Note: Google Signup defaults to 'Guest' in backend */}
               <option value="Admin">Admin</option>
               <option value="Coordinator">Event Coordinator</option>
               <option value="Photographer">Photographer</option>

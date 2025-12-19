@@ -55,7 +55,7 @@ const Login = () => {
   
                   <div className="space-y-4">
                       <button 
-                          onClick={handleGoogleSignIn}
+                        //   onClick={handleGoogleSignIn}
                           className="w-full flex justify-center items-center gap-3 bg-white text-gray-700 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition"
                       >
                           <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5" alt="Google" />
