@@ -4,8 +4,6 @@ import { UserPlus, Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from '../config/firebase';
 
 const Signup = () => {
 
@@ -18,31 +16,6 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  const handleGoogleSignIn = async () => {
-    if (!auth) {
-      toast.error("Firebase authentication not available");
-      return;
-    }
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const token = await result.user.getIdToken();
-      
-      // send firebase token to backend 
-      const response = await api.post('/google-login/', { token });
-
-      if (response.status === 200) {
-        localStorage.setItem('authTokens', JSON.stringify(response.data));
-        toast.success("Account created via Google!");
-        navigate('/');
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Google Sign-In failed.");
-    }
-  };
-
 
   const handleSubmit = async (event) => {
     event.preventDefault();

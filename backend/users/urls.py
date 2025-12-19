@@ -5,7 +5,6 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView, # refresh token --> to get new access token using refresh token
     TokenBlacklistView # logout func
 )
-from .views import GoogleLoginView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -13,5 +12,4 @@ urlpatterns = [
     path('logout/', TokenBlacklistView.as_view(), name='logout'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('google-login/',GoogleLoginView.as_view(), name='google_login'),
 ]
