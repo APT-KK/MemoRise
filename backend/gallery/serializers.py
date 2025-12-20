@@ -6,7 +6,6 @@ from django.conf import settings
 
 class PhotoSerializer(serializers.ModelSerializer):
     photographer_email = serializers.ReadOnlyField(source='photographer.email')
-    image = serializers.SerializerMethodField()
 
     is_liked = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -23,11 +22,6 @@ class PhotoSerializer(serializers.ModelSerializer):
             'photographer',
             'photographer_email'
         ]
-    
-    def get_image(self, obj):
-        if obj.image:
-            return obj.image.url 
-        return None
     
     def get_likes_count(self, obj):
         if hasattr(obj, 'likes'):
