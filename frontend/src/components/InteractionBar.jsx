@@ -12,7 +12,7 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
         if (!replyText.trim()) return;
 
         try {
-            await api.post(`/interactions/photos/${photoId}/comments/`, {
+            await api.post(`/api/interactions/photos/${photoId}/comments/`, {
                 content: replyText,
                 parent: comment.id 
             });
@@ -90,7 +90,7 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
 
     const fetchComments = async () => {
         try {
-            const res = await api.get(`/interactions/photos/${photoId}/comments/`);
+            const res = await api.get(`/api/interactions/photos/${photoId}/comments/`);
             setComments(res.data);
         } catch (err) {
             console.error(err);
@@ -99,7 +99,7 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
 
     const handleLike = async () => {
         try {
-            const response = await api.post(`/interactions/photos/${photoId}/like/`);
+            const response = await api.post(`/api/interactions/photos/${photoId}/like/`);
             setLiked(response.data.liked);
             setLikesCount(prev => response.data.liked ? prev + 1 : prev - 1);
         } catch (error) {
@@ -118,7 +118,7 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
         if (!newComment.trim()) return;
 
         try {
-            const res = await api.post(`/interactions/photos/${photoId}/comments/`, {
+            const res = await api.post(`/api/interactions/photos/${photoId}/comments/`, {
                 content: newComment,
                 parent: null 
             });
