@@ -70,6 +70,8 @@ class Photo(models.Model):
 
     image = models.ImageField(upload_to='event_photos/')
 
+    description = models.TextField(blank=True, null=True)
+
     # owned by a photographer
     photographer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
