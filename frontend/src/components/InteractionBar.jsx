@@ -116,15 +116,14 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
             fetchComments(); 
         }
     };
+    
     const handlePostComment = async (e) => {
         e.preventDefault();
         if (!newComment.trim()) return;
 
         try {
-            const res = await api.post(`/api/interactions/photos/${photoId}/comments/`, {
-                content: newComment,
-                parent: null 
-            });
+            const commentData = { content: newComment };
+            const res = await api.post(`/api/interactions/photos/${photoId}/comments/`, commentData);
             setComments([res.data, ...comments]);
             setNewComment("");
             toast.success("Comment posted!");

@@ -4,9 +4,14 @@ import InteractionBar from './InteractionBar';
 import { User } from 'lucide-react';
 
 const PhotoCard = ({ photo }) => {
-    const imageUrl = photo.image.startsWith('http') 
-        ? photo.image 
-        : `http://127.0.0.1:8000${photo.image}`;
+    let imageUrl = photo.image;
+    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+        // if it's missing leading slash, add it
+        imageUrl = '/' + imageUrl;
+    } else if (imageUrl && imageUrl.startsWith('http://127.0.0.1:8000')) {
+        // Convert absolute backend URL to relative for proxy of vite
+        imageUrl = imageUrl.replace('http://127.0.0.1:8000', '');
+    }
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -25,6 +30,10 @@ const PhotoCard = ({ photo }) => {
                     src={imageUrl} 
                     alt={photo.description} 
                     className="w-full h-64 object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                    onError={(e) => {
+                        console.error('Image load error:', imageUrl);
+                        e.target.style.display = 'none';
+                    }}
                 />
             </Link>
 

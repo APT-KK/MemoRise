@@ -22,13 +22,7 @@ class PhotoSerializer(serializers.ModelSerializer):
     
     def get_image(self, obj):
         if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-            # Fallback: construct URL manually
-            if obj.image.name:
-                image_url = obj.image.url if hasattr(obj.image, 'url') else f"{settings.MEDIA_URL}{obj.image.name}"
-                return image_url
+            return obj.image.url 
         return None
 
 class AlbumSerializer(serializers.ModelSerializer):
