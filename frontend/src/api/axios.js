@@ -25,7 +25,6 @@ api.interceptors.request.use(
     }
 );
 
-``` found while debugging:-```
 // adding a response interceptor to handle authentication errors
 api.interceptors.response.use(
     (response) => response,
