@@ -23,7 +23,7 @@ const Signup = () => {
     setError('');
     try {
       console.log('Sending signup data:', formData); // Debugging log
-      await api.post('/register/', formData);
+      await api.post('/api/auth/register/', formData);
       toast.success('Account created successfully! Please log in.');
       window.location.href = '/login';
     } catch (err) {

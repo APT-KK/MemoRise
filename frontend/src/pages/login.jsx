@@ -12,11 +12,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const loginUser = async (email, password) => {
-    const response = await api.post('/login/', {
-        email: email, 
-        password: password
-    });
+    const loginUser = async (email, password) => {
+        const response = await api.post('/api/auth/login/', {
+                email: email, 
+                password: password
+        });
 
     if(response.status === 200) {
         toast.success('Login successful.');
