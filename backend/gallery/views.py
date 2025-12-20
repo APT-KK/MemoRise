@@ -22,6 +22,12 @@ class PhotoViewSet(viewsets.ModelViewSet):
     search_fields = ['manual_tags', 'ai_tags', 'exif_data']
     ordering_fields = ['uploaded_at', 'likes_cnt']
 
+    # to construct absolute URL for the image
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
     def perform_create(self, serializer):
         serializer.save(photographer=self.request.user)
 

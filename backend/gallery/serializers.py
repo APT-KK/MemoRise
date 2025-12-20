@@ -1,19 +1,35 @@
 from rest_framework import serializers
 from gallery.models import Event, Album, Photo
+from django.conf import settings
 
 
 class PhotoSerializer(serializers.ModelSerializer):
+    photographer_email = serializers.ReadOnlyField(source='photographer.email')
+    image = serializers.SerializerMethodField()
+    
     class Meta:
         model = Photo
         fields = '__all__'
-         # user now cannot modify these fields
+        # user now cannot modify these fields
         read_only_fields = [
             'id',
             'uploaded_at',
             'likes_cnt',
             'download_cnt', 
-            'photographer'
+            'photographer',
+            'photographer_email'
         ]
+    
+    def get_image(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            # Fallback: construct URL manually
+            if obj.image.name:
+                image_url = obj.image.url if hasattr(obj.image, 'url') else f"{settings.MEDIA_URL}{obj.image.name}"
+                return image_url
+        return None
 
 class AlbumSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.email')
