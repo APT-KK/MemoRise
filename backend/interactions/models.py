@@ -3,7 +3,11 @@ from django.conf import settings
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    photo = models.ForeignKey('gallery.Photo', on_delete=models.CASCADE)
+    photo = models.ForeignKey(
+        'gallery.Photo', 
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
 
     content = models.TextField()
     parent = models.ForeignKey(
@@ -20,7 +24,11 @@ class Comment(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    photo = models.ForeignKey('gallery.Photo', on_delete=models.CASCADE)
+    photo = models.ForeignKey(
+        'gallery.Photo', 
+        on_delete=models.CASCADE,
+        related_name='likes'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

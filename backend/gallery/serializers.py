@@ -1,11 +1,15 @@
 from rest_framework import serializers
 from gallery.models import Event, Album, Photo
+from interactions.models import Like
 from django.conf import settings
 
 
 class PhotoSerializer(serializers.ModelSerializer):
     photographer_email = serializers.ReadOnlyField(source='photographer.email')
     image = serializers.SerializerMethodField()
+
+    is_liked = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
     
     class Meta:
         model = Photo
@@ -14,7 +18,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'id',
             'uploaded_at',
-            'likes_cnt',
+            'likes_count',
             'download_cnt', 
             'photographer',
             'photographer_email'
@@ -24,6 +28,19 @@ class PhotoSerializer(serializers.ModelSerializer):
         if obj.image:
             return obj.image.url 
         return None
+    
+    def get_likes_count(self, obj):
+        if hasattr(obj, 'likes'):
+            return obj.likes.count()
+        return obj.like_set.count()
+    
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            if hasattr(obj, 'likes'):
+                return obj.likes.filter(user=request.user).exists()
+            return obj.like_set.filter(user=request.user).exists()
+        return False 
 
 class AlbumSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.email')

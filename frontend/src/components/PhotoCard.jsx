@@ -45,7 +45,8 @@ const PhotoCard = ({ photo }) => {
                 <div className="pt-2 border-t border-gray-100">
                     <InteractionBar 
                         photoId={photo.id} 
-                        initialLikesCount={photo.likes_cnt || 0} 
+                        initialLikesCount={photo.likes_count} 
+                        initialLiked={photo.is_liked}
                     />
                 </div>
             </div>

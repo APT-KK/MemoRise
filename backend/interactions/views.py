@@ -24,6 +24,20 @@ class CommentListCreateView(generics.ListCreateAPIView):
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, photo_id):
+        """ this get method is to fetch total likes count
+             and whether user has liked the photo  or not"""
+        user = request.user
+        photo = get_object_or_404(Photo, id=photo_id)
+
+        is_liked = Like.objects.filter(user=user, photo=photo).exists()
+        total_likes = Like.objects.filter(photo=photo).count()
+
+        return Response({
+            "liked": is_liked,
+            "total_likes": total_likes
+        }, status=status.HTTP_200_OK)
+
     def post(self, request, photo_id):
         try:
             user = request.user

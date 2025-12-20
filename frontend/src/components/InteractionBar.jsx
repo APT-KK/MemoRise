@@ -81,8 +81,8 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
 };
 
 
-const InteractionBar = ({ photoId, initialLikesCount }) => {
-    const [liked, setLiked] = useState(false);
+const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
+    const [liked, setLiked] = useState(initialLiked || false);
     const [likesCount, setLikesCount] = useState(initialLikesCount || 0);
     const [showComments, setShowComments] = useState(false);
     const [comments, setComments] = useState([]);
@@ -104,7 +104,9 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
         try {
             const response = await api.post(`/api/interactions/photos/${photoId}/like/`);
             setLiked(response.data.liked);
-            setLikesCount(prev => response.data.liked ? prev + 1 : prev - 1);
+            if (typeof response.data.total_likes === 'number') {
+                setLikesCount(response.data.total_likes);
+            }
         } catch (error) {
             toast.error("Could not like photo");
         }
@@ -132,6 +134,10 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
             toast.error("Failed to post comment");
         }
     };
+
+    React.useEffect(() => {
+        setLikesCount(initialLikesCount || 0);
+    }, [initialLikesCount]);
 
     return (
         <div className="mt-3">

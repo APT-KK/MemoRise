@@ -14,6 +14,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'user',
             'created_at',
             'replies',
+            'photo'
         ]
 
     def get_replies(self, obj):
@@ -31,4 +32,5 @@ class LikeSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'created_at',
+            'photo'
         ]
