@@ -96,6 +96,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # CORS CONFIGURATION
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_HEADERS = ['*']
+CORS_EXPOSE_HEADERS = ['*']
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'

@@ -21,7 +21,7 @@ const Login = () => {
     if(response.status === 200) {
         toast.success('Login successful.');
         localStorage.setItem('authTokens', JSON.stringify(response.data));
-        navigate('/');
+        navigate('/home');
     }
     return response;
  };
