@@ -91,9 +91,12 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
     const fetchComments = async () => {
         try {
             const res = await api.get(`/api/interactions/photos/${photoId}/comments/`);
-            setComments(res.data);
+            // Handle paginated response (results) 
+            const commentsData = Array.isArray(res.data) ? res.data : (res.data.results || []);
+            setComments(commentsData);
         } catch (err) {
             console.error(err);
+            setComments([]); 
         }
     };
 
@@ -169,14 +172,18 @@ const InteractionBar = ({ photoId, initialLikesCount }) => {
                     </form>
 
                     <div className="max-h-60 overflow-y-auto pr-2">
-                        {comments.map(comment => (
-                            <CommentItem
-                                key={comment.id} 
-                                comment={comment}
-                                photoId={photoId}
-                                onReplyPosted={fetchComments}
-                             />
-                        ))}
+                        {Array.isArray(comments) && comments.length > 0 ? (
+                            comments.map(comment => (
+                                <CommentItem
+                                    key={comment.id} 
+                                    comment={comment}
+                                    photoId={photoId}
+                                    onReplyPosted={fetchComments}
+                                 />
+                            ))
+                        ) : (
+                            <p className="text-gray-500 text-sm text-center py-4">No comments yet</p>
+                        )}
                     </div>
                 </div>
             )}

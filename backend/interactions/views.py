@@ -25,25 +25,31 @@ class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, photo_id):
-        user = request.user
-        photo = get_object_or_404(Photo, id=photo_id)
+        try:
+            user = request.user
+            photo = get_object_or_404(Photo, id=photo_id)
 
-        like_query = Like.objects.filter(user=user, photo=photo)
-        liked = False
-
-        if like_query.exists():
-            like_query.delete() # unlike as already liked
+            like_query = Like.objects.filter(user=user, photo=photo)
             liked = False
-        else:
-            Like.objects.create(user=user, photo=photo)
-            liked = True
-        
-        total_likes = photo.likes.count()
 
-        return Response({
-            "message": "Success",
-            "liked": liked,
-            "total_likes": total_likes
-        }, status=status.HTTP_200_OK)
+            if like_query.exists():
+                like_query.delete() # unlike as already liked
+                liked = False
+            else:
+                Like.objects.create(user=user, photo=photo)
+                liked = True
+            
+            # Get total likes count
+            total_likes = Like.objects.filter(photo=photo).count()
+
+            return Response({
+                "message": "Success",
+                "liked": liked,
+                "total_likes": total_likes
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
   
