@@ -37,6 +37,7 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('D
 INSTALLED_APPS = [
     'daphne',
     'channels',
+    'interactions',
     'gallery',
     'users',
     'django_filters',
