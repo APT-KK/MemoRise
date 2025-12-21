@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Heart, MessageCircle, Send, CornerDownRight, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, MessageCircle, Send, CornerDownRight, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 const CommentItem = ({ comment, photoId, onReplyPosted }) => {
     const [isReplying, setIsReplying] = useState(false);
-    const [showReplies, setShowReplies] = useState(false);
     const [replyText, setReplyText] = useState("");
+    const [showReplies, setShowReplies] = useState(false);
 
     const handleSendReply = async (e) => {
         e.preventDefault();
@@ -22,7 +22,7 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
             setIsReplying(false);
             setReplyText("");
             setShowReplies(true);
-            onReplyPosted(); // Trigger a refresh of the list
+            onReplyPosted(); 
         } catch (err) {
             toast.error("Failed to post reply");
         }
@@ -31,73 +31,72 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
     const hasReplies = comment.replies && comment.replies.length > 0;
 
     return (
-            <div className="mb-3">
-                <div className="bg-gray-100 p-3 rounded-lg text-sm group relative">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <span className="font-bold mr-2 text-gray-900">{comment.user}</span>
-                            <span className="text-gray-700">{comment.content}</span>
-                        </div>
-                    </div>
-                    
-                    <div className="flex gap-4 mt-2">
-                        {/* Reply Button */}
-                        <button 
-                            onClick={() => setIsReplying(!isReplying)}
-                            className="text-xs text-gray-500 hover:text-blue-600 font-medium flex items-center gap-1"
-                        >
-                            <MessageSquare className="w-3 h-3" /> Reply
-                        </button>
-
-                        {/* View Replies Button*/}
-                        {hasReplies && (
-                            <button 
-                                onClick={() => setShowReplies(!showReplies)}
-                                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                            >
-                                <CornerDownRight className={`w-3 h-3 transition-transform ${showReplies ? 'rotate-180' : ''}`} />
-                                {showReplies ? 'Hide' : `View ${comment.replies.length}`} Replies
-                            </button>
-                        )}
+        <div className="mb-3">
+            <div className="bg-gray-100 p-3 rounded-lg text-sm group relative">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <span className="font-bold mr-2 text-gray-900">{comment.user}</span>
+                        <span className="text-gray-700">{comment.content}</span>
                     </div>
                 </div>
-
-                {/* Reply Input Form */}
-                {isReplying && (
-                    <form onSubmit={handleSendReply} className="ml-6 mt-2 flex gap-2">
-                        <div className="flex-1 flex gap-2">
-                            <input 
-                                autoFocus
-                                type="text" 
-                                className="flex-1 p-2 border text-xs rounded-md focus:outline-none focus:border-blue-500"
-                                placeholder={`Reply to ${comment.user}...`}
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                            />
-                            <button type="submit" className="text-blue-600 hover:text-blue-800">
-                                <Send className="h-4 w-4" />
-                            </button>
-                        </div>
-                    </form>
-                )}
                 
-                {/* Render Nested Replies*/}
-                {showReplies && hasReplies && (
-                    <div className="ml-6 mt-2 border-l-2 border-gray-300 pl-3">
-                        {comment.replies.map(reply => (
-                            <CommentItem 
-                                key={reply.id} 
-                                comment={reply} 
-                                photoId={photoId}
-                                onReplyPosted={onReplyPosted} 
-                            />
-                        ))}
-                    </div>
-                )}
+                <div className="flex items-center gap-4 mt-2">
+                    <button 
+                        onClick={() => setIsReplying(!isReplying)}
+                        className="text-xs text-gray-500 hover:text-blue-600 font-medium flex items-center gap-1"
+                    >
+                        <MessageSquare className="w-3 h-3" /> Reply
+                    </button>
+
+                    {hasReplies && (
+                        <button 
+                            onClick={() => setShowReplies(!showReplies)}
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                        >
+                            {showReplies ? (
+                                <>Hide Replies <ChevronUp className="w-3 h-3" /></>
+                            ) : (
+                                <>View {comment.replies.length} Replies <ChevronDown className="w-3 h-3" /></>
+                            )}
+                        </button>
+                    )}
+                </div>
             </div>
+
+            {isReplying && (
+                <form onSubmit={handleSendReply} className="ml-6 mt-2 flex gap-2">
+                    <CornerDownRight className="w-4 h-4 text-gray-400 mt-2" />
+                    <div className="flex-1 flex gap-2">
+                        <input 
+                            autoFocus
+                            type="text" 
+                            className="flex-1 p-2 border text-xs rounded-md focus:outline-none focus:border-blue-500"
+                            placeholder={`Reply to ${comment.user}...`}
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                        />
+                        <button type="submit" className="text-blue-600 hover:text-blue-800">
+                            <Send className="h-4 w-4" />
+                        </button>
+                    </div>
+                </form>
+            )}
+            
+            {showReplies && hasReplies && (
+                <div className="ml-6 mt-2 border-l-2 border-gray-300 pl-3">
+                    {comment.replies.map(reply => (
+                        <CommentItem 
+                            key={reply.id} 
+                            comment={reply} 
+                            photoId={photoId}
+                            onReplyPosted={onReplyPosted} 
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
-
 
 const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
     const [liked, setLiked] = useState(initialLiked || false);
@@ -106,15 +105,19 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
 
+    useEffect(() => {
+        setLikesCount(initialLikesCount || 0);
+        setLiked(initialLiked || false);
+    }, [initialLikesCount, initialLiked]);
+
     const fetchComments = async () => {
         try {
             const res = await api.get(`/api/interactions/photos/${photoId}/comments/`);
-            // Handle paginated response (results) 
             const commentsData = Array.isArray(res.data) ? res.data : (res.data.results || []);
             setComments(commentsData);
         } catch (err) {
             console.error(err);
-            setComments([]); 
+            toast.error("Could not load comments");
         }
     };
 
@@ -131,8 +134,9 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
     };
 
     const toggleComments = async () => {
-        setShowComments(!showComments);
-        if (!showComments && comments.length === 0) {
+        const nextState = !showComments;
+        setShowComments(nextState);
+        if (nextState) {
             fetchComments(); 
         }
     };
@@ -153,10 +157,6 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
         }
     };
 
-    React.useEffect(() => {
-        setLikesCount(initialLikesCount || 0);
-    }, [initialLikesCount]);
-
     return (
         <div className="mt-3">
             {/* Actions Bar */}
@@ -174,7 +174,12 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
                     className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition"
                 >
                     <MessageCircle className="h-6 w-6" />
-                    <span>{comments.length > 0 ? comments.length : 'Comments'}</span>
+                    <span className="font-medium">
+                        {showComments 
+                            ? 'Hide Comments' 
+                            : (comments.length > 0 ? `${comments.length} Comments` : 'Comments')}
+                    </span>
+                    {showComments ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
             </div>
 
@@ -215,6 +220,3 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
 };
 
 export default InteractionBar;
-
-
-
