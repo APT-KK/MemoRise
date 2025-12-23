@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import PhotoCard from '../components/PhotoCard';
-import { Camera, LogOut, User } from 'lucide-react'; 
+import { Camera, LogOut, User, Loader2 } from 'lucide-react'; 
 import toast from 'react-hot-toast';
 
 const Home = () => {
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [logoutLoading, setLogoutLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,10 +41,15 @@ const Home = () => {
         fetchData();
     }, [navigate]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('authTokens');
-        toast.success('Logged out successfully');
-        navigate('/');
+    const handleLogout = async () => {
+        if (!window.confirm('Are you sure you want to log out?')) return;
+        setLogoutLoading(true);
+        setTimeout(() => {
+            localStorage.removeItem('authTokens');
+            setLogoutLoading(false);
+            toast.success('Logged out successfully');
+            navigate('/');
+        }, 800); 
     };
 
     if (loading) {
@@ -80,11 +86,17 @@ const Home = () => {
                             )}
 
                             <button
-                                onClick={handleLogout}
-                                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                onClick={logoutLoading ? undefined : handleLogout}
+                                disabled={logoutLoading}
+                                className={`flex items-center gap-2 px-4 py-2 text-white border border-red-200 shadow-sm ${logoutLoading ? 'opacity-60 cursor-not-allowed' : 'hover:text-white hover:bg-red-500 hover:scale-105'} rounded-lg transition-all duration-200`}
+                                title="Logout"
                             >
-                                <LogOut className="h-5 w-5" />
-                                <span className="hidden sm:inline">Logout</span>
+                                {logoutLoading ? (
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                    <LogOut className="h-5 w-5" />
+                                )}
+                                <span className="hidden sm:inline">{logoutLoading ? 'Logging out...' : 'Logout'}</span>
                             </button>
                         </div>
                     </div>
