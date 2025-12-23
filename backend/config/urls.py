@@ -12,7 +12,5 @@ urlpatterns = [
 
 # in development mode , we can serve media files using this
 if settings.DEBUG:
-    # Use custom view to add CORS headers to media files
-    # Match /media/... URLs
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

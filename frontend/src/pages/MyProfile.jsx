@@ -28,7 +28,7 @@ const MyProfile = () => {
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                const res = await api.get('/api/users/me/');
+                const res = await api.get('/api/auth/users/me/');
                 setUserId(res.data.id);
                 setProfile(res.data);
             } catch (err) {
@@ -43,7 +43,7 @@ const MyProfile = () => {
         const fetchProfile = async () => {
             setProfileLoading(true);
             try {
-                const res = await api.get(`/api/users/${userId}/`);
+                const res = await api.get(`/api/auth/users/${userId}/`);
                 setProfile(res.data);
             } catch (err) {
                 toast.error("Failed to load profile");
@@ -83,7 +83,7 @@ const MyProfile = () => {
     const handleSave = async () => {
         setProfileSaving(true);
         try {
-            await api.patch(`/api/users/${userId}/`, {
+            await api.patch(`/api/auth/users/${userId}/`, {
                 full_name: profile.full_name,
                 bio: profile.bio,
             });
