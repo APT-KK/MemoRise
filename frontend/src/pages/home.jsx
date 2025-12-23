@@ -19,7 +19,7 @@ const Home = () => {
                 setPhotos(res.data.results || res.data);
 
                 try {
-                    const userRes = await api.get('/auth/users/me/');
+                    const userRes = await api.get('/api/auth/users/me/');
                     setCurrentUser(userRes.data);
                 } catch (userErr) {
                     console.warn("User not logged in or fetch failed", userErr);
