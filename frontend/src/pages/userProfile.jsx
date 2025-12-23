@@ -1,8 +1,9 @@
-import React , { useState, useEffect, use } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom'; 
 import api from '../api/axios'; 
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import PhotoCard from '../components/PhotoCard'; 
+import { ArrowLeft, User, Grid, Heart, Image as ImageIcon } from 'lucide-react';
 
 const UserProfile = () => {
     const { email } = useParams();
@@ -16,6 +17,7 @@ const UserProfile = () => {
     useEffect(() => {
         const fetchUserPhotos = async () => {
             try {
+
                 const res = await api.get(`/api/gallery/photos/`);
                 const allPhotos = res.data.results || res.data;
 
@@ -37,7 +39,7 @@ const UserProfile = () => {
             }
         };  
 
-            if(email) fetchUserPhotos();
+        if(email) fetchUserPhotos();
     }, [email]);
 
     if (loading) {
@@ -50,6 +52,7 @@ const UserProfile = () => {
 
    return (
         <div className="min-h-screen bg-gray-100">
+
             <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center">
                     <Link to="/home" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
@@ -60,6 +63,7 @@ const UserProfile = () => {
             </div>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
                     <div className="flex flex-col md:flex-row items-center gap-6">
 
