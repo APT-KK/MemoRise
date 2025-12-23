@@ -46,5 +46,3 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
     
-class FirebaseLoginSerializer(serializers.Serializer):
-    token = serializers.CharField(required=True)   
