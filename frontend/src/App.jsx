@@ -6,6 +6,7 @@ import LandingPage from './pages/landing.jsx'
 import PhotoDetail from './pages/PhotoDetail.jsx'
 import Home from './pages/home.jsx'
 import UserProfile from './pages/userProfile.jsx'
+import MyProfile from './pages/MyProfile.jsx'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/photos/:id" element={<PhotoDetail />} />
         <Route path="/profile/:email" element={<UserProfile />} />
+        <Route path="/my-profile" element={<MyProfile />} />
       </Routes>
     </BrowserRouter>
   )
