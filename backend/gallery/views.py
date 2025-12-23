@@ -3,6 +3,7 @@ from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer
 from rest_framework import viewsets, permissions, parsers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from .ai_utils import generate_tags
 
 # we use ViewSets as we need CRUD op for these models
 
@@ -29,7 +30,16 @@ class PhotoViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
-        serializer.save(photographer=self.request.user)
+        instance = serializer.save(photographer=self.request.user)
+        try: 
+            tags = generate_tags(instance.image.path)
+
+            if tags:
+                instance.auto_tags = tags
+                instance.save()
+        except Exception as e:
+            print(f"Error generating AI tags: {e}")
+
 
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all().order_by('-created_at')
