@@ -15,9 +15,14 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
-    lookup_field = 'id' # default is 'pk' but our url uses 'id'
+    lookup_field = 'id' # default is 'pk' but the url uses 'id'
 
-class 
+class CurrentUserView(generics.RetrieveAPIView):
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
     
