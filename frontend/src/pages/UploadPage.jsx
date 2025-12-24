@@ -12,14 +12,15 @@ const UploadPage = () => {
     const [overallProgress, setOverallProgress] = useState(0);
 
     const onDrop = useCallback(acceptedFiles => {
-        const mappedFiles = acceptedFiles.map(file => Object.assign(file, {
+        const mappedFiles = acceptedFiles.map(file => ({
+            file,
             id: Math.random().toString(36).substring(2, 9),
             preview: URL.createObjectURL(file), // allocates browser memory
             status: 'pending',
             errorMessage: ''
-        }))
+        }));
         setFiles(current => [...current, ...mappedFiles])
-    }, [])
+    }, []);
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop,
         accept: {'image/*': [] },
@@ -186,8 +187,12 @@ const UploadPage = () => {
                                     </div>
 
                                     <div className="p-2">
-                                        <p className="text-xs text-gray-600 truncate font-medium">{fileObj.file.name}</p>
-                                        <p className="text-[10px] text-gray-400">{(fileObj.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                        <p className="text-xs text-gray-600 truncate font-medium">
+                                            {fileObj.file ? fileObj.file.name : <span className="text-red-500">Invalid file</span>}
+                                        </p>
+                                        <p className="text-[10px] text-gray-400">
+                                            {fileObj.file ? `${(fileObj.file.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
