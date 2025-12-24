@@ -5,8 +5,7 @@ import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { Upload, ArrowLeft, X, CheckCircle, AlertCircle } from 'lucide-react';
 
-
-function MyDropzone() {
+const UploadPage = () => {
     const navigate = useNavigate();
     const [files, setFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -74,7 +73,7 @@ function MyDropzone() {
         
         setUploading(false);
 
-        const allSuccess = newFilesState.every(f => f.status === 'success');
+        const allSuccess = NewFileState.every(f => f.status === 'success');
         if (allSuccess) {
             toast.success("All photos uploaded successfully!");
             setTimeout(() => navigate('/home'), 1500);
@@ -200,4 +199,4 @@ function MyDropzone() {
     );
 };
 
-export default MyDropzone;
+export default UploadPage;

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import PhotoCard from '../components/PhotoCard';
-import { Camera, LogOut, User, Loader2 } from 'lucide-react'; 
+import { Camera, LogOut, User, Loader2, Upload } from 'lucide-react'; 
 import toast from 'react-hot-toast';
+
 
 const Home = () => {
     const [photos, setPhotos] = useState([]);
@@ -84,6 +85,15 @@ const Home = () => {
                                     <span className="hidden sm:inline">My Profile</span>
                                 </Link>
                             )}
+
+                                <Link 
+                                    to="/upload"
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600
+                                      text-white hover:bg-blue-700 rounded-lg transition 
+                                       font-medium shadow-sm">
+                                    <Upload className="h-5 w-5" />
+                                    <span className="hidden sm:inline">Upload Photos</span>
+                                </Link>
 
                             <button
                                 onClick={logoutLoading ? undefined : handleLogout}
