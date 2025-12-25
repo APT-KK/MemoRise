@@ -9,6 +9,7 @@ import UserProfile from './pages/userProfile.jsx'
 import MyProfile from './pages/MyProfile.jsx'
 import UploadPage from './pages/UploadPage.jsx'
 import EventPage from './pages/EventPage.jsx'
+import AlbumPage from './pages/AlbumPage.jsx'
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/event/:id" element={<EventPage />} />
         <Route path="/upload/:eventId" element={<UploadPage />} />
-        {/* <Route path="/upload" element={<UploadPage />} /> */}
+        <Route path="/album/:id" element={<AlbumPage />} />    
       </Routes>
     </BrowserRouter>
   )
