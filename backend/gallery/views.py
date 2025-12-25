@@ -46,6 +46,11 @@ class AlbumViewSet(viewsets.ModelViewSet):
     serializer_class = AlbumSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    #filtering using django-filters
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['event', 'owner'] # NOW WE CAN DO /api/gallery/albums/?event=1
+    search_fields = ['name', 'description']
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
