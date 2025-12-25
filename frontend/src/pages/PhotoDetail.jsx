@@ -37,7 +37,6 @@ const PhotoDetail = () => {
                 </Link>
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     
-                    {/* Header */}
                     <div className="p-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
                         <div className="bg-blue-100 p-2 rounded-full">
                             <User className="w-5 h-5 text-blue-600" />
@@ -48,7 +47,6 @@ const PhotoDetail = () => {
                         </div>
                     </div>
 
-                    {/* Main Image */}
                     <div className="bg-black flex justify-center">
                         <img 
                             src={imageUrl} 
@@ -58,12 +56,10 @@ const PhotoDetail = () => {
                     </div>
 
                     <div className="p-6">
-                        {/* Description */}
                         <div className="mb-6">
                             <h2 className="text-lg font-medium text-gray-900 mb-2">
-                                {photo.description || "No description provided."}
+                                {photo.description || " "}
                             </h2>
-                            {/* Auto Tags */}
                             {photo.auto_tags && photo.auto_tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {photo.auto_tags.map((tag, idx) => (
@@ -75,7 +71,6 @@ const PhotoDetail = () => {
                             )}
                         </div>
 
-                        {/* --- EXIF DATA SECTION --- */}
                         {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
                             <div className="mb-8 bg-slate-50 rounded-lg p-4 border border-slate-100">
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -116,7 +111,6 @@ const PhotoDetail = () => {
                             </div>
                         )}
 
-                        {/* Interaction Bar*/}
                         <div className="pt-6 border-t border-gray-100">
                             <InteractionBar 
                                 photoId={photo.id} 

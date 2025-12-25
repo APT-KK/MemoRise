@@ -1,15 +1,32 @@
-import {useCallback , useState} from 'react'
+import {useCallback , useState, useEffect} from 'react'
 import {useDropzone} from 'react-dropzone'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { Upload, ArrowLeft, X, CheckCircle, AlertCircle } from 'lucide-react';
 
 const UploadPage = () => {
     const navigate = useNavigate();
+    const { eventId } = useParams();
     const [files, setFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [overallProgress, setOverallProgress] = useState(0);
+    const [eventName, setEventName] = useState(''); 
+
+    // fetching event name from backend!
+    useEffect(() => {
+        if (eventId) {
+            const fetchEvent = async () => {
+                try {
+                    const res = await api.get(`/api/gallery/events/${eventId}/`);
+                    setEventName(res.data.name);
+                } catch (err) {
+                    console.error("Failed to fetch event name", err);
+                }
+            };
+            fetchEvent();
+        }
+    }, [eventId]);
 
     const onDrop = useCallback(acceptedFiles => {
         const mappedFiles = acceptedFiles.map(file => ({
@@ -21,6 +38,11 @@ const UploadPage = () => {
         }));
         setFiles(current => [...current, ...mappedFiles])
     }, []);
+
+    // Cleanup memory from browser
+    useEffect(() => {
+        return () => files.forEach(file => URL.revokeObjectURL(file.preview));
+    }, [files]);
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop,
         accept: {'image/*': [] },
@@ -53,6 +75,9 @@ const UploadPage = () => {
             try {
                 const formData = new FormData();
                 formData.append('image', fileObj.file);
+                if (eventId) {
+                    formData.append('event', eventId);
+                }
 
                 await api.post('/api/gallery/photos/', formData, {
                     headers: {
@@ -77,8 +102,8 @@ const UploadPage = () => {
         const allSuccess = NewFileState.every(f => f.status === 'success');
         if (allSuccess) {
             toast.success("All photos uploaded successfully!");
-            setTimeout(() => navigate('/home'), 1500);
-        } else {
+            setTimeout(() => navigate(eventId ? `/event/${eventId}` : '/home'), 1500);      
+          } else {
             toast.error("Some uploads failed. Please check the list.");
         }
     };
@@ -87,16 +112,24 @@ const UploadPage = () => {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-5xl mx-auto">
                 <div className="flex items-center justify-between mb-6">
-                    <Link to="/home" className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
+                    <Link to={eventId ? `/event/${eventId}` : "/home"} className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
                         <ArrowLeft className="w-5 h-5" />
-                        Back
+                        {eventId ? 'Back to Event' : 'Back to Gallery'}
                     </Link>
-                    <h1 className="text-2xl font-bold text-gray-900">Upload Photos</h1>
+                    
+                    <div className="text-right">
+                        <h1 className="text-2xl font-bold text-gray-900">Upload Photos</h1>
+                        {eventName && (
+                            <p className="text-sm text-blue-600 font-medium">
+                                To Event: {eventName}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {!uploading && (
-                    <div 
-                        {...getRootProps()} 
+                    <div
+                        {...getRootProps()}
                         className={`border-4 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors
                             ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white hover:border-gray-400'}`}
                     >
@@ -122,8 +155,8 @@ const UploadPage = () => {
                             <span>{overallProgress}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div 
-                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                            <div
+                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
                                 style={{ width: `${overallProgress}%` }}
                             ></div>
                         </div>
@@ -135,7 +168,7 @@ const UploadPage = () => {
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-semibold text-gray-700">Selected Files ({files.length})</h3>
                             {!uploading && (
-                                <button 
+                                <button
                                     onClick={handleUpload}
                                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 font-medium shadow-md"
                                 >
@@ -148,18 +181,19 @@ const UploadPage = () => {
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {files.map((fileObj) => (
                                 <div key={fileObj.id} className="relative group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                                    
+
                                     <div className="aspect-square bg-gray-100 relative">
-                                        <img 
-                                            src={fileObj.preview} 
-                                            alt="preview" 
-                                            className="w-full h-full object-cover" 
-                                            onLoad={() => { URL.revokeObjectURL(fileObj.preview) }} // clears browser memory
+                                        <img
+                                            src={fileObj.preview}
+                                            alt="preview"
+                                            className="w-full h-full object-cover"
+                                            // Memory cleanup on load
+                                            onLoad={() => { URL.revokeObjectURL(fileObj.preview) }}
                                         />
-                                        
+
                                         <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity opacity-0 group-hover:opacity-100">
                                             {fileObj.status === 'pending' && !uploading && (
-                                                <button 
+                                                <button
                                                     onClick={() => removeFile(fileObj.id)}
                                                     className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                                                 >
@@ -187,9 +221,9 @@ const UploadPage = () => {
                                     </div>
 
                                     <div className="p-2">
-                                        <p className="text-xs text-gray-600 truncate font-medium">
+                                        {/* <p className="text-xs text-gray-600 truncate font-medium">
                                             {fileObj.file ? fileObj.file.name : <span className="text-red-500">Invalid file</span>}
-                                        </p>
+                                        </p> */}
                                         <p className="text-[10px] text-gray-400">
                                             {fileObj.file ? `${(fileObj.file.size / 1024 / 1024).toFixed(2)} MB` : ''}
                                         </p>

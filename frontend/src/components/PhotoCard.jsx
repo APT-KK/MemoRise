@@ -45,7 +45,7 @@ const PhotoCard = ({ photo }) => {
 
             <div className="p-4">
                 <p className="text-gray-800 text-sm mb-3 line-clamp-2">
-                    {photo.description || "No description provided."}
+                    {photo.description || " "}
                 </p>
 
                 <div className="pt-2 border-t border-gray-100">
