@@ -115,6 +115,6 @@ Visit [http://localhost:5173](http://localhost:5173) to view the app!
 
 ## 🔮 Future Roadmap
 
-- [ ] Photographer Portfolios: Public profile pages for specific users.
-- [ ] AI Tagging: Auto-detection of objects in photos.
+- [ ] Cloud Storage Integration: Integrate AWS S3 
+- [ ] Notification Sytem: Use Django WebSockets
 - [ ] Batch Download: Download entire albums as ZIP files.
