@@ -36,10 +36,15 @@ graph TD;
 
 ---
 
+
 ## 🚀 Key Features
 
 - **Smart Uploading:**
   - Forget manual sorting. When you upload photos to an Event page, the system automatically detects the context and links the photos to that specific event instantly.
+- **EXIF Data Extraction:**
+  - Automatically extracts and displays EXIF metadata (such as camera model, date taken, and geolocation) from uploaded photos for richer photo details and search.
+- **AI Tagging with ResNet50:**
+  - Integrates a ResNet50 deep learning model to auto-detect and tag objects in photos, making searching and categorization smarter and faster.
 - **Visual Customization:**
   - Make your gallery look professional. Users can upload custom cover photos (banners) for both Events and Albums, creating a polished, portfolio-quality aesthetic.
 - **Visual-First Navigation:**
@@ -62,11 +67,14 @@ graph TD;
 
 This project runs on a powerful Full-Stack architecture:
 
+
 ### Backend (The Heavy Lifting)
 - **Language:** Python
 - **Framework:** Django & Django REST Framework (DRF)
 - **Database:** SQLite (Dev) / PostgreSQL (Prod)
 - **Key Logic:** Complex data modeling for Event → Album → Photo relationships.
+- **EXIF Extraction:** Uses Python libraries (e.g., Pillow, exifread) to extract photo metadata on upload.
+- **AI Integration:** Utilizes ResNet50 (via TensorFlow/Keras or PyTorch) for automatic image tagging and object detection.
 
 ### Frontend (The Experience)
 - **Library:** React.js (Vite)
