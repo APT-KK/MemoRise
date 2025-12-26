@@ -10,6 +10,7 @@ import MyProfile from './pages/MyProfile.jsx'
 import UploadPage from './pages/UploadPage.jsx'
 import EventPage from './pages/EventPage.jsx'
 import AlbumPage from './pages/AlbumPage.jsx'
+import VerifyEmail from './pages/VerifyEmail.jsx'
 
 function App() {
   return (
