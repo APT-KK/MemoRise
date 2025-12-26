@@ -1,4 +1,5 @@
 from django.db import models
+import pyotp
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 # creating a custom user manager as we are using custom user model
@@ -36,12 +37,18 @@ class CustomUser(AbstractUser):
     is_verified = models.BooleanField(default=False)
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pic/', blank=True, null=True)
+    email_otp = models.CharField(max_length=32, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # email & password are required by default no need to add here
 
     objects = CustomUserManager() # linking custom user manager to custom user model
     # by defualt Django runs User.objects to create users so we need to override it
+
+    def save(self, *args, **kwargs):
+        if not self.email_otp:
+            self.email_otp = pyotp.random_base32()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email
