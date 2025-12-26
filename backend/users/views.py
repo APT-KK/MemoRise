@@ -1,7 +1,18 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions
-from .serializers import CustomUserSerializer, RegisterSerializer
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, status, views
+from .serializers import (
+    CustomUserSerializer,
+    RegisterSerializer,
+    VerifyEmailSerializer,
+    ResendOTPSerializer,
+    CustomTokenObtainPairSerializer
+)
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .permissions import IsOwnerOrReadOnly
+from .utils import send_otp_email
+import pyotp
 
 User = get_user_model()
 
@@ -10,6 +21,24 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # Send OTP
+        try:
+            send_otp_email(user)
+        except Exception as e:
+            print(f"Email Error: {e}") 
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            {"message": "Registration successful. Check email for OTP.", "user": serializer.data},
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
@@ -24,6 +53,48 @@ class CurrentUserView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+class VerifyEmailView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = VerifyEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            code = serializer.validated_data['otp']
+            user = get_object_or_404(User, email=email)
+
+            if user.is_verified:
+                return Response({"message": "Already verified"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check OTP using pyotp
+            if user.email_otp:
+                totp = pyotp.TOTP(user.email_otp, interval=300)
+                if totp.verify(code):
+                    user.is_verified = True
+                    user.save()
+                    return Response({"message": "Email verified! Login now."}, status=status.HTTP_200_OK)
+            
+            return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ResendOTPView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResendOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            user = get_object_or_404(User, email=email)
+
+            if user.is_verified:
+                return Response({"message": "Already verified"}, status=status.HTTP_400_BAD_REQUEST)
+
+            send_otp_email(user)
+            return Response({"message": "New OTP sent."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
 
