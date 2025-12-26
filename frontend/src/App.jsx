@@ -24,7 +24,8 @@ function App() {
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/event/:id" element={<EventPage />} />
         <Route path="/upload/:eventId" element={<UploadPage />} />
-        <Route path="/album/:id" element={<AlbumPage />} />    
+        <Route path="/album/:id" element={<AlbumPage />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     </BrowserRouter>
   )

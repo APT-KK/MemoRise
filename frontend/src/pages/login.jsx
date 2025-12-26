@@ -28,17 +28,35 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!email || !password) {
             toast.error("Please fill in all the fields!");
             return;
         }
-        
         setLoading(true);
         try {
             await loginUser(email, password);
         } catch (err) {
-            toast.error('Login failed. Please check your credentials and try again.');
+            const errorMsg = err.response?.data?.detail || "Login failed.";
+            // Handles unverified email case
+            if (String(errorMsg).toLowerCase().includes("not verified")) {
+                toast((t) => (
+                    <div className="flex flex-col gap-2">
+                        <span>Email not verified!</span>
+                        <button 
+                            onClick={() => {
+                                toast.dismiss(t.id); // removes this toast before navigating
+                                navigate('/verify-email', { state: { email } });
+                            }}
+                            className="bg-blue-600 px-3 py-1 rounded text-sm text-white font-bold"
+                        >
+                            Verify Now 
+                        </button>
+                    </div>
+                ), { duration: 5000, icon: '⚠️' });
+            } else {
+                toast.error('Login failed. Check credentials.');
+            }
         } finally {
             setLoading(false);
         }
@@ -54,20 +72,20 @@ const Login = () => {
                   </div>
   
                   <div className="space-y-4">
-                      <button 
+                      {/* <button 
                         //   onClick={handleGoogleSignIn}
                           className="w-full flex justify-center items-center gap-3 bg-white text-gray-700 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition"
                       >
                           <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5" alt="Google" />
                           <span>Sign in with Google</span>
                       </button>
-  
+   */}
                       <div className="relative">
                           <div className="absolute inset-0 flex items-center">
                               <div className="w-full border-t border-gray-600"></div>
                           </div>
                           <div className="relative flex justify-center text-sm">
-                              <span className="px-2 bg-gray-800 text-gray-400">Or use email</span>
+                              <span className="px-2 bg-gray-800 text-gray-400">Use email</span>
                           </div>
                       </div>
                   </div>

@@ -22,10 +22,14 @@ const Signup = () => {
     setLoading(true);
     setError('');
     try {
-      console.log('Sending signup data:', formData); // Debugging log
       await api.post('/api/auth/register/', formData);
+
       toast.success('Account created successfully! Please log in.');
-      window.location.href = '/login';
+
+      navigate('/verify-email', { 
+          state: { email: formData.email } 
+      });
+      
     } catch (err) {
       const errorMsg = err.response?.data
         ? Object.values(err.response.data).flat().join(' ')
