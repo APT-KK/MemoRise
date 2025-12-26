@@ -38,9 +38,9 @@ class CustomUser(AbstractUser):
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pic/', blank=True, null=True)
 
-    email_otp = models.CharField(max_length=6, null=True, blank=True)
+    email_otp = models.CharField(max_length=32, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
-    
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # email & password are required by default no need to add here
 
