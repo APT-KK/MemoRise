@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'interactions',
     'gallery',
     'users',
+    'notifications',
     'django_filters',
     'corsheaders',
     'rest_framework',

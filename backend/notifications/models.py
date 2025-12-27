@@ -16,13 +16,24 @@ class Notification(models.Model):
         related_name='actions'
     )
 
+    verb = models.CharField(max_length=255)
+
     # object (comment or tag/like/download in photo)
-    Content_type = models.ForeignKey(
+    content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE
     )
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('Content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.actor} {self.verb} {self.content_object}"
 
 
 
