@@ -163,7 +163,7 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
             <div className="flex items-center gap-4 mb-2">
                 <button 
                     onClick={handleLike} 
-                    className={`flex items-center gap-1 transition ${liked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'}`}
+                    className={`flex items-center gap-1 transition ${liked ? 'text-red-500' : 'text-slate-400 hover:text-red-400'} bg-slate-900 border border-slate-800 rounded-lg px-3 py-1 shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 >
                     <Heart className={`h-6 w-6 ${liked ? 'fill-current' : ''}`} />
                     <span>{likesCount}</span>
@@ -171,10 +171,10 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
 
                 <button 
                     onClick={toggleComments}
-                    className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition"
+                    className="flex items-center gap-1 text-slate-400 hover:text-blue-500 transition bg-slate-900 border border-slate-800 rounded-lg px-3 py-1 shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                     <MessageCircle className="h-6 w-6" />
-                    <span className="font-medium">
+                    <span className="font-medium text-white">
                         {showComments 
                             ? 'Hide Comments' 
                             : (comments.length > 0 ? `${comments.length} Comments` : 'Comments')}
@@ -185,16 +185,16 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
 
             {/* Comments List */}
             {showComments && (
-                <div className="bg-gray-50 p-3 rounded-lg mt-2">
+                <div className="bg-slate-900 p-3 rounded-xl mt-2 border border-slate-800 shadow-xl backdrop-blur bg-opacity-90">
                     <form onSubmit={handlePostComment} className="flex gap-2 mb-4">
                         <input 
                             type="text" 
-                            className="flex-1 p-2 border rounded-md text-sm focus:outline-none focus:border-blue-500"
+                            className="flex-1 p-2 rounded-md text-sm bg-slate-950 text-white border border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
                             placeholder="Add a comment..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                         />
-                        <button type="submit" className="text-blue-600 hover:text-blue-800">
+                        <button type="submit" className="text-white bg-blue-600 hover:bg-blue-700 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
                             <Send className="h-5 w-5" />
                         </button>
                     </form>
@@ -210,7 +210,7 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
                                  />
                             ))
                         ) : (
-                            <p className="text-gray-500 text-sm text-center py-4">No comments yet</p>
+                            <p className="text-slate-400 text-sm text-center py-4">No comments yet</p>
                         )}
                     </div>
                 </div>
