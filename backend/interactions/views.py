@@ -39,6 +39,7 @@ class LikeToggleView(APIView):
         }, status=status.HTTP_200_OK)
 
     def post(self, request, photo_id):
+        from django.db import IntegrityError
         try:
             user = request.user
             photo = get_object_or_404(Photo, id=photo_id)
@@ -50,9 +51,12 @@ class LikeToggleView(APIView):
                 like_query.delete() # unlike as already liked
                 liked = False
             else:
-                Like.objects.create(user=user, photo=photo)
-                liked = True
-            
+                try:
+                    Like.objects.create(user=user, photo=photo)
+                    liked = True
+                except IntegrityError:
+                    # Like already exists due to race condition
+                    liked = True
             # Get total likes count
             total_likes = Like.objects.filter(photo=photo).count()
 

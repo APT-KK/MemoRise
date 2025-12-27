@@ -88,6 +88,7 @@ class Photo(models.Model):
 
     manual_tags = models.JSONField(default=list, blank=True)
     auto_tags = models.JSONField(default=list, blank=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"Photo {self.id} by {self.photographer}"
