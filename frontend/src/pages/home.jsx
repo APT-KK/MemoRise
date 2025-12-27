@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Calendar, MapPin, LogOut, User, Camera } from 'lucide-react'; 
 import toast from 'react-hot-toast';
-import NotificationBell from './NotificationBell';
+import NotificationBell from '../components/NotificationBell';
 
 
 const Home = () => {

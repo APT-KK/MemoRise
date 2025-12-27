@@ -12,23 +12,22 @@ import EventPage from './pages/EventPage.jsx'
 import AlbumPage from './pages/AlbumPage.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
 
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/photos/:id" element={<PhotoDetail />} />
-        <Route path="/profile/:email" element={<UserProfile />} />
-        <Route path="/my-profile" element={<MyProfile />} />
-        <Route path="/event/:id" element={<EventPage />} />
-        <Route path="/upload/:eventId" element={<UploadPage />} />
-        <Route path="/album/:id" element={<AlbumPage />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/photos/:id" element={<PhotoDetail />} />
+      <Route path="/profile/:email" element={<UserProfile />} />
+      <Route path="/my-profile" element={<MyProfile />} />
+      <Route path="/event/:id" element={<EventPage />} />
+      <Route path="/upload/:eventId" element={<UploadPage />} />
+      <Route path="/album/:id" element={<AlbumPage />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+    </Routes>
   )
 }
 

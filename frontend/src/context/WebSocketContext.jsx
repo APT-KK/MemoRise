@@ -16,7 +16,7 @@ export const WebSocketProvider = ({ children }) => {
         const authData = localStorage.getItem('authTokens');
         if(!authData) return;
 
-        const token = JSON.parse(authData).access;
+        const { access } = JSON.parse(authData);
 
         if(socketRef.current) return; // if already connected
 

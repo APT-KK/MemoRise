@@ -12,7 +12,7 @@ def send_socket_message(notification,recipient):
     channel_layer = get_channel_layer()
     group_name = f'notifications_{recipient.id}'
 
-    serializer = NotificationSerializer(notification).data
+    serializer = NotificationSerializer(notification)
     data = serializer.data
 
     async_to_sync(channel_layer.group_send)(

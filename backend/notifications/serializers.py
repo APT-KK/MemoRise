@@ -1,4 +1,4 @@
-from models import Notification
+from .models import Notification
 from rest_framework import serializers
 from users.serializers import CustomUserSerializer
 from gallery.models import Photo
@@ -11,7 +11,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ['id', 'actor', 'verb', 'content_object', 'is_read', 'created_at']
+        fields = ['id', 'actor', 'verb', 'content_object', 'is_read', 'created_at', 'target']
     
     def get_target(self, obj):
         if(isinstance(obj.content_object, Photo)):
