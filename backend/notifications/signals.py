@@ -29,7 +29,7 @@ def notify_on_like(sender, instance, created, **kwargs):
         return
 
     photo = instance.photo
-    recipient = photo.uploader
+    recipient = photo.photographer
     actor = instance.user
 
     if recipient == actor:
@@ -67,7 +67,7 @@ def notify_on_comment(sender, instance, created, **kwargs):
                 )
         send_socket_message(notification, instance.parent.user)
     else: # new comment on photo
-        recipient = photo.uploader
+        recipient = photo.photographer
         if recipient == actor:
             return
         notification = Notification.objects.create(
