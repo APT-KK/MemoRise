@@ -69,6 +69,9 @@ class Photo(models.Model):
     )
 
     image = models.ImageField(upload_to='event_photos/')
+    # for celery tasks
+    thumbnail = models.ImageField(upload_to='photos/thumbnails/', blank=True, null=True)
+    is_processed = models.BooleanField(default=False)
 
     description = models.TextField(blank=True, null=True)
 
