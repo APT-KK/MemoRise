@@ -3,7 +3,8 @@ from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer
 from rest_framework import viewsets, permissions, parsers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .ai_utils import generate_tags
+from .models import Album
+from .ai_utils import generate_tags  
 
 # we use ViewSets as we need CRUD op for these models
 
@@ -30,10 +31,22 @@ class PhotoViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
-        instance = serializer.save(photographer=self.request.user)
-        try: 
-            tags = generate_tags(instance.image.path)
+        album = self.request.data.get('album')
+        event = self.request.data.get('event')
+        # If album is provided then we set event from album
+        if album and not event:
+            try:
+                album_obj = Album.objects.get(pk=album)
+                event = album_obj.event_id
+            except Album.DoesNotExist:
+                event = None
+        instance = serializer.save(
+            photographer=self.request.user,
+            event=event if event else None
+        )
 
+        try:
+            tags = generate_tags(instance.image.path)
             if tags:
                 instance.auto_tags = tags
                 instance.save()

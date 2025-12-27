@@ -8,6 +8,9 @@ const AlbumPage = () => {
     const { id } = useParams();
     const [album, setAlbum] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState("");
+    const [uploadSuccess, setUploadSuccess] = useState("");
 
     useEffect(() => {
         const fetchAlbum = async () => {
@@ -31,6 +34,34 @@ const AlbumPage = () => {
     );
 
     if (!album) return <div className="text-center py-20">Album not found.</div>;
+
+    const handlePhotoUpload = async (e) => {
+        const file = e.target.files[0];
+
+        if (!file) return;
+        
+        setUploading(true);
+        setUploadError("");
+        setUploadSuccess("");
+
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("album", album.id);
+
+        try {
+            await api.post("/api/gallery/photos/", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            setUploadSuccess("Photo uploaded!");
+            const res = await api.get(`/api/gallery/albums/${album.id}/`);
+            setAlbum(res.data);
+
+        } catch (err) {
+            setUploadError("Failed to upload photo.");
+        } finally {
+            setUploading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -62,6 +93,21 @@ const AlbumPage = () => {
                             {album.description}
                         </p>
                     )}
+
+                    {/* Photo Upload */}
+                    <div className="mt-6">
+                        <label className="block font-medium text-gray-700 mb-2">Upload Photo to this Album:</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoUpload}
+                            disabled={uploading}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        />
+                        {uploading && <p className="text-blue-600 mt-2">Uploading...</p>}
+                        {uploadError && <p className="text-red-600 mt-2">{uploadError}</p>}
+                        {uploadSuccess && <p className="text-green-600 mt-2">{uploadSuccess}</p>}
+                    </div>
                 </div>
 
                 <div>
