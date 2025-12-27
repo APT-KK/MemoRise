@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import InteractionBar from './InteractionBar';
-import { User } from 'lucide-react';
+import { User, Loader2 } from 'lucide-react';
 
 const PhotoCard = ({ photo }) => {
-    const imageUrl = photo.thumbnail || photo.image;
+    let imageUrl = photo.thumbnail || photo.image;
     if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
         // if it's missing leading slash, add it
         imageUrl = '/' + imageUrl;
@@ -13,7 +13,7 @@ const PhotoCard = ({ photo }) => {
     }
 
     const photographerEmail = photo.photographer_email || "Unknown User";
-    
+    const isProcessing = photo.is_processed === false;
 
     return (
         <div className="group bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-lg hover:shadow-2xl hover:border-slate-600 transition-all duration-300">
