@@ -24,7 +24,3 @@ media/
 node_modules/
 package-lock.json
 
-# Firebase
-backend/users/firebase_config.json
-
-notifications

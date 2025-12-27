@@ -1,0 +1,1 @@
+# similar to django view but for websockets!
