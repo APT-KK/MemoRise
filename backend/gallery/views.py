@@ -33,16 +33,22 @@ class PhotoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         album = self.request.data.get('album')
         event = self.request.data.get('event')
+        event_instance = None
         # If album is provided then we set event from album
         if album and not event:
             try:
                 album_obj = Album.objects.get(pk=album)
-                event = album_obj.event_id
+                event_instance = album_obj.event
             except Album.DoesNotExist:
-                event = None
+                event_instance = None
+        elif event:
+            try:
+                event_instance = Event.objects.get(pk=event)
+            except Event.DoesNotExist:
+                event_instance = None
         instance = serializer.save(
             photographer=self.request.user,
-            event=event if event else None
+            event=event_instance
         )
 
         try:
