@@ -37,8 +37,13 @@ graph TD;
 ---
 
 
+
 ## 🚀 Key Features
 
+- **Real-Time Notifications:**
+  - Receive instant toast and bell notifications for likes and comments on your photos, powered by Django Channels and WebSockets with secure JWT authentication.
+- **Robust Notification System:**
+  - All notification types (likes, comments, replies) are delivered in real time and displayed in the notification bell, with reliable serialization and delivery.
 - **Smart Uploading:**
   - Forget manual sorting. When you upload photos to an Event page, the system automatically detects the context and links the photos to that specific event instantly.
 - **EXIF Data Extraction:**
@@ -68,6 +73,7 @@ graph TD;
 This project runs on a powerful Full-Stack architecture:
 
 
+
 ### Backend (The Heavy Lifting)
 - **Language:** Python
 - **Framework:** Django & Django REST Framework (DRF)
@@ -75,13 +81,16 @@ This project runs on a powerful Full-Stack architecture:
 - **Key Logic:** Complex data modeling for Event → Album → Photo relationships.
 - **EXIF Extraction:** Uses Python libraries (e.g., Pillow, exifread) to extract photo metadata on upload.
 - **AI Integration:** Utilizes ResNet50 (via TensorFlow/Keras or PyTorch) for automatic image tagging and object detection.
+- **Real-Time Engine:** Django Channels with WebSocket JWT authentication for secure, instant notifications.
+- **Security:** Environment variables for secrets, CORS and JWT setup, robust error handling for all real-time features.
+
 
 ### Frontend (The Experience)
 - **Library:** React.js (Vite)
 - **Styling:** Tailwind CSS
 - **Icons:** Lucide React
 - **HTTP Client:** Axios
-- **Features:** Drag-and-drop uploads, dynamic routing, and modal interactions.
+- **Features:** Drag-and-drop uploads, dynamic routing, modal interactions, real-time toast and bell notifications, and robust WebSocket integration.
 
 ---
 
@@ -123,6 +132,6 @@ Visit [http://localhost:5173](http://localhost:5173) to view the app!
 
 ## 🔮 Future Roadmap
 
-- [ ] Cloud Storage Integration: Integrate AWS S3 
-- [ ] Notification Sytem: Use Django WebSockets
-- [ ] Batch Download: Download entire albums as ZIP files.
+- [ ] Cloud Storage Integration: Integrate AWS S3
+- [x] Real-Time Notification System: WebSocket-based, JWT-authenticated notifications for all user interactions
+- [ ] Batch Download: Download entire albums as ZIP files
