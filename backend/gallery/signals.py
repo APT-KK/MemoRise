@@ -3,6 +3,8 @@ from django.dispatch import receiver
 from .models import Photo
 from PIL import Image, ExifTags
 from datetime import datetime
+from .tasks import process_photo
+from django.db import transaction
 
 def get_clean_exif(img):
     exif_data = {}
@@ -151,3 +153,13 @@ def process_photo_metadata(sender, instance, created, **kwargs):
 
     except Exception as e:
         print(f"Error processing metadata for photo {instance.id}: {e}")
+
+@receiver(post_save, sender=Photo)
+def trigger_async_photo_processing(sender, instance, created, **kwargs):
+    if created and not instance.is_processed:
+        try:
+            # this ensures the task runs only after
+            # the transaction is committed (in background)
+            transaction.on_commit(lambda: process_photo.delay(instance.id))
+        except Exception as e:
+            print(f"Error triggering async processing for photo {instance.id}: {e}")
