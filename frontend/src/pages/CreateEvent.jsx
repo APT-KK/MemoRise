@@ -45,9 +45,9 @@ const CreateEvent = () => {
 
     return (
         <div className="min-h-screen bg-white p-6 flex justify-center items-center">
-            <div className="max-w-2xl w-full bg-white border border-gray-200 rounded-3xl p-8 shadow-2xl">
+            <div className="max-w-2xl w-full bg-white border border-black rounded-lg p-8">
                 <div className="mb-6">
-                    <a href="/home" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium">
+                    <a href="/home" className="inline-flex items-center gap-2 text-black hover:underline transition-colors font-medium">
                         <ArrowLeft className="w-4 h-4" /> Back to Home
                     </a>
                 </div>
@@ -58,53 +58,53 @@ const CreateEvent = () => {
                         onImageSelect={(file) => setCoverFile(file)} 
                     />
                     <div>
-                        <label className="block text-gray-700 text-sm font-semibold mb-2">Event Title</label>
+                        <label className="block text-black text-sm font-semibold mb-2">Event Title</label>
                         <input 
                             type="text" 
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="e.g. Summer Music Festival"
                             required
                         />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-gray-700 text-sm font-semibold mb-2">Date</label>
+                            <label className="block text-black text-sm font-semibold mb-2">Date</label>
                             <input 
                                 type="date" 
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                                className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-700 text-sm font-semibold mb-2">Location</label>
+                            <label className="block text-black text-sm font-semibold mb-2">Location</label>
                             <input
                                 type="text"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                                className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                                 placeholder="e.g. Central Park, NY"
                                 required
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-gray-700 text-sm font-semibold mb-2">Description</label>
+                        <label className="block text-black text-sm font-semibold mb-2">Description</label>
                         <textarea 
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows="4"
-                            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="Describe the event..."
                         />
                     </div>
                     <button 
                         type="submit" 
                         disabled={loading}
-                        className="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-gray-600/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-black"
                     >
                         {loading ? 'Creating Event...' : 'Create Event'}
                     </button>

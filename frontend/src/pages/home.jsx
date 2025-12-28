@@ -54,31 +54,31 @@ const Home = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-center">
-                    <Loader2 className="animate-spin h-12 w-12 text-blue-500 mx-auto" />
-                    <p className="mt-4 text-slate-400">Loading events...</p>
+                    <Loader2 className="animate-spin h-12 w-12 text-white mx-auto" />
+                    <p className="mt-4 text-gray-400">Loading events...</p>
                 </div>
             </div>
         );
     }
 
   return (
-        <div className="min-h-screen bg-slate-950 text-slate-200">
-            <header className="bg-slate-900/80 backdrop-blur-md shadow-sm border-b border-slate-800 sticky top-0 z-50">
+        <div className="min-h-screen bg-black text-white">
+            <header className="bg-black border-b border-white/10 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <Link to="/home" className="flex items-center gap-3 group">
-                            <div className="bg-blue-600/10 p-2 rounded-lg group-hover:bg-blue-600/20 transition-colors">
-                                <Camera className="h-6 w-6 text-blue-500" />
+                            <div className="p-2 rounded-lg group-hover:bg-white/10 transition-colors border border-white/20">
+                                <Camera className="h-6 w-6 text-white" />
                             </div>
                             <span className="text-2xl font-bold text-white tracking-tight">MEMORISE</span>
                         </Link>
 
                         <div className="flex items-center gap-4">
                             {currentUser && (
-                                <Link to="/my-profile" className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors">
-                                    <div className="bg-slate-800 p-2 rounded-full">
+                                <Link to="/my-profile" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+                                    <div className="bg-white/10 p-2 rounded-full border border-white/20">
                                         <User className="h-5 w-5" />
                                     </div>
                                     <span className="hidden sm:inline font-medium">Profile</span>
@@ -90,7 +90,7 @@ const Home = () => {
                             <button
                                 onClick={handleLogout}
                                 disabled={logoutLoading}
-                                className="text-red-400 hover:bg-red-500/10 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-transparent hover:border-red-500/20"
+                                className="text-white hover:bg-white/10 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-white/20 hover:border-white/40 disabled:opacity-50"
                             >
                                 <LogOut className="h-5 w-5" />
                                 <span className="hidden sm:inline">Logout</span>
@@ -101,36 +101,36 @@ const Home = () => {
             </header>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4 border-b border-slate-800 pb-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4 border-b border-white/10 pb-6">
                     <div>
                         <h1 className="text-3xl font-bold text-white">Your Events</h1>
-                        <p className="text-slate-400 mt-1">Manage specific collections and albums</p>
+                        <p className="text-gray-400 mt-1">Manage specific collections and albums</p>
                     </div>
 
                     <Link 
                         to="/create-event"
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-1 font-medium group"
+                        className="flex items-center gap-2 bg-white text-black px-5 py-3 rounded-lg hover:bg-gray-200 transition font-medium border border-white"
                     >
-                        <CalendarPlus className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                        <CalendarPlus className="w-5 h-5" />
                         <span>Create New Event</span>
                     </Link>
                 </div>
 
                 {events.length === 0 ? (
-                    <div className="text-center py-20 bg-slate-900/50 rounded-3xl border border-dashed border-slate-800">
-                        <div className="bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Calendar className="h-10 w-10 text-slate-600" />
+                    <div className="text-center py-20 bg-white/5 rounded-lg border border-dashed border-white/20">
+                        <div className="bg-white/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
+                            <Calendar className="h-10 w-10 text-white/50" />
                         </div>
                         <h2 className="text-xl font-semibold text-white">No events found</h2>
-                        <p className="text-slate-500 mt-2">Get started by creating your first event above.</p>
+                        <p className="text-gray-400 mt-2">Get started by creating your first event above.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {events.map((event) => (
                             <Link to={`/event/${event.id}`} key={event.id} className="group h-full block">
-                                <div className="bg-slate-900 rounded-2xl shadow-lg hover:shadow-2xl hover:border-slate-600 border border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col">
+                                <div className="bg-white/5 rounded-lg border border-white/10 hover:border-white/30 transition-all duration-300 overflow-hidden h-full flex flex-col">
                                     
-                                    <div className="h-56 bg-slate-950 relative overflow-hidden">
+                                    <div className="h-56 bg-black relative overflow-hidden">
                                         {event.cover_photo || event.cover_image ? (
                                             <img 
                                                 src={event.cover_photo || event.cover_image} 
@@ -138,22 +138,22 @@ const Home = () => {
                                                 className="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
                                             />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full text-slate-700 bg-slate-950">
-                                                <Calendar className="h-12 w-12 opacity-20" />
+                                            <div className="flex items-center justify-center h-full text-white/20 bg-black">
+                                                <Calendar className="h-12 w-12" />
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
                                     </div>
 
                                     <div className="p-5 flex-1 flex flex-col">
-                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-gray-200 transition-colors">
                                             {event.title || event.name}
                                         </h3>
-                                        <p className="text-slate-400 text-sm line-clamp-2 mb-4 flex-1">
+                                        <p className="text-gray-400 text-sm line-clamp-2 mb-4 flex-1">
                                             {event.description || <span className="italic opacity-50">No description provided.</span>}
                                         </p>
                                         
-                                        <div className="flex items-center gap-4 text-xs text-slate-500 pt-4 border-t border-slate-800 mt-auto">
+                                        <div className="flex items-center gap-4 text-xs text-gray-400 pt-4 border-t border-white/10 mt-auto">
                                             <div className="flex items-center gap-1.5">
                                                 <Calendar className="w-3.5 h-3.5" />
                                                 <span>{event.date}</span>

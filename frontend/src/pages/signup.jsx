@@ -42,72 +42,72 @@ const Signup = () => {
   };
 
  return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-lg p-6">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Create Account</h1>
+    <div className="min-h-screen bg-white flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-white rounded-lg border border-black p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-black">Create Account</h1>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-700 text-white rounded text-sm">{error}</div>
+          <div className="mb-4 p-3 bg-black text-white rounded text-sm border border-black">{error}</div>
         )}
 
         <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-600"></div>
+                <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-800 text-gray-400">Or use email</span>
+                <span className="px-2 bg-white text-gray-600">Or use email</span>
             </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
-            <div className="h-full flex items-center px-3 text-gray-400">
-              <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+          <div className="flex items-center border border-black rounded-lg overflow-hidden">
+            <div className="h-full flex items-center px-3 text-gray-600">
+              <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <input
               name="full_name"
               type="text"
               placeholder="Full Name"
-              className="w-full py-2 px-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+              className="w-full py-2 px-3 bg-white text-black placeholder-gray-500 focus:outline-none"
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
             />
           </div>
 
-          <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
-            <div className="h-full flex items-center px-3 text-gray-400">
-              <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+          <div className="flex items-center border border-black rounded-lg overflow-hidden">
+            <div className="h-full flex items-center px-3 text-gray-600">
+              <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <input
               name="email"
               type="email"
               placeholder="Email"
-              className="w-full py-2 px-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+              className="w-full py-2 px-3 bg-white text-black placeholder-gray-500 focus:outline-none"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
 
-          <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
-            <div className="h-full flex items-center px-3 text-gray-400">
-              <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+          <div className="flex items-center border border-black rounded-lg overflow-hidden">
+            <div className="h-full flex items-center px-3 text-gray-600">
+              <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <input
               name="password"
               type="password"
               placeholder="Password"
-              className="w-full py-2 px-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+              className="w-full py-2 px-3 bg-white text-black placeholder-gray-500 focus:outline-none"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
           </div>
 
-          <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
+          <div className="flex items-center border border-black rounded-lg overflow-hidden">
             <select
               name="role"
-              className="w-full py-2 px-3 bg-gray-700 text-white focus:outline-none border-0"
+              className="w-full py-2 px-3 bg-white text-black focus:outline-none border-0"
               value={formData.role}
               onChange={e => setFormData({ ...formData, role: e.target.value })}
             >
@@ -123,15 +123,15 @@ const Signup = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 text-sm bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+            className="w-full py-2.5 text-sm bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-300">
+        <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-400 hover:text-blue-300 underline">
+          <Link to="/login" className="text-black hover:underline font-medium">
             Log In
           </Link>
         </p>

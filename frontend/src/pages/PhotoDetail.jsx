@@ -24,13 +24,13 @@ const PhotoDetail = () => {
     }, [id]);
 
     if (isLoading) return (
-        <div className="min-h-screen flex items-center justify-center text-gray-500">
+        <div className="min-h-screen bg-white flex items-center justify-center text-black">
             Loading photo details...
         </div>
     );
     
     if (!photo) return (
-        <div className="min-h-screen flex items-center justify-center text-red-500">
+        <div className="min-h-screen bg-white flex items-center justify-center text-black">
             Photo not found.
         </div>
     );
@@ -46,24 +46,24 @@ const PhotoDetail = () => {
     const dateString = new Date(photo.uploaded_at || photo.created_at || Date.now()).toLocaleDateString();
 
     return (
-        <div className="min-h-screen bg-gray-100 py-10 px-4">
+        <div className="min-h-screen bg-white py-10 px-4">
             <div className="max-w-4xl mx-auto"> 
                 
-                <Link to="/home" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6 transition-colors">
+                <Link to="/home" className="inline-flex items-center gap-2 text-black hover:underline mb-6 transition-colors">
                     <ArrowLeft className="w-5 h-5" />
                     Back to Feed
                 </Link>
 
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">                    
-                    <div className="p-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
-                        <div className="bg-blue-100 p-2 rounded-full">
-                            <User className="w-5 h-5 text-blue-600" />
+                <div className="bg-white rounded-lg border border-black overflow-hidden">                    
+                    <div className="p-4 border-b border-black flex items-center gap-3 bg-white">
+                        <div className="bg-black p-2 rounded-full">
+                            <User className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <p className="font-semibold text-gray-800">
+                            <p className="font-semibold text-black">
                                 {photo.photographer_email || "Unknown Photographer"}
                             </p>
-                            <p className="text-xs text-gray-500">{dateString}</p>
+                            <p className="text-xs text-gray-600">{dateString}</p>
                         </div>
                     </div>
 
@@ -77,14 +77,14 @@ const PhotoDetail = () => {
 
                     <div className="p-6 md:p-8">
                         <div className="mb-8">
-                            <h2 className="text-xl font-medium text-gray-900 mb-3">
+                            <h2 className="text-xl font-medium text-black mb-3">
                                 {photo.description || <span className="text-gray-400 italic"></span>}
                             </h2>
                             <>
                             {photo.manual_tags && photo.manual_tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-4">
                                     {photo.manual_tags.map((tag, idx) => (
-                                        <span key={"manual-"+idx} className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full border border-blue-100 font-medium">
+                                        <span key={"manual-"+idx} className="flex items-center gap-1 px-3 py-1 bg-white text-black text-sm rounded-full border border-black font-medium">
                                             <Tag className="w-3 h-3" />
                                             {tag}
                                         </span>
@@ -94,7 +94,7 @@ const PhotoDetail = () => {
                             {photo.auto_tags && photo.auto_tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {photo.auto_tags.map((tag, idx) => (
-                                        <span key={"auto-"+idx} className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200 font-medium">
+                                        <span key={"auto-"+idx} className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-black text-sm rounded-full border border-black font-medium">
                                             <Tag className="w-3 h-3" />
                                             {tag}
                                         </span>
@@ -105,41 +105,41 @@ const PhotoDetail = () => {
                         </div>
 
                         {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
-                            <div className="mb-8 bg-slate-50 rounded-xl p-6 border border-slate-100">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+                            <div className="mb-8 bg-white rounded-lg p-6 border border-black">
+                                <h3 className="text-xs font-bold text-black uppercase tracking-wider mb-5 flex items-center gap-2">
                                     <Camera className="w-4 h-4" /> Technical Details
                                 </h3>
                                 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                     {photo.exif_data.Model && (
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-400 uppercase font-bold mb-1">Camera</span>
-                                            <span className="text-sm font-medium text-gray-700">{photo.exif_data.Model}</span>
+                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">Camera</span>
+                                            <span className="text-sm font-medium text-black">{photo.exif_data.Model}</span>
                                         </div>
                                     )}
                                     {photo.exif_data.FNumber && (
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-400 uppercase font-bold mb-1">Aperture</span>
-                                            <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                                <Aperture className="w-3.5 h-3.5 text-gray-400" /> 
+                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">Aperture</span>
+                                            <span className="text-sm font-medium text-black flex items-center gap-1">
+                                                <Aperture className="w-3.5 h-3.5 text-black" /> 
                                                 f/{photo.exif_data.FNumber}
                                             </span>
                                         </div>
                                     )}
                                     {photo.exif_data.ISOSpeedRatings && (
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-400 uppercase font-bold mb-1">ISO</span>
-                                            <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                                <Gauge className="w-3.5 h-3.5 text-gray-400" /> 
+                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">ISO</span>
+                                            <span className="text-sm font-medium text-black flex items-center gap-1">
+                                                <Gauge className="w-3.5 h-3.5 text-black" /> 
                                                 {photo.exif_data.ISOSpeedRatings}
                                             </span>
                                         </div>
                                     )}
                                     {photo.exif_data.ExposureTime && (
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-400 uppercase font-bold mb-1">Shutter</span>
-                                            <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                                                <Clock className="w-3.5 h-3.5 text-gray-400" /> 
+                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">Shutter</span>
+                                            <span className="text-sm font-medium text-black flex items-center gap-1">
+                                                <Clock className="w-3.5 h-3.5 text-black" /> 
                                                 {photo.exif_data.ExposureTime}s
                                             </span>
                                         </div>
@@ -148,7 +148,7 @@ const PhotoDetail = () => {
                             </div>
                         )}
 
-                        <div className="pt-6 border-t border-gray-100">
+                        <div className="pt-6 border-t border-black">
                             <InteractionBar 
                                 photoId={photo.id} 
                                 initialLikesCount={photo.likes_count} 

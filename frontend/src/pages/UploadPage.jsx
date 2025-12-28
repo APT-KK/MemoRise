@@ -109,18 +109,18 @@ const UploadPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-white p-6">
             <div className="max-w-5xl mx-auto">
                 <div className="flex items-center justify-between mb-6">
-                    <Link to={eventId ? `/event/${eventId}` : "/home"} className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
+                    <Link to={eventId ? `/event/${eventId}` : "/home"} className="flex items-center gap-2 text-black hover:underline">
                         <ArrowLeft className="w-5 h-5" />
                         {eventId ? 'Back to Event' : 'Back to Gallery'}
                     </Link>
                     
                     <div className="text-right">
-                        <h1 className="text-2xl font-bold text-gray-900">Upload Photos</h1>
+                        <h1 className="text-2xl font-bold text-black">Upload Photos</h1>
                         {eventName && (
-                            <p className="text-sm text-blue-600 font-medium">
+                            <p className="text-sm text-black font-medium">
                                 To Event: {eventName}
                             </p>
                         )}
@@ -130,33 +130,33 @@ const UploadPage = () => {
                 {!uploading && (
                     <div
                         {...getRootProps()}
-                        className={`border-4 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors
-                            ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white hover:border-gray-400'}`}
+                        className={`border-4 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors
+                            ${isDragActive ? 'border-black bg-black/5' : 'border-black bg-white hover:bg-black/5'}`}
                     >
                         <input {...getInputProps()} />
                         <div className="flex flex-col items-center justify-center gap-4">
-                            <div className="bg-blue-100 p-4 rounded-full">
-                                <Upload className={`w-8 h-8 text-blue-600 ${isDragActive ? 'animate-bounce' : ''}`} />
+                            <div className="bg-black p-4 rounded-full">
+                                <Upload className={`w-8 h-8 text-white ${isDragActive ? 'animate-bounce' : ''}`} />
                             </div>
                             <div>
-                                <p className="text-xl font-medium text-gray-700">
+                                <p className="text-xl font-medium text-black">
                                     {isDragActive ? "Drop files here..." : "Drag & drop photos here"}
                                 </p>
-                                <p className="text-sm text-gray-500 mt-1">or click to select files (100+ supported)</p>
+                                <p className="text-sm text-gray-600 mt-1">or click to select files (100+ supported)</p>
                             </div>
                         </div>
                     </div>
                 )}
 
                 {uploading && (
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <div className="bg-white p-6 rounded-lg border border-black mb-6">
                         <div className="flex justify-between text-sm font-medium mb-2">
-                            <span>Uploading...</span>
-                            <span>{overallProgress}%</span>
+                            <span className="text-black">Uploading...</span>
+                            <span className="text-black">{overallProgress}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
-                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                className="bg-black h-2.5 rounded-full transition-all duration-300"
                                 style={{ width: `${overallProgress}%` }}
                             ></div>
                         </div>
@@ -166,11 +166,11 @@ const UploadPage = () => {
                 {files.length > 0 && (
                     <div className="mt-8">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-700">Selected Files ({files.length})</h3>
+                            <h3 className="font-semibold text-black">Selected Files ({files.length})</h3>
                             {!uploading && (
                                 <button
                                     onClick={handleUpload}
-                                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 font-medium shadow-md"
+                                    className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition flex items-center gap-2 font-medium border border-black"
                                 >
                                     <Upload className="w-4 h-4" />
                                     Start Upload
@@ -180,7 +180,7 @@ const UploadPage = () => {
 
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {files.map((fileObj) => (
-                                <div key={fileObj.id} className="relative group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                <div key={fileObj.id} className="relative group bg-white rounded-lg border border-black overflow-hidden">
 
                                     <div className="aspect-square bg-gray-100 relative">
                                         <img
@@ -195,7 +195,7 @@ const UploadPage = () => {
                                             {fileObj.status === 'pending' && !uploading && (
                                                 <button
                                                     onClick={() => removeFile(fileObj.id)}
-                                                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                                                    className="bg-black text-white p-2 rounded-full hover:bg-gray-800"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </button>
@@ -203,28 +203,25 @@ const UploadPage = () => {
                                         </div>
 
                                         {fileObj.status === 'success' && (
-                                            <div className="absolute inset-0 bg-green-500/80 flex items-center justify-center">
+                                            <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
                                                 <CheckCircle className="w-8 h-8 text-white" />
                                             </div>
                                         )}
                                         {fileObj.status === 'error' && (
-                                            <div className="absolute inset-0 bg-red-500/80 flex items-center justify-center flex-col p-2 text-center">
+                                            <div className="absolute inset-0 bg-black/80 flex items-center justify-center flex-col p-2 text-center">
                                                 <AlertCircle className="w-8 h-8 text-white mb-1" />
                                                 <span className="text-white text-xs font-bold">Failed</span>
                                             </div>
                                         )}
                                         {fileObj.status === 'uploading' && (
-                                            <div className="absolute inset-0 bg-blue-500/40 flex items-center justify-center">
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="p-2">
-                                        {/* <p className="text-xs text-gray-600 truncate font-medium">
-                                            {fileObj.file ? fileObj.file.name : <span className="text-red-500">Invalid file</span>}
-                                        </p> */}
-                                        <p className="text-[10px] text-gray-400">
+                                        <p className="text-[10px] text-gray-600">
                                             {fileObj.file ? `${(fileObj.file.size / 1024 / 1024).toFixed(2)} MB` : ''}
                                         </p>
                                     </div>

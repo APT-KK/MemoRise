@@ -16,26 +16,26 @@ const PhotoCard = ({ photo }) => {
     const isProcessing = photo.is_processed === false;
 
     return (
-        <div className="group bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-lg hover:shadow-2xl hover:border-slate-600 transition-all duration-300">
-            <div className="p-3 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+        <div className="group bg-white rounded-lg border border-black overflow-hidden hover:shadow-lg transition-all duration-300">
+            <div className="p-3 border-b border-black bg-white">
                 <Link 
                     to={`/profile/${encodeURIComponent(photographerEmail)}`}
                     className="flex items-center gap-3 cursor-pointer group/user"
                 >
-                    <div className="bg-slate-800 group-hover/user:bg-blue-500/20 transition-colors p-1.5 rounded-full border border-slate-700">
-                        <User className="w-4 h-4 text-slate-400 group-hover/user:text-blue-500 transition-colors" />
+                    <div className="bg-black group-hover/user:bg-gray-800 transition-colors p-1.5 rounded-full border border-black">
+                        <User className="w-4 h-4 text-white transition-colors" />
                     </div>
-                    <span className="font-medium text-sm text-slate-300 group-hover/user:text-blue-400 transition-colors truncate">
+                    <span className="font-medium text-sm text-black group-hover/user:underline transition-colors truncate">
                         {photographerEmail}
                     </span>
                 </Link>
             </div>
 
-            <Link to={`/photos/${photo.id}`} className="relative block overflow-hidden aspect-square bg-slate-950">
+            <Link to={`/photos/${photo.id}`} className="relative block overflow-hidden aspect-square bg-black">
                 {isProcessing && (
-                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-950/60 backdrop-blur-sm">
-                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
-                        <span className="text-xs font-medium text-blue-400 px-2 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                        <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
+                        <span className="text-xs font-medium text-white px-2 py-1 bg-black/50 rounded-full border border-white/20">
                             Processing...
                         </span>
                     </div>
@@ -56,11 +56,11 @@ const PhotoCard = ({ photo }) => {
             </Link>
 
             <div className="p-4">
-                <p className="text-slate-400 text-sm mb-4 line-clamp-2 h-10">
-                    {photo.description ? photo.description : <span className="italic text-slate-600"></span>}
+                <p className="text-gray-700 text-sm mb-4 line-clamp-2 h-10">
+                    {photo.description ? photo.description : <span className="italic text-gray-400"></span>}
                 </p>
 
-                <div className="pt-3 border-t border-slate-800">
+                <div className="pt-3 border-t border-black">
                     <InteractionBar 
                         photoId={photo.id} 
                         initialLikesCount={photo.likes_count} 

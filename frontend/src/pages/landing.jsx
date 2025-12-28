@@ -18,7 +18,7 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col font-sans">
-      <header className="flex items-center justify-center px-8 py-6 border-b border-gray-800">
+      <header className="flex items-center justify-center px-8 py-6 border-b border-white/10">
         <div className="flex items-center gap-4">
           <Camera className="h-5 w-5 text-white" />
           <span className="text-2xl font-bold">MEMORISE</span>
@@ -27,19 +27,19 @@ const LandingPage = () => {
 
       <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-6xl font-extrabold mb-4">Capture the Moment</h1>
-        <p className="text-lg text-gray-400 max-w-xl mb-8">
+        <p className="text-lg text-gray-300 max-w-xl mb-8">
           A modern gallery for photographers and enthusiasts. Share your best shots and explore stunning visuals.
         </p>
         <div className="flex gap-4">
           <Link 
             to="/signup" 
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+            className="px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition border border-white"
           >
             Sign Up
           </Link>
           <Link 
             to="/login" 
-            className="px-6 py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-700 transition"
+            className="px-6 py-3 bg-transparent text-white font-semibold rounded-lg hover:bg-white/10 transition border border-white"
           >
             Log In
           </Link>
@@ -61,7 +61,7 @@ const LandingPage = () => {
         ))}
       </section>
 
-      <footer className="text-center py-6 text-gray-500 text-sm border-t border-gray-800">
+      <footer className="text-center py-6 text-gray-400 text-sm border-t border-white/10">
         © 2025 Gallery. All rights reserved.
       </footer>
     </div>

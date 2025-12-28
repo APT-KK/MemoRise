@@ -48,7 +48,7 @@ const Login = () => {
                                 toast.dismiss(t.id); // removes this toast before navigating
                                 navigate('/verify-email', { state: { email } });
                             }}
-                            className="bg-blue-600 px-3 py-1 rounded text-sm text-white font-bold"
+                            className="bg-black px-3 py-1 rounded text-sm text-white font-bold hover:bg-gray-800"
                         >
                             Verify Now 
                         </button>
@@ -63,56 +63,48 @@ const Login = () => {
     };
 
    return (
-          <div className="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-              <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-6 space-y-6">
+          <div className="min-h-screen bg-white flex items-center justify-center p-6">
+              <div className="max-w-md w-full bg-white rounded-lg border border-black p-8 space-y-6">
                   
                   <div className="text-center">
-                      <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-                      <p className="mt-2 text-sm text-gray-400">Login to access your gallery</p>
+                      <h1 className="text-3xl font-bold text-black">Welcome Back</h1>
+                      <p className="mt-2 text-sm text-gray-600">Login to access your gallery</p>
                   </div>
   
                   <div className="space-y-4">
-                      {/* <button 
-                        //   onClick={handleGoogleSignIn}
-                          className="w-full flex justify-center items-center gap-3 bg-white text-gray-700 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition"
-                      >
-                          <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="h-5 w-5" alt="Google" />
-                          <span>Sign in with Google</span>
-                      </button>
-   */}
                       <div className="relative">
                           <div className="absolute inset-0 flex items-center">
-                              <div className="w-full border-t border-gray-600"></div>
+                              <div className="w-full border-t border-gray-300"></div>
                           </div>
                           <div className="relative flex justify-center text-sm">
-                              <span className="px-2 bg-gray-800 text-gray-400">Use email</span>
+                              <span className="px-2 bg-white text-gray-600">Use email</span>
                           </div>
                       </div>
                   </div>
   
                   <form className="space-y-4" onSubmit={handleSubmit}>
-                      <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
-                          <div className="h-full flex items-center px-3 text-gray-400">
+                      <div className="flex items-center border border-black rounded-lg overflow-hidden">
+                          <div className="h-full flex items-center px-3 text-gray-600">
                               <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
                           </div>
                           <input 
                               type="email" 
                               required 
-                              className="w-full py-2 px-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+                              className="w-full py-2 px-3 bg-white text-black placeholder-gray-500 focus:outline-none"
                               placeholder="you@example.com"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                           />
                       </div>
                       
-                      <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
-                          <div className="h-full flex items-center px-3 text-gray-400">
+                      <div className="flex items-center border border-black rounded-lg overflow-hidden">
+                          <div className="h-full flex items-center px-3 text-gray-600">
                               <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
                           </div>
                           <input 
                               type="password" 
                               required 
-                              className="w-full py-2 px-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+                              className="w-full py-2 px-3 bg-white text-black placeholder-gray-500 focus:outline-none"
                               placeholder="••••••••"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
@@ -122,15 +114,15 @@ const Login = () => {
                       <button 
                           type="submit" 
                           disabled={loading}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition duration-200"
+                          className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-2.5 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                           {loading ? 'Logging In...' : 'Log In'}
                       </button>
                   </form>
   
-                  <p className="text-center text-sm text-gray-400">
+                  <p className="text-center text-sm text-gray-600">
                       New here?{' '}
-                      <Link to="/signup" className="font-semibold text-blue-400 hover:text-blue-300">
+                      <Link to="/signup" className="font-semibold text-black hover:underline">
                           Create an account
                       </Link>
                   </p>

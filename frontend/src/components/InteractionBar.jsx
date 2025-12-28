@@ -32,18 +32,18 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
 
     return (
         <div className="mb-3">
-            <div className="bg-gray-100 p-3 rounded-lg text-sm group relative">
+            <div className="bg-white border border-black p-3 rounded-lg text-sm group relative">
                 <div className="flex justify-between items-start">
                     <div>
-                        <span className="font-bold mr-2 text-gray-900">{comment.user}</span>
-                        <span className="text-gray-700">{comment.content}</span>
+                        <span className="font-bold mr-2 text-black">{comment.user}</span>
+                        <span className="text-black">{comment.content}</span>
                     </div>
                 </div>
                 
                 <div className="flex items-center gap-4 mt-2">
                     <button 
                         onClick={() => setIsReplying(!isReplying)}
-                        className="text-xs text-gray-500 hover:text-blue-600 font-medium flex items-center gap-1"
+                        className="text-xs text-gray-600 hover:text-black font-medium flex items-center gap-1"
                     >
                         <MessageSquare className="w-3 h-3" /> Reply
                     </button>
@@ -51,7 +51,7 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
                     {hasReplies && (
                         <button 
                             onClick={() => setShowReplies(!showReplies)}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                            className="text-xs text-black hover:underline font-medium flex items-center gap-1"
                         >
                             {showReplies ? (
                                 <>Hide Replies <ChevronUp className="w-3 h-3" /></>
@@ -65,17 +65,17 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
 
             {isReplying && (
                 <form onSubmit={handleSendReply} className="ml-6 mt-2 flex gap-2">
-                    <CornerDownRight className="w-4 h-4 text-gray-400 mt-2" />
+                    <CornerDownRight className="w-4 h-4 text-gray-600 mt-2" />
                     <div className="flex-1 flex gap-2">
                         <input 
                             autoFocus
                             type="text" 
-                            className="flex-1 p-2 border text-xs rounded-md focus:outline-none focus:border-blue-500"
+                            className="flex-1 p-2 border border-black text-xs rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black"
                             placeholder={`Reply to ${comment.user}...`}
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
                         />
-                        <button type="submit" className="text-blue-600 hover:text-blue-800">
+                        <button type="submit" className="text-black hover:text-gray-800">
                             <Send className="h-4 w-4" />
                         </button>
                     </div>
@@ -83,7 +83,7 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
             )}
             
             {showReplies && hasReplies && (
-                <div className="ml-6 mt-2 border-l-2 border-gray-300 pl-3">
+                <div className="ml-6 mt-2 border-l-2 border-black pl-3">
                     {comment.replies.map(reply => (
                         <CommentItem 
                             key={reply.id} 
@@ -163,7 +163,7 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
             <div className="flex items-center gap-4 mb-2">
                 <button 
                     onClick={handleLike} 
-                    className={`flex items-center gap-1 transition ${liked ? 'text-red-500' : 'text-slate-400 hover:text-red-400'} bg-slate-900 border border-slate-800 rounded-lg px-3 py-1 shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                    className={`flex items-center gap-1 transition ${liked ? 'text-black' : 'text-gray-600 hover:text-black'} bg-white border border-black rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-black`}
                 >
                     <Heart className={`h-6 w-6 ${liked ? 'fill-current' : ''}`} />
                     <span>{likesCount}</span>
@@ -171,10 +171,10 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
 
                 <button 
                     onClick={toggleComments}
-                    className="flex items-center gap-1 text-slate-400 hover:text-blue-500 transition bg-slate-900 border border-slate-800 rounded-lg px-3 py-1 shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="flex items-center gap-1 text-gray-600 hover:text-black transition bg-white border border-black rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                     <MessageCircle className="h-6 w-6" />
-                    <span className="font-medium text-white">
+                    <span className="font-medium text-black">
                         {showComments 
                             ? 'Hide Comments' 
                             : (comments.length > 0 ? `${comments.length} Comments` : 'Comments')}
@@ -185,16 +185,16 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
 
             {/* Comments List */}
             {showComments && (
-                <div className="bg-slate-900 p-3 rounded-xl mt-2 border border-slate-800 shadow-xl backdrop-blur bg-opacity-90">
+                <div className="bg-white p-3 rounded-lg mt-2 border border-black">
                     <form onSubmit={handlePostComment} className="flex gap-2 mb-4">
                         <input 
                             type="text" 
-                            className="flex-1 p-2 rounded-md text-sm bg-slate-950 text-white border border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
+                            className="flex-1 p-2 rounded-md text-sm bg-white text-black border border-black focus:outline-none focus:ring-2 focus:ring-black placeholder:text-gray-500"
                             placeholder="Add a comment..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                         />
-                        <button type="submit" className="text-white bg-blue-600 hover:bg-blue-700 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                        <button type="submit" className="text-white bg-black hover:bg-gray-800 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-black border border-black">
                             <Send className="h-5 w-5" />
                         </button>
                     </form>
@@ -210,7 +210,7 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
                                  />
                             ))
                         ) : (
-                            <p className="text-slate-400 text-sm text-center py-4">No comments yet</p>
+                            <p className="text-gray-600 text-sm text-center py-4">No comments yet</p>
                         )}
                     </div>
                 </div>

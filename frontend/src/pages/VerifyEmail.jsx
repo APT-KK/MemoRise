@@ -51,16 +51,16 @@ const VerifyEmail = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-            <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8">
+        <div className="min-h-screen bg-white flex items-center justify-center p-6">
+            <div className="max-w-md w-full bg-white rounded-lg border border-black p-8">
                 <div className="text-center mb-8">
-                    <div className="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
-                        <Mail className="w-8 h-8 text-blue-500" />
+                    <div className="bg-black w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-black">
+                        <Mail className="w-8 h-8 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Verify your Email</h2>
-                    <p className="text-gray-400 mt-2 text-sm">
+                    <h2 className="text-2xl font-bold text-black">Verify your Email</h2>
+                    <p className="text-gray-600 mt-2 text-sm">
                         Enter the 6-digit code sent to <br/>
-                        <span className="font-medium text-white">{email}</span>
+                        <span className="font-medium text-black">{email}</span>
                     </p>
                 </div>
 
@@ -70,7 +70,7 @@ const VerifyEmail = () => {
                             type="text"
                             maxLength="6"
                             placeholder="000000"
-                            className="w-full text-center text-3xl tracking-[0.5em] font-bold py-4 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-500"
+                            className="w-full text-center text-3xl tracking-[0.5em] font-bold py-4 bg-white text-black border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-colors placeholder-gray-400"
                             value={otp}
                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} // this only allow numbers
                         />
@@ -79,23 +79,23 @@ const VerifyEmail = () => {
                     <button
                         type="submit"
                         disabled={loading || otp.length !== 6}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify Account"}
                     </button>
                 </form>
 
-                <div className="mt-6 flex items-center justify-between text-sm border-t border-gray-700 pt-4">
+                <div className="mt-6 flex items-center justify-between text-sm border-t border-gray-300 pt-4">
                     <button 
                         onClick={handleResend}
                         disabled={resending}
-                        className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-2 transition-colors"
+                        className="text-black hover:underline font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
                     >
                         {resending ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                         Resend Code
                     </button>
                     
-                    <Link to="/signup" className="text-gray-500 hover:text-gray-400 transition-colors">
+                    <Link to="/signup" className="text-gray-600 hover:text-black transition-colors">
                         Change Email
                     </Link>
                 </div>

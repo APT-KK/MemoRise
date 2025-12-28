@@ -77,36 +77,36 @@ const EventPage = () => {
     }, [id]);
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <div className="min-h-screen bg-white flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-black" />
         </div>
     );
 
-    if (!event) return <div className="text-center py-20">Event not found.</div>;
+    if (!event) return <div className="min-h-screen bg-white flex items-center justify-center text-black">Event not found.</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-white p-6">
             <div className="max-w-7xl mx-auto">
-                <Link to="/home" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6 transition">
+                <Link to="/home" className="inline-flex items-center gap-2 text-black hover:underline mb-6 transition">
                     <ArrowLeft className="w-4 h-4" />
                     Back to Events
                 </Link>
 
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
+                <div className="bg-white rounded-lg p-8 border border-black mb-10">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <h1 className="text-4xl font-bold text-gray-900 mb-3">{event.name}</h1>
-                            <div className="flex flex-wrap gap-4 text-gray-500 text-sm">
+                            <h1 className="text-4xl font-bold text-black mb-3">{event.name}</h1>
+                            <div className="flex flex-wrap gap-4 text-gray-600 text-sm">
                                 <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {event.date}</span>
                                 <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {event.location}</span>
                             </div>
-                            <p className="mt-4 text-gray-600 max-w-2xl">{event.description}</p>
+                            <p className="mt-4 text-gray-700 max-w-2xl">{event.description}</p>
                         </div>
                         
                         <div className="flex gap-3">
                             <Link 
                                 to={`/upload/${id}`} 
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-blue-200 transition flex items-center gap-2"
+                                className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition flex items-center gap-2 border border-black"
                             >
                                 <Upload className="w-5 h-5" />
                                 Upload Photos
@@ -118,12 +118,12 @@ const EventPage = () => {
                 <div className="mb-12">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                            <FolderOpen className="w-6 h-6 text-blue-600" />
-                            <h2 className="text-2xl font-bold text-gray-800">Albums</h2>
+                            <FolderOpen className="w-6 h-6 text-black" />
+                            <h2 className="text-2xl font-bold text-black">Albums</h2>
                         </div>
                         <Link 
                             to={`/create-album?event=${id}`}
-                            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-200 shadow-sm transition-all hover:border-blue-300 hover:text-blue-600"
+                            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-black px-4 py-2 rounded-lg border border-black transition-all"
                         >
                             <Plus className="w-4 h-4" />
                             <span className="font-medium text-sm">Create Album</span>
@@ -137,25 +137,25 @@ const EventPage = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-10 bg-gray-100 rounded-xl border border-dashed border-gray-300">
-                            <p className="text-gray-500 text-sm">No albums yet. Organize your photos by creating one.</p>
+                        <div className="text-center py-10 bg-white rounded-lg border border-dashed border-black">
+                            <p className="text-gray-600 text-sm">No albums yet. Organize your photos by creating one.</p>
                         </div>
                     )}
                 </div>
 
                 <div>
                     <div className="flex items-center gap-2 mb-6">
-                        <ImageIcon className="w-6 h-6 text-blue-600" />
-                        <h2 className="text-2xl font-bold text-gray-800">
+                        <ImageIcon className="w-6 h-6 text-black" />
+                        <h2 className="text-2xl font-bold text-black">
                             {albums.length > 0 ? "Other Photos" : "Photos"}
                         </h2>
                     </div>
 
                     {photos.length === 0 ? (
-                        <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                            <p className="text-gray-500">No loose photos found.</p>
+                        <div className="text-center py-12 bg-white rounded-lg border border-dashed border-black">
+                            <p className="text-gray-600">No loose photos found.</p>
                             {albums.length === 0 && (
-                                <p className="text-gray-400 text-sm mt-1">This event is empty.</p>
+                                <p className="text-gray-500 text-sm mt-1">This event is empty.</p>
                             )}
                         </div>
                     ) : (

@@ -45,7 +45,7 @@ const CoverImagePicker = ({ label, onImageSelect, initialPreview = null }) => {
 
     return (
         <div className="mb-6">
-            <label className="block text-slate-300 text-sm font-semibold mb-2">
+            <label className="block text-black text-sm font-semibold mb-2">
                 {label || "Cover Photo"}
             </label>
             
@@ -55,10 +55,10 @@ const CoverImagePicker = ({ label, onImageSelect, initialPreview = null }) => {
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 className={`
-                    relative group cursor-pointer w-full h-64 rounded-2xl border-2 border-dashed transition-all duration-300 overflow-hidden
+                    relative group cursor-pointer w-full h-64 rounded-lg border-2 border-dashed transition-all duration-300 overflow-hidden
                     ${isDragging 
-                        ? 'border-blue-500 bg-blue-500/10' 
-                        : 'border-slate-700 bg-slate-900 hover:border-slate-500 hover:bg-slate-800'}
+                        ? 'border-black bg-black/5' 
+                        : 'border-black bg-white hover:bg-black/5'}
                 `}
             >
                 <input 
@@ -85,18 +85,18 @@ const CoverImagePicker = ({ label, onImageSelect, initialPreview = null }) => {
                         {/* Remove Button */}
                         <button 
                             onClick={removeImage}
-                            className="absolute top-3 right-3 p-2 bg-red-500/80 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                            className="absolute top-3 right-3 p-2 bg-black/80 text-white rounded-full hover:bg-black transition-colors z-10"
                         >
                             <X className="w-4 h-4" />
                         </button>
                     </>
                 ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                        <div className={`p-4 rounded-full bg-slate-800 mb-3 transition-transform duration-300 ${isDragging ? 'scale-110' : ''}`}>
-                            <UploadCloud className={`w-8 h-8 ${isDragging ? 'text-blue-500' : 'text-slate-400'}`} />
+                    <div className="flex flex-col items-center justify-center h-full text-gray-600">
+                        <div className={`p-4 rounded-full bg-black mb-3 transition-transform duration-300 ${isDragging ? 'scale-110' : ''}`}>
+                            <UploadCloud className={`w-8 h-8 text-white`} />
                         </div>
-                        <p className="font-medium text-slate-300">Click to upload cover</p>
-                        <p className="text-xs text-slate-500 mt-1">SVG, PNG, JPG or GIF (max 5MB)</p>
+                        <p className="font-medium text-black">Click to upload cover</p>
+                        <p className="text-xs text-gray-600 mt-1">SVG, PNG, JPG or GIF (max 5MB)</p>
                     </div>
                 )}
             </div>

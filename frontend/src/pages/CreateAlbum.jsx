@@ -51,42 +51,41 @@ const CreateAlbum = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 p-6 flex justify-center items-center">
-            <div className="max-w-2xl w-full bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-3xl p-8 shadow-2xl relative">       
+        <div className="min-h-screen bg-white p-6 flex justify-center items-center">
+            <div className="max-w-2xl w-full bg-white border border-black rounded-lg p-8">       
                 <div className="mb-6">
-                    <a href="/home" className="inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors font-medium">
+                    <a href="/home" className="inline-flex items-center gap-2 text-black hover:underline transition-colors font-medium">
                         <ArrowLeft className="w-4 h-4" /> Back to Home
                     </a>
                 </div>
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-                <h2 className="text-3xl font-bold text-white mb-2">Create New Album</h2>
-                <p className="text-slate-400 mb-8">Organize photos within an event</p>
+                <h2 className="text-3xl font-bold text-black mb-2">Create New Album</h2>
+                <p className="text-gray-600 mb-8">Organize photos within an event</p>
                 
-                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">  
+                <form onSubmit={handleSubmit} className="space-y-6">  
                     <CoverImagePicker 
                         label="Album Cover Image"
                         onImageSelect={(file) => setCoverFile(file)} 
                     />
 
                     <div>
-                        <label className="block text-slate-300 text-sm font-semibold mb-2">Album Name</label>
+                        <label className="block text-black text-sm font-semibold mb-2">Album Name</label>
                         <input 
                             type="text" 
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="e.g. Wedding Ceremony, After Party"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-slate-300 text-sm font-semibold mb-2">Description</label>
+                        <label className="block text-black text-sm font-semibold mb-2">Description</label>
                         <textarea 
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows="3"
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="What is this album about?"
                         />
                     </div>
@@ -94,7 +93,7 @@ const CreateAlbum = () => {
                     <button 
                         type="submit" 
                         disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-black"
                     >
                         {loading && <Loader2 className="w-5 h-5 animate-spin" />}
                         {loading ? 'Creating Album...' : 'Create Album'}
