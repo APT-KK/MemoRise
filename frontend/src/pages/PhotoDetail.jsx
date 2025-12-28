@@ -80,17 +80,28 @@ const PhotoDetail = () => {
                             <h2 className="text-xl font-medium text-gray-900 mb-3">
                                 {photo.description || <span className="text-gray-400 italic"></span>}
                             </h2>
-                            
+                            <>
                             {photo.manual_tags && photo.manual_tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-4">
                                     {photo.manual_tags.map((tag, idx) => (
-                                        <span key={idx} className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full border border-blue-100 font-medium">
+                                        <span key={"manual-"+idx} className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full border border-blue-100 font-medium">
                                             <Tag className="w-3 h-3" />
                                             {tag}
                                         </span>
                                     ))}
                                 </div>
                             )}
+                            {photo.auto_tags && photo.auto_tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {photo.auto_tags.map((tag, idx) => (
+                                        <span key={"auto-"+idx} className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200 font-medium">
+                                            <Tag className="w-3 h-3" />
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                            </>
                         </div>
 
                         {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
