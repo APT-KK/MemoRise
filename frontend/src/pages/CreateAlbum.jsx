@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import CoverImagePicker from '../components/CoverImagePicker';
@@ -7,12 +7,15 @@ import { ChevronDown, Loader2 } from 'lucide-react';
 
 const CreateAlbum = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const preSelectedEventId = searchParams.get('event');
+
     const [loading, setLoading] = useState(false);
     const [fetchingEvents, setFetchingEvents] = useState(true);
     const [events, setEvents] = useState([]);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [selectedEventId, setSelectedEventId] = useState('');
+    const [selectedEventId, setSelectedEventId] = useState(preSelectedEventId || '');
     const [coverFile, setCoverFile] = useState(null);
 
     useEffect(() => {
@@ -21,6 +24,9 @@ const CreateAlbum = () => {
             try {
                 const res = await api.get('/api/gallery/events/');
                 setEvents(res.data);
+                if (preSelectedEventId) {
+                    setSelectedEventId(preSelectedEventId);
+                }
             } catch (error) {
                 console.error("Failed to load events", error);
                 toast.error("Could not load events list.");
@@ -29,7 +35,7 @@ const CreateAlbum = () => {
             }
         };
         fetchEvents();
-    }, []);
+    }, [preSelectedEventId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -41,7 +47,6 @@ const CreateAlbum = () => {
 
         setLoading(true);
 
-        // 2. Build FormData
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
@@ -57,7 +62,7 @@ const CreateAlbum = () => {
             });
 
             toast.success('Album created successfully!');
-            navigate(`/events/${selectedEventId}`);
+            navigate(`/event/${selectedEventId}`);
         } catch (error) {
             console.error(error);
             toast.error('Failed to create album.');

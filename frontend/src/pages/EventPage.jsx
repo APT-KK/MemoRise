@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
-import { Upload, ArrowLeft, MapPin, Calendar, Loader2, FolderOpen, Image as ImageIcon } from 'lucide-react';
+import { Upload, ArrowLeft, MapPin, Calendar, Loader2, FolderOpen, Image as ImageIcon, Plus } from 'lucide-react';
 import PhotoCard from '../components/PhotoCard';
 import AlbumCard from '../components/AlbumCard';
 
@@ -11,9 +11,10 @@ const EventPage = () => {
     const [albums, setAlbums] = useState([]);
     const [photos, setPhotos] = useState([]); 
     const [loading, setLoading] = useState(true);
+    const pollIntervalRef = useRef(null);
 
     useEffect(() => {
-        //fetching event data, albums, and loose photos
+        // fetching event data, albums, and loose photos
         const fetchEventData = async () => {
             try {
                 setLoading(true);
@@ -28,8 +29,35 @@ const EventPage = () => {
                 const allPhotos = photosRes.data.results || photosRes.data;
 
                 const loosePhotos = allPhotos.filter(photo => photo.album === null); 
-                // photos in event without an album
+                // these are photos in event without an album
                 setPhotos(loosePhotos);
+                
+                // DEBUG :- Start polling only if there are unprocessed photos
+                //  fetches data from backend every 2 secs
+                const hasUnprocessed = loosePhotos.some(photo => photo.is_processed === false);
+                if (hasUnprocessed && !pollIntervalRef.current) {
+                    pollIntervalRef.current = setInterval(async () => {
+                        try {
+                            const photosRes = await api.get(`/api/gallery/photos/?event=${id}`);
+                            const allPhotos = photosRes.data.results || photosRes.data;
+                            const loosePhotos = allPhotos.filter(photo => photo.album === null);
+                            setPhotos(loosePhotos);
+                            // Stop polling if all photos are processed
+                            const stillUnprocessed = loosePhotos.some(photo => photo.is_processed === false);
+                            if (!stillUnprocessed && pollIntervalRef.current) {
+                                clearInterval(pollIntervalRef.current);
+                                pollIntervalRef.current = null;
+                                // Force one more refresh to ensure UI is up to date
+                                const finalPhotosRes = await api.get(`/api/gallery/photos/?event=${id}`);
+                                const finalAllPhotos = finalPhotosRes.data.results || finalPhotosRes.data;
+                                const finalLoosePhotos = finalAllPhotos.filter(photo => photo.album === null);
+                                setPhotos(finalLoosePhotos);
+                            }
+                        } catch (error) {
+                            console.error("Error polling for photo updates", error);
+                        }
+                    }, 2000);
+                }
 
             } catch (error) {
                 console.error("Error fetching event data", error);
@@ -39,6 +67,13 @@ const EventPage = () => {
         };
 
         fetchEventData();
+
+        return () => {
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+            }
+        };
     }, [id]);
 
     if (loading) return (
@@ -80,19 +115,33 @@ const EventPage = () => {
                     </div>
                 </div>
 
-                {albums.length > 0 && (
-                    <div className="mb-12">
-                        <div className="flex items-center gap-2 mb-6">
+                <div className="mb-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
                             <FolderOpen className="w-6 h-6 text-blue-600" />
                             <h2 className="text-2xl font-bold text-gray-800">Albums</h2>
                         </div>
+                        <Link 
+                            to={`/create-album?event=${id}`}
+                            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-200 shadow-sm transition-all hover:border-blue-300 hover:text-blue-600"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span className="font-medium text-sm">Create Album</span>
+                        </Link>
+                    </div>
+
+                    {albums.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {albums.map(album => (
                                 <AlbumCard key={album.id} album={album} />
                             ))}
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div className="text-center py-10 bg-gray-100 rounded-xl border border-dashed border-gray-300">
+                            <p className="text-gray-500 text-sm">No albums yet. Organize your photos by creating one.</p>
+                        </div>
+                    )}
+                </div>
 
                 <div>
                     <div className="flex items-center gap-2 mb-6">

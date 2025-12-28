@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Calendar, MapPin, LogOut, User, Camera } from 'lucide-react'; 
+import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Loader2 } from 'lucide-react'; 
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
-
 
 const Home = () => {
     const [events, setEvents] = useState([]);
@@ -16,8 +15,8 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
- 
                 const res = await api.get('/api/gallery/events/');
+                // this handles pagination results or direct array
                 setEvents(res.data.results || res.data);
 
                 try {
@@ -55,30 +54,34 @@ const Home = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading photos...</p>
+                    <Loader2 className="animate-spin h-12 w-12 text-blue-500 mx-auto" />
+                    <p className="mt-4 text-slate-400">Loading events...</p>
                 </div>
             </div>
         );
     }
 
   return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="min-h-screen bg-slate-950 text-slate-200">
+            <header className="bg-slate-900/80 backdrop-blur-md shadow-sm border-b border-slate-800 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
-                        <Link to="/home" className="flex items-center gap-3">
-                            <Camera className="h-6 w-6 text-blue-600" />
-                            <span className="text-2xl font-bold text-gray-900">MEMORISE</span>
+                        <Link to="/home" className="flex items-center gap-3 group">
+                            <div className="bg-blue-600/10 p-2 rounded-lg group-hover:bg-blue-600/20 transition-colors">
+                                <Camera className="h-6 w-6 text-blue-500" />
+                            </div>
+                            <span className="text-2xl font-bold text-white tracking-tight">MEMORISE</span>
                         </Link>
 
                         <div className="flex items-center gap-4">
                             {currentUser && (
-                                <Link to="/my-profile" className="flex items-center gap-2 text-gray-700 hover:text-blue-600">
-                                    <User className="h-5 w-5" />
-                                    <span className="hidden sm:inline">Profile</span>
+                                <Link to="/my-profile" className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors">
+                                    <div className="bg-slate-800 p-2 rounded-full">
+                                        <User className="h-5 w-5" />
+                                    </div>
+                                    <span className="hidden sm:inline font-medium">Profile</span>
                                 </Link>
                             )}
 
@@ -87,7 +90,7 @@ const Home = () => {
                             <button
                                 onClick={handleLogout}
                                 disabled={logoutLoading}
-                                className="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition flex items-center gap-2"
+                                className="text-red-400 hover:bg-red-500/10 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-transparent hover:border-red-500/20"
                             >
                                 <LogOut className="h-5 w-5" />
                                 <span className="hidden sm:inline">Logout</span>
@@ -97,54 +100,70 @@ const Home = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex justify-between items-end mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">Events</h1>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4 border-b border-slate-800 pb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white">Your Events</h1>
+                        <p className="text-slate-400 mt-1">Manage specific collections and albums</p>
+                    </div>
+
+                    <Link 
+                        to="/create-event"
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-1 font-medium group"
+                    >
+                        <CalendarPlus className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                        <span>Create New Event</span>
+                    </Link>
                 </div>
 
                 {events.length === 0 ? (
-                    <div className="text-center py-20">
-                        <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h2 className="text-xl font-semibold text-gray-600">No events found</h2>
+                    <div className="text-center py-20 bg-slate-900/50 rounded-3xl border border-dashed border-slate-800">
+                        <div className="bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Calendar className="h-10 w-10 text-slate-600" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-white">No events found</h2>
+                        <p className="text-slate-500 mt-2">Get started by creating your first event above.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {events.map((event) => (
-                            <Link to={`/event/${event.id}`} key={event.id} className="group h-full">
-                                <div className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 h-full flex flex-col">
+                            <Link to={`/event/${event.id}`} key={event.id} className="group h-full block">
+                                <div className="bg-slate-900 rounded-2xl shadow-lg hover:shadow-2xl hover:border-slate-600 border border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col">
                                     
-                                    <div className="h-56 bg-gray-200 relative overflow-hidden">
-                                        {event.cover_image ? (
+                                    <div className="h-56 bg-slate-950 relative overflow-hidden">
+                                        {event.cover_photo || event.cover_image ? (
                                             <img 
-                                                src={event.cover_image} 
-                                                alt={event.name} 
-                                                className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                                                src={event.cover_photo || event.cover_image} 
+                                                alt={event.title || event.name} 
+                                                className="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
                                             />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full text-gray-400 bg-gray-100">
-                                                <Calendar className="h-10 w-10 opacity-20" />
+                                            <div className="flex items-center justify-center h-full text-slate-700 bg-slate-950">
+                                                <Calendar className="h-12 w-12 opacity-20" />
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
                                     </div>
 
                                     <div className="p-5 flex-1 flex flex-col">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition">
-                                            {event.name}
+                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                                            {event.title || event.name}
                                         </h3>
-                                        <p className="text-gray-600 text-sm line-clamp-2 mb-4 flex-1">
-                                            {event.description || "No description."}
+                                        <p className="text-slate-400 text-sm line-clamp-2 mb-4 flex-1">
+                                            {event.description || <span className="italic opacity-50">No description provided.</span>}
                                         </p>
                                         
-                                        <div className="flex items-center gap-4 text-xs text-gray-500 pt-4 border-t border-gray-100 mt-auto">
-                                            <div className="flex items-center gap-1">
-                                                <Calendar className="w-4 h-4" />
+                                        <div className="flex items-center gap-4 text-xs text-slate-500 pt-4 border-t border-slate-800 mt-auto">
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="w-3.5 h-3.5" />
                                                 <span>{event.date}</span>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <MapPin className="w-4 h-4" />
-                                                <span>{event.location}</span>
-                                            </div>
+                                            {event.location && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <MapPin className="w-3.5 h-3.5" />
+                                                    <span>{event.location}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
