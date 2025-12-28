@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useDropzone } from 'react-dropzone';
@@ -14,6 +14,7 @@ const AlbumPage = () => {
     const [uploadModal, setUploadModal] = useState(false);
     const [files, setFiles] = useState([]);
     const [overallProgress, setOverallProgress] = useState(0);
+    const pollIntervalRef = useRef(null);
 
     const onDrop = useCallback(acceptedFiles => {
         const mappedFiles = acceptedFiles.map(file => ({
@@ -37,6 +38,26 @@ const AlbumPage = () => {
             try {
                 const res = await api.get(`/api/gallery/albums/${id}/`);
                 setAlbum(res.data);
+                
+                // Start polling only if there are unprocessed photos
+                // same logic as EventPage.jsx polling
+                const hasUnprocessed = res.data.photos?.some(photo => photo.is_processed === false);
+                if (hasUnprocessed && !pollIntervalRef.current) {
+                    pollIntervalRef.current = setInterval(async () => {
+                        try {
+                            const res = await api.get(`/api/gallery/albums/${id}/`);
+                            setAlbum(res.data);
+                            
+                            const stillUnprocessed = res.data.photos?.some(photo => photo.is_processed === false);
+                            if (!stillUnprocessed && pollIntervalRef.current) {
+                                clearInterval(pollIntervalRef.current);
+                                pollIntervalRef.current = null;
+                            }
+                        } catch (error) {
+                            console.error("Error polling for album updates", error);
+                        }
+                    }, 2000); 
+                }
             } catch (error) {
                 console.error("Error fetching album", error);
                 toast.error("Failed to load album");
@@ -45,6 +66,13 @@ const AlbumPage = () => {
             }
         };
         fetchAlbum();
+
+        return () => {
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+            }
+        };
     }, [id]);
 
     useEffect(() => {

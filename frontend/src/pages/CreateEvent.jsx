@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import CoverImagePicker from '../components/CoverImagePicker';
+import { ArrowLeft } from 'lucide-react';
 
 const CreateEvent = () => {
     const navigate = useNavigate();
@@ -47,7 +48,7 @@ const CreateEvent = () => {
             <div className="max-w-2xl w-full bg-white border border-gray-200 rounded-3xl p-8 shadow-2xl">
                 <div className="mb-6">
                     <a href="/home" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium">
-                        <span className="material-icons align-middle">arrow_back</span> Back to Home
+                        <ArrowLeft className="w-4 h-4" /> Back to Home
                     </a>
                 </div>
                 <h2 className="text-3xl font-bold text-black mb-8">Create New Event</h2>
