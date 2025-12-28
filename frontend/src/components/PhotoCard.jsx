@@ -57,7 +57,7 @@ const PhotoCard = ({ photo }) => {
 
             <div className="p-4">
                 <p className="text-slate-400 text-sm mb-4 line-clamp-2 h-10">
-                    {photo.description ? photo.description : <span className="italic text-slate-600">No description</span>}
+                    {photo.description ? photo.description : <span className="italic text-slate-600"></span>}
                 </p>
 
                 <div className="pt-3 border-t border-slate-800">
