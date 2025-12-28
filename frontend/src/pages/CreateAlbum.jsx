@@ -74,6 +74,11 @@ const CreateAlbum = () => {
     return (
         <div className="min-h-screen bg-slate-950 p-6 flex justify-center items-center">
             <div className="max-w-2xl w-full bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-3xl p-8 shadow-2xl relative">       
+                <div className="mb-6">
+                    <a href="/home" className="inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors font-medium">
+                        <span className="material-icons align-middle">arrow_back</span> Back to Home
+                    </a>
+                </div>
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
                 <h2 className="text-3xl font-bold text-white mb-2">Create New Album</h2>
                 <p className="text-slate-400 mb-8">Organize photos within an event</p>

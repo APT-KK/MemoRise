@@ -45,6 +45,11 @@ const CreateEvent = () => {
     return (
         <div className="min-h-screen bg-white p-6 flex justify-center items-center">
             <div className="max-w-2xl w-full bg-white border border-gray-200 rounded-3xl p-8 shadow-2xl">
+                <div className="mb-6">
+                    <a href="/home" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium">
+                        <span className="material-icons align-middle">arrow_back</span> Back to Home
+                    </a>
+                </div>
                 <h2 className="text-3xl font-bold text-black mb-8">Create New Event</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <CoverImagePicker 
