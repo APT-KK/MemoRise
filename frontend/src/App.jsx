@@ -11,7 +11,8 @@ import UploadPage from './pages/UploadPage.jsx'
 import EventPage from './pages/EventPage.jsx'
 import AlbumPage from './pages/AlbumPage.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
-
+import CreateAlbum from './pages/CreateAlbum.jsx'
+import CreateEvent from './pages/CreateEvent.jsx'
 
 function App() {
   return (
@@ -27,6 +28,8 @@ function App() {
       <Route path="/upload/:eventId" element={<UploadPage />} />
       <Route path="/album/:id" element={<AlbumPage />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/create-event" element={<CreateEvent />} />
+      <Route path="/create-album" element={<CreateAlbum />} />
     </Routes>
   )
 }
