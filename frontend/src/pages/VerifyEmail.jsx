@@ -89,7 +89,7 @@ const VerifyEmail = () => {
                     <button 
                         onClick={handleResend}
                         disabled={resending}
-                        className="text-black hover:underline font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                        className="font-medium flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {resending ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                         Resend Code
