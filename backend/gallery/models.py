@@ -1,5 +1,8 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # event,album,photo models as per the ERD 
 
@@ -74,6 +77,11 @@ class Photo(models.Model):
     is_processed = models.BooleanField(default=False)
 
     description = models.TextField(blank=True, null=True)
+    tagged_users = models.ManyToManyField(
+        User, 
+        related_name='tagged_photos', 
+        blank=True
+    )
 
     # owned by a photographer
     photographer = models.ForeignKey(
@@ -85,6 +93,7 @@ class Photo(models.Model):
 
     exif_data = models.JSONField(default=dict, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     likes_cnt = models.IntegerField(default=0)
     download_cnt = models.IntegerField(default=0)

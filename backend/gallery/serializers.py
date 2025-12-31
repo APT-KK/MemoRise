@@ -10,18 +10,29 @@ class PhotoSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     
+    auto_tags = serializers.SerializerMethodField()
+    updated_at = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = Photo
-        fields = '__all__'
-        # user now cannot modify these fields
+        fields = [
+            'id', 'event', 'album', 'image', 'thumbnail', 'is_processed', 'description',
+            'photographer', 'photographer_email', 'exif_data', 'uploaded_at', 'updated_at', 'likes_cnt',
+            'download_cnt', 'manual_tags', 'auto_tags', 'title', 'is_liked', 'likes_count'
+        ]
         read_only_fields = [
             'id',
             'uploaded_at',
+            'updated_at',
             'likes_count',
             'download_cnt', 
             'photographer',
             'photographer_email'
         ]
+
+    def get_auto_tags(self, obj):
+        # Always return a list, never None
+        return obj.auto_tags if obj.auto_tags is not None else []
     
     def get_likes_count(self, obj):
         if hasattr(obj, 'likes'):
@@ -38,7 +49,7 @@ class PhotoSerializer(serializers.ModelSerializer):
 
 class AlbumSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.email')
-    photos = PhotoSerializer(many=True, read_only=True)
+    photos = serializers.SerializerMethodField()
 
     class Meta:
         model = Album
@@ -48,10 +59,15 @@ class AlbumSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+    def get_photos(self, obj):
+        # Always fetch the latest photos for this album, force fresh DB read
+        photos_qs = obj.photos.all().order_by('-uploaded_at').iterator()
+        return PhotoSerializer(list(photos_qs), many=True, context=self.context).data
+
 class EventSerializer(serializers.ModelSerializer):
     coordinator = serializers.ReadOnlyField(source='coordinator.email')
     albums = AlbumSerializer(many=True, read_only=True)
-    photos = PhotoSerializer(many=True, read_only=True)
+    photos = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -60,5 +76,10 @@ class EventSerializer(serializers.ModelSerializer):
             'id',
             'created_at',
         ]
+
+    def get_photos(self, obj):
+        # Always fetch fresh photos from DB to ensure we get latest is_processed status
+        photos_qs = obj.photos.all().order_by('-uploaded_at')
+        return PhotoSerializer(photos_qs, many=True, context=self.context).data
 
                 

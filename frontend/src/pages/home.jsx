@@ -90,7 +90,7 @@ const Home = () => {
                             <button
                                 onClick={handleLogout}
                                 disabled={logoutLoading}
-                                className="text-black hover:bg-black/10 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-black/20 hover:border-black/40 disabled:opacity-50"
+                                className="text-white hover:bg-black/10 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-black/20 hover:border-black/40 disabled:opacity-50"
                             >
                                 <LogOut className="h-5 w-5" />
                                 <span className="hidden sm:inline">Logout</span>
