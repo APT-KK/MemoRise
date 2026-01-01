@@ -1,10 +1,14 @@
 from .models import Photo, Album, Event
-from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer
-from rest_framework import viewsets, permissions, parsers
+from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, UserTagSerializer
+from rest_framework import viewsets, permissions, parsers, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Album
 from .ai_utils import generate_tags  
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+
+User = get_user_model()
 
 # we use ViewSets as we need CRUD op for these models
 
@@ -80,3 +84,21 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(coordinator=self.request.user)
+
+class UserSearchView(generics.ListAPIView):
+    serializer_class = UserTagSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q', '')
+
+        # optimize: if query len < 2 it doesnt search
+        if len(query) < 2:
+            return User.objects.none()
+        
+        return User.objects.filter(
+            Q(full_name__icontains=query) |
+            Q(email__icontains=query)
+        ).distinct()[:10]
+        # icontains = insensitive contains (case insensitive)
+        # Q is for OR operation
