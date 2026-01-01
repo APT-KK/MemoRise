@@ -1,3 +1,4 @@
+from backend.gallery.filters import PhotoFilter
 from .models import Photo, Album, Event
 from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, UserTagSerializer
 from rest_framework import viewsets, permissions, parsers, generics
@@ -23,9 +24,8 @@ class PhotoViewSet(viewsets.ModelViewSet):
     ]
 
     #filtering using django-filters
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['event', 'album', 'photographer']
-    search_fields = ['manual_tags', 'ai_tags', 'exif_data']
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_class = PhotoFilter
     ordering_fields = ['uploaded_at', 'likes_cnt']
 
     # to construct absolute URL for the image
