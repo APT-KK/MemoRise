@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
-
 CustomUser = get_user_model() # ive defined it in models.py
 
 #for profile view and update profile

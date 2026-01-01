@@ -1,8 +1,13 @@
 from rest_framework import serializers
 from gallery.models import Event, Album, Photo
-from interactions.models import Like
-from django.conf import settings
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
+
+class UserTagSerializer(serializers.Serializer):  
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'full_name']
 
 class PhotoSerializer(serializers.ModelSerializer):
     photographer_email = serializers.ReadOnlyField(source='photographer.email')
@@ -12,6 +17,16 @@ class PhotoSerializer(serializers.ModelSerializer):
     
     auto_tags = serializers.SerializerMethodField()
     updated_at = serializers.DateTimeField(read_only=True)
+
+    # post response to frontend
+    tagged_users_details = UserTagSerializer(source='tagged_users', many=True, read_only=True)
+    # get response from frontend
+    tagged_user_ids = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        write_only=True, 
+        queryset=User.objects.all(), 
+        source='tagged_users'
+    )
 
     class Meta:
         model = Photo
@@ -31,7 +46,6 @@ class PhotoSerializer(serializers.ModelSerializer):
         ]
 
     def get_auto_tags(self, obj):
-        # Always return a list, never None
         return obj.auto_tags if obj.auto_tags is not None else []
     
     def get_likes_count(self, obj):
@@ -60,7 +74,7 @@ class AlbumSerializer(serializers.ModelSerializer):
         ]
 
     def get_photos(self, obj):
-        # Always fetch the latest photos for this album, force fresh DB read
+        # DEBUG:Always fetch the latest photos for this album, force fresh DB read
         photos_qs = obj.photos.all().order_by('-uploaded_at').iterator()
         return PhotoSerializer(list(photos_qs), many=True, context=self.context).data
 
@@ -78,8 +92,9 @@ class EventSerializer(serializers.ModelSerializer):
         ]
 
     def get_photos(self, obj):
-        # Always fetch fresh photos from DB to ensure we get latest is_processed status
+        # DEBUG: Always fetch fresh photos from DB to ensure we get latest is_processed status
         photos_qs = obj.photos.all().order_by('-uploaded_at')
         return PhotoSerializer(photos_qs, many=True, context=self.context).data
+
 
                 
