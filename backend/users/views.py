@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .permissions import IsOwnerOrReadOnly
 from .utils import send_otp_email
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import pyotp
 
 User = get_user_model()
@@ -46,12 +47,25 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     lookup_field = 'id' # default is 'pk' but the url uses 'id'
 
-class CurrentUserView(generics.RetrieveAPIView):
+class CurrentUserView(generics.RetrieveUpdateAPIView):
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_object(self):
         return self.request.user
+    
+    # deletes old pfp when updating to new one
+    def patch(self, request, *args, **kwargs):
+        if 'profile_picture' in request.data and request.user.profile_picture:
+            request.user.profile_picture.delete(save=False)
+        return super().patch(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        if request.user.profile_picture:
+            request.user.profile_picture.delete(save=True)
+            return Response({'message': 'Profile picture removed'}, status=status.HTTP_200_OK)
+        return Response({'error': 'No profile picture to remove'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

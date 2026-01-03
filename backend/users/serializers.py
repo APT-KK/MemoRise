@@ -7,6 +7,9 @@ CustomUser = get_user_model() # ive defined it in models.py
 
 #for profile view and update profile
 class CustomUserSerializer(serializers.ModelSerializer):
+
+    profile_picture_url = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
         fields = [
@@ -15,6 +18,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'full_name', 
             'role', 
             'profile_picture', 
+            'profile_picture_url',
             'bio', 
             'is_verified'
         ]
@@ -23,9 +27,15 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'is_verified',
             'id',
             'role',
-            'email'
+            'email',
         ]
 
+    def get_profile_picture_url(self, obj):
+        request = self.context.get('request')
+        if obj.profile_picture and request:
+            return request.build_absolute_uri(obj.profile_picture.url)
+        return None
+    
     def validate_full_name(self, value):
         user = self.instance
         # If the user exists and their name is NOT 'Guest', they cannot change it.
@@ -73,3 +83,4 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         })
         
         return data
+    
