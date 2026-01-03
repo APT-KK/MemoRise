@@ -17,8 +17,9 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }) => {
         const findUsers = setTimeout(async () => {
             if (query.length >= 2) {
                 try {
-                    const res = await api.get(`/api/users/search/?q=${query}`);
-                    setSearchResults(res.data);
+                    const res = await api.get(`/api/gallery/search/?q=${query}`);
+                    const users = Array.isArray(res.data.results) ? res.data.results : (Array.isArray(res.data) ? res.data : []);
+                    setSearchResults(users);
                 } catch (err) {
                     console.error("Search failed", err);
                 }
@@ -96,11 +97,11 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }) => {
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center text-base font-bold text-white shadow-inner">
-                                        {user.username[0].toUpperCase()}
+                                        {(user.full_name ? user.full_name[0] : user.email[0]).toUpperCase()}
                                     </div>
                                     <div>
-                                        <p className="text-base font-medium text-white leading-tight">{user.username}</p>
-                                        <p className="text-xs text-neutral-400 leading-tight">{user.first_name} {user.last_name}</p>
+                                        <p className="text-base font-medium text-white leading-tight">{user.full_name || user.email}</p>
+                                        <p className="text-xs text-neutral-400 leading-tight">{user.email}</p>
                                     </div>
                                 </div>
                                 {isSelected ? <Check size={18} className="text-blue-400" /> : <UserPlus size={18} className="text-neutral-500" />}

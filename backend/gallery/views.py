@@ -1,4 +1,4 @@
-from backend.gallery.filters import PhotoFilter
+from .filters import PhotoFilter
 from .models import Photo, Album, Event
 from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, UserTagSerializer
 from rest_framework import viewsets, permissions, parsers, generics

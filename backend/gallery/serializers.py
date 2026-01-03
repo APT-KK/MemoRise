@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class UserTagSerializer(serializers.Serializer):  
+class UserTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'full_name']
@@ -33,7 +33,8 @@ class PhotoSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'event', 'album', 'image', 'thumbnail', 'is_processed', 'description',
             'photographer', 'photographer_email', 'exif_data', 'uploaded_at', 'updated_at', 'likes_cnt',
-            'download_cnt', 'manual_tags', 'auto_tags', 'title', 'is_liked', 'likes_count'
+            'download_cnt', 'manual_tags', 'auto_tags', 'title', 'is_liked', 'likes_count',
+            'tagged_users_details', 'tagged_user_ids'
         ]
         read_only_fields = [
             'id',

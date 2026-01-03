@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Camera, Aperture, Clock, Gauge, User, Tag, UserPlus } from 'lucide-react';
 import InteractionBar from '../components/InteractionBar';
-import TaggingModal from '../components/TaggingModal';
+import TaggingComp from '../components/Tagging';
 import api from '../api/axios';
 
 const PhotoDetail = () => {
     const { id } = useParams();
     const [photo, setPhoto] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isTagModalOpen, setTagModalOpen] = useState(false);
+    const [isTagCompOpen, setTagCompOpen] = useState(false);
     
     useEffect(() => {
         const fetchSinglePhoto = async () => {
@@ -111,12 +111,12 @@ const PhotoDetail = () => {
                                 {photo.tagged_users_details && photo.tagged_users_details.map((user) => (
                                     <span key={user.id} className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
                                         <User className="w-3 h-3" />
-                                        @{user.username}
+                                        {user.full_name ? user.full_name : user.email}
                                     </span>
                                 ))}
 
                                 <button 
-                                    onClick={() => setTagModalOpen(true)}
+                                    onClick={() => setTagCompOpen(true)}
                                     className="flex items-center gap-1 px-3 py-1 bg-black text-white text-sm rounded-full hover:bg-gray-800 transition-colors"
                                 >
                                     <UserPlus className="w-3 h-3" />
@@ -181,10 +181,10 @@ const PhotoDetail = () => {
             </div>
 
             {photo && (
-                <TaggingModal 
+                <TaggingComp 
                     photo={photo} 
-                    isOpen={isTagModalOpen} 
-                    onClose={() => setTagModalOpen(false)}
+                    isOpen={isTagCompOpen} 
+                    onClose={() => setTagCompOpen(false)}
                     onUpdate={(updatedPhoto) => setPhoto(updatedPhoto)}
                 />
             )}

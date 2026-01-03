@@ -5,7 +5,7 @@ from .views import (
     CurrentUserView,
     CustomTokenObtainPairView,
     ResendOTPView,
-    VerifyEmailView
+    VerifyEmailView,
 )
 from rest_framework_simplejwt.views import (
     TokenRefreshView, # refresh token --> to get new access token using refresh token
