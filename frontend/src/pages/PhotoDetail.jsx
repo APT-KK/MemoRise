@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../api/axios';
-import { ArrowLeft, Camera, Aperture, Clock, Gauge, User, Tag } from 'lucide-react';
+import { ArrowLeft, Camera, Aperture, Clock, Gauge, User, Tag, UserPlus } from 'lucide-react';
 import InteractionBar from '../components/InteractionBar';
+import TaggingModal from '../components/TaggingModal';
+import api from '../api/axios';
 
 const PhotoDetail = () => {
     const { id } = useParams();
     const [photo, setPhoto] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isTagModalOpen, setTagModalOpen] = useState(false);
     
     useEffect(() => {
         const fetchSinglePhoto = async () => {
@@ -102,6 +104,25 @@ const PhotoDetail = () => {
                                 </div>
                             )}
                             </>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                                <h3 className="text-sm font-semibold text-gray-500 mr-2">People:</h3>
+                                
+                                {photo.tagged_users_details && photo.tagged_users_details.map((user) => (
+                                    <span key={user.id} className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
+                                        <User className="w-3 h-3" />
+                                        @{user.username}
+                                    </span>
+                                ))}
+
+                                <button 
+                                    onClick={() => setTagModalOpen(true)}
+                                    className="flex items-center gap-1 px-3 py-1 bg-black text-white text-sm rounded-full hover:bg-gray-800 transition-colors"
+                                >
+                                    <UserPlus className="w-3 h-3" />
+                                    Tag
+                                </button>
+                            </div>
                         </div>
 
                         {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
@@ -158,6 +179,15 @@ const PhotoDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {photo && (
+                <TaggingModal 
+                    photo={photo} 
+                    isOpen={isTagModalOpen} 
+                    onClose={() => setTagModalOpen(false)}
+                    onUpdate={(updatedPhoto) => setPhoto(updatedPhoto)}
+                />
+            )}
         </div>
     );
 };
