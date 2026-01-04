@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom'; 
 import api from '../api/axios'; 
 import toast from 'react-hot-toast';
 import PhotoCard from '../components/PhotoCard'; 
-import { ArrowLeft, User, Grid, Heart, Image as ImageIcon, Pencil } from 'lucide-react';
+import { ArrowLeft, User, Grid, Heart, Image as ImageIcon, Pencil, Camera, Trash2 } from 'lucide-react';
 
 const MyProfile = () => {
     const [userId, setUserId] = useState(null);
@@ -12,6 +12,7 @@ const MyProfile = () => {
         bio: '',
         email: '',
         profile_picture: '',
+        profile_picture_url: '',
         role: '',
         is_verified: false
     });
@@ -19,11 +20,13 @@ const MyProfile = () => {
     const [loading, setLoading] = useState(true);
     const [profileLoading, setProfileLoading] = useState(true);
     const [profileSaving, setProfileSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [editing, setEditing] = useState(false);
     const [stats, setStats] = useState({
         totalLikes: 0,
         totalPhotos: 0
     });
+    const fileInputRef = useRef(null); // we will use this to trigger file input
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -33,26 +36,12 @@ const MyProfile = () => {
                 setProfile(res.data);
             } catch (err) {
                 toast.error("Failed to load user");
-            }
-        };
-        fetchCurrentUser();
-    }, []);
-
-    useEffect(() => {
-        if (!userId) return;
-        const fetchProfile = async () => {
-            setProfileLoading(true);
-            try {
-                const res = await api.get(`/api/auth/users/${userId}/`);
-                setProfile(res.data);
-            } catch (err) {
-                toast.error("Failed to load profile");
             } finally {
                 setProfileLoading(false);
             }
         };
-        fetchProfile();
-    }, [userId]);
+        fetchCurrentUser();
+    }, []);
 
     useEffect(() => {
         if (!profile.email) return;
@@ -83,7 +72,7 @@ const MyProfile = () => {
     const handleSave = async () => {
         setProfileSaving(true);
         try {
-            await api.patch(`/api/auth/users/${userId}/`, {
+            await api.patch(`/api/auth/users/me/`, {
                 full_name: profile.full_name,
                 bio: profile.bio,
             });
@@ -93,6 +82,54 @@ const MyProfile = () => {
             toast.error("Failed to update profile");
         } finally {
             setProfileSaving(false);
+        }
+    };
+
+    const handleProfilePictureClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select an image file');
+            return;
+        }
+
+        //max file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('File size must be less than 5MB');
+            return;
+        }
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+
+        try {
+            const res = await api.patch('/api/auth/users/me/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setProfile(res.data);
+            toast.success('Profile picture updated!');
+        } catch (err) {
+            toast.error('Failed to upload profile picture');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleRemoveProfilePicture = async () => {
+        if (!window.confirm('Remove profile picture?')) return;
+
+        try {
+            await api.delete('/api/auth/users/me/');
+            setProfile(prev => ({ ...prev, profile_picture: null, profile_picture_url: null }));
+            toast.success('Profile picture removed');
+        } catch (err) {
+            toast.error('Failed to remove profile picture');
         }
     };
 
@@ -118,8 +155,46 @@ const MyProfile = () => {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white rounded-lg border border-black p-8 mb-8">
                     <div className="flex flex-col md:flex-row items-center gap-6">
-                        <div className="bg-black p-6 rounded-full border-4 border-black">
-                            <User className="w-12 h-12 text-white" />
+                        <div className="relative group">
+                            <div 
+                                className="w-24 h-24 rounded-full border-4 border-black overflow-hidden cursor-pointer bg-black"
+                                onClick={handleProfilePictureClick}
+                            >
+                                {profile.profile_picture_url ? (
+                                    <img 
+                                        src={profile.profile_picture_url} 
+                                        alt="Profile" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <User className="w-12 h-12 text-white" />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                                    {uploading ? (
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                    ) : (
+                                        <Camera className="w-6 h-6 text-white" />
+                                    )}
+                                </div>
+                            </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                            {profile.profile_picture_url && (
+                                <button
+                                    onClick={handleRemoveProfilePicture}
+                                    className="absolute -bottom-2 -right-2 bg-white border border-black rounded-full p-1.5 hover:bg-gray-100 transition"
+                                    title="Remove profile picture"
+                                >
+                                    <Trash2 className="w-3 h-3 text-black" />
+                                </button>
+                            )}
                         </div>
                         <div className="text-center md:text-left flex-1">
                             {editing ? (
