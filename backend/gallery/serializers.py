@@ -11,6 +11,7 @@ class UserTagSerializer(serializers.ModelSerializer):
 
 class PhotoSerializer(serializers.ModelSerializer):
     photographer_email = serializers.ReadOnlyField(source='photographer.email')
+    photographer_profile_picture = serializers.SerializerMethodField()
 
     is_liked = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -32,7 +33,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         model = Photo
         fields = [
             'id', 'event', 'album', 'image', 'thumbnail', 'is_processed', 'description',
-            'photographer', 'photographer_email', 'exif_data', 'uploaded_at', 'updated_at', 'likes_cnt',
+            'photographer', 'photographer_email', 'photographer_profile_picture', 'exif_data', 'uploaded_at', 'updated_at', 'likes_cnt',
             'download_cnt', 'manual_tags', 'auto_tags', 'title', 'is_liked', 'likes_count',
             'tagged_users_details', 'tagged_user_ids'
         ]
@@ -48,6 +49,14 @@ class PhotoSerializer(serializers.ModelSerializer):
 
     def get_auto_tags(self, obj):
         return obj.auto_tags if obj.auto_tags is not None else []
+
+    def get_photographer_profile_picture(self, obj):
+        if obj.photographer and obj.photographer.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.photographer.profile_picture.url)
+            return obj.photographer.profile_picture.url
+        return None
     
     def get_likes_count(self, obj):
         if hasattr(obj, 'likes'):

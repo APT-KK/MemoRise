@@ -22,8 +22,18 @@ const PhotoCard = ({ photo }) => {
                     to={`/profile/${encodeURIComponent(photographerEmail)}`}
                     className="flex items-center gap-3 cursor-pointer group/user"
                 >
-                    <div className="bg-black group-hover/user:bg-gray-800 transition-colors p-1.5 rounded-full border border-black">
-                        <User className="w-4 h-4 text-white transition-colors" />
+                    <div className="w-8 h-8 rounded-full border border-black overflow-hidden bg-black">
+                        {photo.photographer_profile_picture ? (
+                            <img 
+                                src={photo.photographer_profile_picture} 
+                                alt="Profile" 
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <User className="w-4 h-4 text-white" />
+                            </div>
+                        )}
                     </div>
                     <span className="font-medium text-sm text-black group-hover/user:underline transition-colors truncate">
                         {photographerEmail}
