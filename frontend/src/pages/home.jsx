@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Loader2 } from 'lucide-react'; 
+import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Loader2, Search } from 'lucide-react'; 
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
 
@@ -76,6 +76,13 @@ const Home = () => {
                         </Link>
 
                         <div className="flex items-center gap-4">
+                            <Link to="/search" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
+                                <div className="bg-black/10 p-2 rounded-full border border-black/20">
+                                    <Search className="h-5 w-5 text-black" />
+                                </div>
+                                <span className="hidden sm:inline font-medium">Search</span>
+                            </Link>
+
                             {currentUser && (
                                 <Link to="/my-profile" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
                                     <div className="bg-black/10 p-2 rounded-full border border-black/20">

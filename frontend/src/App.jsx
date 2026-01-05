@@ -13,6 +13,7 @@ import AlbumPage from './pages/AlbumPage.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
 import CreateAlbum from './pages/CreateAlbum.jsx'
 import CreateEvent from './pages/CreateEvent.jsx'
+import SearchPage from './pages/SearchPage.jsx'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/create-event" element={<CreateEvent />} />
       <Route path="/create-album" element={<CreateAlbum />} />
+      <Route path="/search" element={<SearchPage />} />
     </Routes>
   )
 }
