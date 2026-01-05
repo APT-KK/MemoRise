@@ -1,3 +1,6 @@
+import os
+from django.http import FileResponse
+from rest_framework.response import Response
 from .filters import PhotoFilter
 from .models import Photo, Album, Event
 from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, UserTagSerializer
@@ -8,6 +11,7 @@ from .models import Album
 from .ai_utils import generate_tags  
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from rest_framework.decorators import action
 
 User = get_user_model()
 
@@ -33,6 +37,20 @@ class PhotoViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+    
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def download(self, request, pk=None):
+        photo = self.get_object()
+        
+        if not photo.image or not os.path.exists(photo.image.path):
+            return Response({"error": "File not found"}, status=404)
+
+        file_handle = open(photo.image.path, 'rb')
+        filename = os.path.basename(photo.image.name)
+
+        # as_attachment auto adds Content-Disposition: attachment header for download
+        response = FileResponse(file_handle, as_attachment=True, filename=filename)
+        return response
 
     def perform_create(self, serializer):
         album = self.request.data.get('album')
