@@ -1,8 +1,7 @@
 import './App.css'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/login.jsx'
 import Signup from './pages/signup.jsx'
-import LandingPage from './pages/landing.jsx'
 import PhotoDetail from './pages/PhotoDetail.jsx'
 import Home from './pages/home.jsx'
 import UserProfile from './pages/userProfile.jsx'
@@ -15,10 +14,16 @@ import CreateAlbum from './pages/CreateAlbum.jsx'
 import CreateEvent from './pages/CreateEvent.jsx'
 import SearchPage from './pages/SearchPage.jsx'
 
+const RootRedirect = () => {
+  const authTokens = localStorage.getItem('authTokens');
+  return authTokens ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
+};
+// replace renews the old browser history
+
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<RootRedirect />} />
       <Route path="/home" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
