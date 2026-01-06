@@ -103,7 +103,9 @@ const PhotoDetail = () => {
 
     // Fix profile picture URL as well
     let profilePicUrl = photo.photographer_profile_picture;
-    if (profilePicUrl && profilePicUrl.startsWith('http://127.0.0.1:8000')) {
+    if (profilePicUrl && !profilePicUrl.startsWith('http') && !profilePicUrl.startsWith('/')) {
+        profilePicUrl = '/' + profilePicUrl;
+    } else if (profilePicUrl && profilePicUrl.startsWith('http://127.0.0.1:8000')) {
         profilePicUrl = profilePicUrl.replace('http://127.0.0.1:8000', '');
     }
 
@@ -111,14 +113,14 @@ const PhotoDetail = () => {
     const dateString = new Date(photo.uploaded_at || photo.created_at || Date.now()).toLocaleDateString();
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'white', py: 5, px: 2 }}>
-            <Container maxWidth="md">
+        <Box sx={{ minHeight: '100vh', bgcolor: 'white', py: 3, px: 2 }}>
+            <Container maxWidth="xl">
                 <Button
                     component={Link}
                     to="/home"
                     startIcon={<ArrowBackIcon />}
                     sx={{ 
-                        mb: 3, 
+                        mb: 2, 
                         color: 'black',
                         textTransform: 'none',
                         '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' }
@@ -127,189 +129,228 @@ const PhotoDetail = () => {
                     Back to Feed
                 </Button>
 
-                <Card sx={{ borderRadius: 2, border: 1, borderColor: 'grey.300', overflow: 'hidden' }}>
-                    <CardHeader
-                        avatar={
-                            <Avatar
-                                src={profilePicUrl}
+                <Grid container spacing={3}>
+                    {/* LEFT SIDE - Photo */}
+                    <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+                        <Card sx={{ borderRadius: 2, border: 1, borderColor: 'grey.300', overflow: 'hidden', height: 'fit-content' }}>
+                            <CardHeader
+                                avatar={
+                                    <Avatar
+                                        src={profilePicUrl}
+                                        sx={{ 
+                                            width: 40, 
+                                            height: 40, 
+                                            bgcolor: 'black'
+                                        }}
+                                    >
+                                        <PersonIcon />
+                                    </Avatar>
+                                }
+                                title={
+                                    <Link 
+                                        to={`/profile/${encodeURIComponent(photo.photographer_email || '')}`}
+                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                    >
+                                        <Typography fontWeight="bold" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+                                            {photo.photographer_email || "Unknown Photographer"}
+                                        </Typography>
+                                    </Link>
+                                }
+                                subheader={dateString}
+                                sx={{ borderBottom: 1, borderColor: 'grey.200' }}
+                            />
+
+                            <Box sx={{ bgcolor: 'grey.50', display: 'flex', justifyContent: 'center' }}>
+                                <CardMedia
+                                    component="img"
+                                    image={imageUrl}
+                                    alt={photo.description || "Photo detail"}
+                                    sx={{ 
+                                        width: '100%',
+                                        height: 'auto',
+                                        maxHeight: '80vh',
+                                        objectFit: 'contain'
+                                    }}
+                                />
+                            </Box>
+
+                            {/* Description under photo */}
+                            {photo.description && (
+                                <CardContent sx={{ py: 2, px: 3 }}>
+                                    <Typography variant="body1">
+                                        {photo.description}
+                                    </Typography>
+                                </CardContent>
+                            )}
+                        </Card>
+                    </Grid>
+
+                    {/* RIGHT SIDE - Interactions, Tags, EXIF, Download */}
+                    <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, position: { md: 'sticky' }, top: { md: 24 } }}>
+                            {/* Likes & Comments */}
+                            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                                <InteractionBar 
+                                    photoId={photo.id} 
+                                    initialLikesCount={photo.likes_count} 
+                                    initialLiked={photo.is_liked} 
+                                />
+                            </Paper>
+
+                            {/* Download Button */}
+                            <Button
+                                onClick={handleDownload}
+                                disabled={isDownloading}
+                                variant="contained"
+                                fullWidth
+                                startIcon={isDownloading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : <DownloadIcon />}
                                 sx={{ 
-                                    width: 40, 
-                                    height: 40, 
-                                    bgcolor: 'black'
+                                    bgcolor: 'black',
+                                    py: 1.5,
+                                    '&:hover': { bgcolor: 'grey.800' },
+                                    '&:disabled': { opacity: 0.5 }
                                 }}
                             >
-                                <PersonIcon />
-                            </Avatar>
-                        }
-                        title={
-                            <Link 
-                                to={`/profile/${encodeURIComponent(photo.photographer_email || '')}`}
-                                style={{ textDecoration: 'none', color: 'inherit' }}
-                            >
-                                <Typography fontWeight="bold" sx={{ '&:hover': { textDecoration: 'underline' } }}>
-                                    {photo.photographer_email || "Unknown Photographer"}
-                                </Typography>
-                            </Link>
-                        }
-                        subheader={dateString}
-                        sx={{ borderBottom: 1, borderColor: 'grey.200' }}
-                    />
+                                {isDownloading ? 'Downloading...' : 'Download Photo'}
+                            </Button>
 
-                    <Box sx={{ bgcolor: 'black', display: 'flex', justifyContent: 'center', py: 2 }}>
-                        <CardMedia
-                            component="img"
-                            image={imageUrl}
-                            alt={photo.description || "Photo detail"}
-                            sx={{ maxHeight: '85vh', width: 'auto', objectFit: 'contain' }}
-                        />
-                    </Box>
+                            {/* Tags Section */}
+                            {((photo.manual_tags && photo.manual_tags.length > 0) || (photo.auto_tags && photo.auto_tags.length > 0)) && (
+                                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                                    <Typography variant="overline" fontWeight="bold" sx={{ mb: 1, display: 'block' }}>
+                                        Tags
+                                    </Typography>
+                                    
+                                    {photo.manual_tags && photo.manual_tags.length > 0 && (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                                            {photo.manual_tags.map((tag: string, idx: number) => (
+                                                <Chip
+                                                    key={"manual-"+idx}
+                                                    icon={<Tag className="w-3 h-3" />}
+                                                    label={tag}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{ borderColor: 'black' }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
 
-                    <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                        <Box sx={{ mb: 4 }}>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                {photo.description || ''}
-                            </Typography>
-
-                            {photo.manual_tags && photo.manual_tags.length > 0 && (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
-                                    {photo.manual_tags.map((tag: string, idx: number) => (
-                                        <Chip
-                                            key={"manual-"+idx}
-                                            icon={<Tag className="w-3 h-3" />}
-                                            label={tag}
-                                            size="small"
-                                            variant="outlined"
-                                            sx={{ borderColor: 'black' }}
-                                        />
-                                    ))}
-                                </Box>
+                                    {photo.auto_tags && photo.auto_tags.length > 0 && (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                            {photo.auto_tags.map((tag: string, idx: number) => (
+                                                <Chip
+                                                    key={"auto-"+idx}
+                                                    icon={<Tag className="w-3 h-3" />}
+                                                    label={tag}
+                                                    size="small"
+                                                    sx={{ bgcolor: 'grey.100' }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+                                </Paper>
                             )}
 
-                            {photo.auto_tags && photo.auto_tags.length > 0 && (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                                    {photo.auto_tags.map((tag: string, idx: number) => (
-                                        <Chip
-                                            key={"auto-"+idx}
-                                            icon={<Tag className="w-3 h-3" />}
-                                            label={tag}
-                                            size="small"
-                                            sx={{ bgcolor: 'grey.100' }}
-                                        />
-                                    ))}
-                                </Box>
-                            )}
-
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mt: 3, pt: 3, borderTop: 1, borderColor: 'grey.200' }}>
-                                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                                    People:
+                            {/* People Tagged Section */}
+                            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                                <Typography variant="overline" fontWeight="bold" sx={{ mb: 1, display: 'block' }}>
+                                    People Tagged
                                 </Typography>
                                 
-                                {photo.tagged_users_details && photo.tagged_users_details.map((user: { id: number; full_name?: string; email: string }) => (
-                                    <Chip
-                                        key={user.id}
-                                        icon={<PersonIcon sx={{ fontSize: 16 }} />}
-                                        label={user.full_name || user.email}
-                                        size="small"
-                                        sx={{ bgcolor: 'primary.50', color: 'primary.main', borderColor: 'primary.200' }}
-                                        variant="outlined"
-                                    />
-                                ))}
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                                    {photo.tagged_users_details && photo.tagged_users_details.length > 0 ? (
+                                        photo.tagged_users_details.map((user: { id: number; full_name?: string; email: string }) => (
+                                            <Chip
+                                                key={user.id}
+                                                icon={<PersonIcon sx={{ fontSize: 16 }} />}
+                                                label={user.full_name || user.email}
+                                                size="small"
+                                                sx={{ bgcolor: 'primary.50', color: 'primary.main', borderColor: 'primary.200' }}
+                                                variant="outlined"
+                                            />
+                                        ))
+                                    ) : (
+                                        <Typography variant="body2" color="text.secondary">
+                                            No one tagged yet
+                                        </Typography>
+                                    )}
+                                </Box>
 
                                 <Button
                                     onClick={() => setTagCompOpen(true)}
                                     size="small"
                                     startIcon={<PersonAddIcon />}
                                     variant="contained"
+                                    fullWidth
                                     sx={{ 
                                         bgcolor: 'black', 
-                                        borderRadius: 5,
                                         textTransform: 'none',
                                         '&:hover': { bgcolor: 'grey.800' }
                                     }}
                                 >
-                                    Tag
+                                    Tag People
                                 </Button>
-                            </Box>
-                        </Box>
-
-                        {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
-                            <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-                                <Typography 
-                                    variant="overline" 
-                                    fontWeight="bold" 
-                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
-                                >
-                                    <CameraAltIcon fontSize="small" /> Technical Details
-                                </Typography>
-                                
-                                <Grid container spacing={3}>
-                                    {photo.exif_data.Model && (
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-                                                Camera
-                                            </Typography>
-                                            <Typography variant="body2" fontWeight={500}>
-                                                {photo.exif_data.Model}
-                                            </Typography>
-                                        </Grid>
-                                    )}
-                                    {photo.exif_data.FNumber && (
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-                                                Aperture
-                                            </Typography>
-                                            <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <Aperture className="w-3.5 h-3.5" /> f/{photo.exif_data.FNumber}
-                                            </Typography>
-                                        </Grid>
-                                    )}
-                                    {photo.exif_data.ISOSpeedRatings && (
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-                                                ISO
-                                            </Typography>
-                                            <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <Gauge className="w-3.5 h-3.5" /> {photo.exif_data.ISOSpeedRatings}
-                                            </Typography>
-                                        </Grid>
-                                    )}
-                                    {photo.exif_data.ExposureTime && (
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-                                                Shutter
-                                            </Typography>
-                                            <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <Clock className="w-3.5 h-3.5" /> {photo.exif_data.ExposureTime}s
-                                            </Typography>
-                                        </Grid>
-                                    )}
-                                </Grid>
                             </Paper>
-                        )}
 
-                        <Box sx={{ pt: 3, borderTop: 1, borderColor: 'grey.300', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <InteractionBar 
-                                photoId={photo.id} 
-                                initialLikesCount={photo.likes_count} 
-                                initialLiked={photo.is_liked} 
-                            />
-                            
-                            <Button
-                                onClick={handleDownload}
-                                disabled={isDownloading}
-                                variant="contained"
-                                startIcon={isDownloading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : <DownloadIcon />}
-                                sx={{ 
-                                    bgcolor: 'black',
-                                    '&:hover': { bgcolor: 'grey.800' },
-                                    '&:disabled': { opacity: 0.5 }
-                                }}
-                            >
-                                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Download</Box>
-                            </Button>
+                            {/* EXIF Data Section */}
+                            {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
+                                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                                    <Typography 
+                                        variant="overline" 
+                                        fontWeight="bold" 
+                                        sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
+                                    >
+                                        <CameraAltIcon fontSize="small" /> Technical Details
+                                    </Typography>
+                                    
+                                    <Grid container spacing={2}>
+                                        {photo.exif_data.Model && (
+                                            <Grid size={{ xs: 6 }}>
+                                                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                    Camera
+                                                </Typography>
+                                                <Typography variant="body2" fontWeight={500}>
+                                                    {photo.exif_data.Model}
+                                                </Typography>
+                                            </Grid>
+                                        )}
+                                        {photo.exif_data.FNumber && (
+                                            <Grid size={{ xs: 6 }}>
+                                                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                    Aperture
+                                                </Typography>
+                                                <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <Aperture className="w-3.5 h-3.5" /> f/{photo.exif_data.FNumber}
+                                                </Typography>
+                                            </Grid>
+                                        )}
+                                        {photo.exif_data.ISOSpeedRatings && (
+                                            <Grid size={{ xs: 6 }}>
+                                                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                    ISO
+                                                </Typography>
+                                                <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <Gauge className="w-3.5 h-3.5" /> {photo.exif_data.ISOSpeedRatings}
+                                                </Typography>
+                                            </Grid>
+                                        )}
+                                        {photo.exif_data.ExposureTime && (
+                                            <Grid size={{ xs: 6 }}>
+                                                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                    Shutter
+                                                </Typography>
+                                                <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <Clock className="w-3.5 h-3.5" /> {photo.exif_data.ExposureTime}s
+                                                </Typography>
+                                            </Grid>
+                                        )}
+                                    </Grid>
+                                </Paper>
+                            )}
                         </Box>
-                    </CardContent>
-                </Card>
+                    </Grid>
+                </Grid>
             </Container>
 
             {photo && (
