@@ -1,15 +1,15 @@
 from rest_framework import generics, permissions, status
+from notifications.signals import send_socket_message
 from interactions.models import Comment, Like
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from interactions.serializers import CommentSerializer
 from django.shortcuts import get_object_or_404
 from gallery.models import Photo
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
 
 class CommentListCreateView(generics.ListCreateAPIView):
-    # queryset = Comment.objects.all()
-    # cant do above code as all comments are not needed
-    # only comments for a particular photo
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
@@ -25,8 +25,6 @@ class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, photo_id):
-        """ this get method is to fetch total likes count
-             and whether user has liked the photo  or not"""
         user = request.user
         photo = get_object_or_404(Photo, id=photo_id)
 
@@ -63,7 +61,6 @@ class CommentLikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, comment_id):
-        """Fetch total likes and user like status for a specific comment"""
         comment = get_object_or_404(Comment, id=comment_id)
         user = request.user
 
@@ -76,18 +73,38 @@ class CommentLikeToggleView(APIView):
         }, status=status.HTTP_200_OK)
 
     def post(self, request, comment_id):
-        """Toggle like status"""
         try:
             comment = get_object_or_404(Comment, id=comment_id)
             user = request.user
             
-            # Check if user already liked this comment
+            # this checks if user already liked this comment
             if comment.likes.filter(id=user.id).exists():
                 comment.likes.remove(user)
                 liked = False
             else:
                 comment.likes.add(user)
                 liked = True
+            
+            if(comment.user != user): # no notif on self like
+                already_notified = Notification.objects.filter(
+                    recipient=comment.user,
+                    actor=user,
+                    is_read=False,
+                    verb='liked your comment',
+                    content_type=ContentType.objects.get_for_model(comment),
+                    object_id=comment.id
+                ).exists()
+
+                if not already_notified:
+                    notification = Notification.objects.create(
+                        recipient=comment.user,
+                        actor=user,
+                        verb='liked your comment',
+                        content_type=ContentType.objects.get_for_model(comment),
+                        object_id=comment.id
+                    )
+                    send_socket_message(notification, comment.user)
+
 
             return Response({
                 "message": "Success",
