@@ -2,18 +2,43 @@ from .models import Notification
 from rest_framework import serializers
 from users.serializers import CustomUserSerializer
 from gallery.models import Photo
-from interactions.models import Comment
+from interactions.models import Comment, Like
 
 class NotificationSerializer(serializers.ModelSerializer):
     # as we need the acting user name as well not just id
     actor = CustomUserSerializer(read_only=True)
-    # as no target exists in db yet
+    # as no target field exists in db yet
     target = serializers.SerializerMethodField()
+
+    resource_id = serializers.SerializerMethodField()
+    resource_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Notification
-        fields = ['id', 'actor', 'verb', 'is_read', 'created_at', 'target']
+        fields = [
+                    'id', 'actor_name', 'message', 'notification_type', 
+                    'is_read', 'created_at', 'resource_id', 'resource_type'
+                ]
 
+    def get_resource_type(self, obj):
+        return obj.content_type.model
+    
+    def get_resource_id(self, obj):
+
+        if not obj.content_object:
+            return None
+
+        if isinstance(obj.content_object, Photo):
+            return obj.content_object.id
+            
+        if isinstance(obj.content_object, Comment):
+            return obj.content_object.photo_id
+            
+        if isinstance(obj.content_object, Like):
+            return obj.content_object.photo_id
+            
+        return None
+    
     def get_target(self, obj):
         # Photo target
         if isinstance(obj.content_object, Photo):
