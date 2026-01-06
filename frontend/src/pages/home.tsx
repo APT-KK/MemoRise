@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Loader2, Search } from 'lucide-react'; 
+import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Search } from 'lucide-react'; 
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
 import CreateEventDialog from '../components/CreateEventDialog';
 import { Event, User as UserType } from '../types';
 import { AxiosError } from 'axios';
+import {
+    Card,
+    CardMedia,
+    CardContent,
+    Typography,
+    Box,
+    CircularProgress,
+    Grid,
+} from '@mui/material';
+import EventIcon from '@mui/icons-material/Event';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 const Home: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
@@ -129,64 +140,148 @@ const Home: React.FC = () => {
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-20">
-                        <Loader2 className="animate-spin h-12 w-12 text-black mx-auto" />
-                        <p className="mt-4 text-gray-600">Loading events...</p>
-                    </div>
+                    <Box sx={{ textAlign: 'center', py: 10 }}>
+                        <CircularProgress size={48} sx={{ color: 'black' }} />
+                        <Typography color="text.secondary" sx={{ mt: 2 }}>Loading events...</Typography>
+                    </Box>
                 ) : events.length === 0 ? (
-                    <div className="text-center py-20 bg-gray-100 rounded-lg border border-dashed border-black/20">
-                        <div className="bg-black/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-black/20">
-                            <Calendar className="h-10 w-10 text-black/50" />
-                        </div>
-                        <h2 className="text-xl font-semibold text-black">No events found</h2>
-                        <p className="text-gray-600 mt-2">Get started by creating your first event above.</p>
-                    </div>
+                    <Box 
+                        sx={{ 
+                            textAlign: 'center', 
+                            py: 10, 
+                            bgcolor: 'grey.100', 
+                            borderRadius: 2, 
+                            border: '1px dashed',
+                            borderColor: 'grey.300'
+                        }}
+                    >
+                        <Box 
+                            sx={{ 
+                                width: 80, 
+                                height: 80, 
+                                borderRadius: '50%', 
+                                bgcolor: 'grey.200',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mx: 'auto',
+                                mb: 2
+                            }}
+                        >
+                            <EventIcon sx={{ fontSize: 40, color: 'grey.500' }} />
+                        </Box>
+                        <Typography variant="h6" fontWeight="bold">No events found</Typography>
+                        <Typography color="text.secondary" sx={{ mt: 1 }}>
+                            Get started by creating your first event above.
+                        </Typography>
+                    </Box>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <Grid container spacing={4}>
                         {events.map((event) => (
-                            <Link to={`/event/${event.id}`} key={event.id} className="group h-full block">
-                                <div className="bg-gray-100 rounded-lg border border-black/10 hover:border-black/30 transition-all duration-300 overflow-hidden h-full flex flex-col">
-                                    
-                                    <div className="h-56 bg-gray-200 relative overflow-hidden">
-                                        {event.cover_photo || event.cover_image ? (
-                                            <img 
-                                                src={event.cover_photo || event.cover_image} 
-                                                alt={event.title || event.name} 
-                                                className="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
-                                            />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full text-black/20 bg-gray-200">
-                                                <Calendar className="h-12 w-12" />
-                                            </div>
-                                        )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-30" />
-                                    </div>
-
-                                    <div className="p-5 flex-1 flex flex-col">
-                                        <h3 className="text-xl font-bold text-black mb-2 group-hover:text-gray-700 transition-colors">
-                                            {event.title || event.name}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm line-clamp-2 mb-4 flex-1">
-                                            {event.description || <span className="italic opacity-50">No description provided.</span>}
-                                        </p>
-                                        
-                                        <div className="flex items-center gap-4 text-xs text-gray-500 pt-4 border-t border-black/10 mt-auto">
-                                            <div className="flex items-center gap-1.5">
-                                                <Calendar className="w-3.5 h-3.5" />
-                                                <span>{event.date}</span>
-                                            </div>
-                                            {event.location && (
-                                                <div className="flex items-center gap-1.5">
-                                                    <MapPin className="w-3.5 h-3.5" />
-                                                    <span>{event.location}</span>
-                                                </div>
+                            <Grid size={{ xs: 12, md: 6, lg: 4 }} key={event.id}>
+                                <Link to={`/event/${event.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+                                    <Card 
+                                        sx={{ 
+                                            height: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'grey.200',
+                                            transition: 'all 0.3s',
+                                            '&:hover': { 
+                                                boxShadow: 4,
+                                                borderColor: 'grey.400',
+                                                '& .event-cover': { transform: 'scale(1.05)' }
+                                            }
+                                        }}
+                                    >
+                                        <Box sx={{ height: 220, position: 'relative', overflow: 'hidden', bgcolor: 'grey.200' }}>
+                                            {event.cover_photo || event.cover_image ? (
+                                                <CardMedia
+                                                    component="img"
+                                                    image={event.cover_photo || event.cover_image}
+                                                    alt={event.title || event.name}
+                                                    className="event-cover"
+                                                    sx={{
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                        transition: 'transform 0.5s',
+                                                    }}
+                                                />
+                                            ) : (
+                                                <Box 
+                                                    sx={{ 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center', 
+                                                        height: '100%' 
+                                                    }}
+                                                >
+                                                    <EventIcon sx={{ fontSize: 48, color: 'grey.400' }} />
+                                                </Box>
                                             )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                                            <Box 
+                                                sx={{ 
+                                                    position: 'absolute', 
+                                                    inset: 0, 
+                                                    background: 'linear-gradient(to top, rgba(0,0,0,0.3), transparent)',
+                                                    pointerEvents: 'none'
+                                                }} 
+                                            />
+                                        </Box>
+
+                                        <CardContent sx={{ p: 2.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                            <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+                                                {event.title || event.name}
+                                            </Typography>
+                                            <Typography 
+                                                variant="body2" 
+                                                color="text.secondary"
+                                                sx={{
+                                                    mb: 2,
+                                                    flexGrow: 1,
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: 'vertical',
+                                                    overflow: 'hidden'
+                                                }}
+                                            >
+                                                {event.description || <em style={{ opacity: 0.5 }}>No description provided.</em>}
+                                            </Typography>
+                                            
+                                            <Box 
+                                                sx={{ 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    gap: 3, 
+                                                    pt: 2, 
+                                                    borderTop: 1, 
+                                                    borderColor: 'grey.200',
+                                                    mt: 'auto'
+                                                }}
+                                            >
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <EventIcon sx={{ fontSize: 16, color: 'grey.500' }} />
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        {event.date}
+                                                    </Typography>
+                                                </Box>
+                                                {event.location && (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <LocationOnIcon sx={{ fontSize: 16, color: 'grey.500' }} />
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            {event.location}
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
+                            </Grid>
                         ))}
-                    </div>
+                    </Grid>
                 )}
             </main>
         </div>

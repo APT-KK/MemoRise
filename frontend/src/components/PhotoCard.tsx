@@ -1,7 +1,17 @@
 import { Link } from 'react-router-dom';
 import InteractionBar from './InteractionBar';
-import { User, Loader2 } from 'lucide-react';
 import { Photo } from '../types';
+import {
+    Card,
+    CardHeader,
+    CardMedia,
+    CardContent,
+    Avatar,
+    Typography,
+    Box,
+    CircularProgress,
+} from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface PhotoCardProps {
     photo: Photo & { photographer_profile_picture?: string };
@@ -21,69 +31,117 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
     const isProcessing = photo.is_processed === false;
 
     return (
-        <div className="group bg-white rounded-lg border border-black overflow-hidden hover:shadow-lg transition-all duration-300">
-            <div className="p-3 border-b border-black bg-white">
-                <Link 
-                    to={`/profile/${encodeURIComponent(photographerEmail)}`}
-                    className="flex items-center gap-3 cursor-pointer group/user"
-                >
-                    <div className="w-8 h-8 rounded-full border border-black overflow-hidden bg-black">
-                        {photo.photographer_profile_picture ? (
-                            <img 
-                                src={photo.photographer_profile_picture} 
-                                alt="Profile" 
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <User className="w-4 h-4 text-white" />
-                            </div>
-                        )}
-                    </div>
-                    <span className="font-medium text-sm text-black group-hover/user:underline transition-colors truncate">
-                        {photographerEmail}
-                    </span>
-                </Link>
-            </div>
+        <Card 
+            sx={{ 
+                borderRadius: 2,
+                border: 1,
+                borderColor: 'grey.300',
+                transition: 'all 0.3s',
+                '&:hover': { 
+                    boxShadow: 4,
+                    '& .photo-image': { transform: 'scale(1.05)' }
+                }
+            }}
+        >
+            <CardHeader
+                avatar={
+                    <Avatar
+                        src={photo.photographer_profile_picture}
+                        sx={{ 
+                            width: 32, 
+                            height: 32, 
+                            bgcolor: 'black',
+                            border: 1,
+                            borderColor: 'grey.300'
+                        }}
+                    >
+                        <PersonIcon sx={{ fontSize: 18 }} />
+                    </Avatar>
+                }
+                title={
+                    <Link 
+                        to={`/profile/${encodeURIComponent(photographerEmail)}`}
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                        <Typography 
+                            variant="body2" 
+                            fontWeight={500}
+                            sx={{ 
+                                '&:hover': { textDecoration: 'underline' },
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {photographerEmail}
+                        </Typography>
+                    </Link>
+                }
+                sx={{ py: 1.5, px: 2, borderBottom: 1, borderColor: 'grey.200' }}
+            />
 
-            <Link to={`/photos/${photo.id}`} className="relative block overflow-hidden aspect-square bg-black">
-                {isProcessing && (
-                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
-                        <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
-                        <span className="text-xs font-medium text-white px-2 py-1 bg-black/50 rounded-full border border-white/20">
-                            Processing...
-                        </span>
-                    </div>
-                )}
-
-                <img 
-                    src={imageUrl} 
-                    alt={photo.description || "Gallery Photo"} 
-                    loading="lazy"
-                    className={`
-                        w-full h-full object-cover transition-all duration-700
-                        ${isProcessing ? 'blur-md scale-105' : 'group-hover:scale-105'}
-                    `}
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                />
+            <Link to={`/photos/${photo.id}`} style={{ display: 'block' }}>
+                <Box sx={{ position: 'relative', aspectRatio: '1', bgcolor: 'black', overflow: 'hidden' }}>
+                    {isProcessing && (
+                        <Box 
+                            sx={{ 
+                                position: 'absolute', 
+                                inset: 0, 
+                                zIndex: 10, 
+                                display: 'flex', 
+                                flexDirection: 'column',
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                bgcolor: 'rgba(0,0,0,0.6)',
+                                backdropFilter: 'blur(4px)'
+                            }}
+                        >
+                            <CircularProgress size={32} sx={{ color: 'white', mb: 1 }} />
+                            <Typography variant="caption" sx={{ color: 'white', px: 1.5, py: 0.5, bgcolor: 'rgba(0,0,0,0.5)', borderRadius: 2 }}>
+                                Processing...
+                            </Typography>
+                        </Box>
+                    )}
+                    <CardMedia
+                        component="img"
+                        image={imageUrl}
+                        alt={photo.description || "Gallery Photo"}
+                        className="photo-image"
+                        sx={{
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 0.5s',
+                            filter: isProcessing ? 'blur(8px)' : 'none',
+                        }}
+                    />
+                </Box>
             </Link>
 
-            <div className="p-4">
-                <p className="text-gray-700 text-sm mb-4 line-clamp-2 h-10">
-                    {photo.description ? photo.description : <span className="italic text-gray-400"></span>}
-                </p>
+            <CardContent sx={{ p: 2 }}>
+                <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                        mb: 2, 
+                        height: 40,
+                        overflow: 'hidden',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical'
+                    }}
+                >
+                    {photo.description || ''}
+                </Typography>
 
-                <div className="pt-3 border-t border-black">
+                <Box sx={{ pt: 2, borderTop: 1, borderColor: 'grey.200' }}>
                     <InteractionBar 
                         photoId={photo.id} 
                         initialLikesCount={photo.likes_count} 
                         initialLiked={photo.is_liked}
                     />
-                </div>
-            </div>
-        </div>
+                </Box>
+            </CardContent>
+        </Card>
     );
 };
 
