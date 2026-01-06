@@ -1,20 +1,20 @@
 import './App.css'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Login from './pages/login.jsx'
-import Signup from './pages/signup.jsx'
-import PhotoDetail from './pages/PhotoDetail.jsx'
-import Home from './pages/home.jsx'
-import UserProfile from './pages/userProfile.jsx'
-import MyProfile from './pages/MyProfile.jsx'
-import UploadPage from './pages/UploadPage.jsx'
-import EventPage from './pages/EventPage.jsx'
-import AlbumPage from './pages/AlbumPage.jsx'
-import VerifyEmail from './pages/VerifyEmail.jsx'
-import CreateAlbum from './pages/CreateAlbum.jsx'
-import CreateEvent from './pages/CreateEvent.jsx'
-import SearchPage from './pages/SearchPage.jsx'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import Login from './pages/login'
+import Signup from './pages/signup'
+import PhotoDetail from './pages/PhotoDetail'
+import Home from './pages/home'
+import UserProfile from './pages/userProfile'
+import MyProfile from './pages/MyProfile'
+import UploadPage from './pages/UploadPage'
+import EventPage from './pages/EventPage'
+import AlbumPage from './pages/AlbumPage'
+import VerifyEmail from './pages/VerifyEmail'
+import CreateAlbum from './pages/CreateAlbum'
+import CreateEvent from './pages/CreateEvent'
+import SearchPage from './pages/SearchPage'
 
-const RootRedirect = () => {
+const RootRedirect: React.FC = () => {
   const authTokens = localStorage.getItem('authTokens');
   return authTokens ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
 };

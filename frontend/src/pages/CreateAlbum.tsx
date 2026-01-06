@@ -84,7 +84,7 @@ const CreateAlbum = () => {
                         <textarea 
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            rows="3"
+                            rows={3}
                             className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="What is this album about?"
                         />

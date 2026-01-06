@@ -68,7 +68,7 @@ const VerifyEmail = () => {
                     <div>
                         <input
                             type="text"
-                            maxLength="6"
+                            maxLength={6}
                             placeholder="000000"
                             className="w-full text-center text-3xl tracking-[0.5em] font-bold py-4 bg-white text-black border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-colors placeholder-gray-400"
                             value={otp}

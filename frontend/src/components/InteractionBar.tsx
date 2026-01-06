@@ -1,14 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, MessageCircle, Send, CornerDownRight, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
-const CommentItem = ({ comment, photoId, onReplyPosted }) => {
+interface CommentReply {
+    id: number;
+    user: string;
+    content: string;
+    replies?: CommentReply[];
+}
+
+interface CommentData {
+    id: number;
+    user: string;
+    content: string;
+    replies?: CommentReply[];
+}
+
+interface CommentItemProps {
+    comment: CommentData;
+    photoId: number;
+    onReplyPosted: () => void;
+}
+
+const CommentItem: React.FC<CommentItemProps> = ({ comment, photoId, onReplyPosted }) => {
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [showReplies, setShowReplies] = useState(false);
 
-    const handleSendReply = async (e) => {
+    const handleSendReply = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!replyText.trim()) return;
 
@@ -98,11 +118,17 @@ const CommentItem = ({ comment, photoId, onReplyPosted }) => {
     );
 };
 
-const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
+interface InteractionBarProps {
+    photoId: number;
+    initialLikesCount?: number;
+    initialLiked?: boolean;
+}
+
+const InteractionBar: React.FC<InteractionBarProps> = ({ photoId, initialLikesCount, initialLiked }) => {
     const [liked, setLiked] = useState(initialLiked || false);
     const [likesCount, setLikesCount] = useState(initialLikesCount || 0);
     const [showComments, setShowComments] = useState(false);
-    const [comments, setComments] = useState([]);
+    const [comments, setComments] = useState<CommentData[]>([]);
     const [newComment, setNewComment] = useState("");
 
     useEffect(() => {
@@ -141,7 +167,7 @@ const InteractionBar = ({ photoId, initialLikesCount, initialLiked }) => {
         }
     };
     
-    const handlePostComment = async (e) => {
+    const handlePostComment = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newComment.trim()) return;
 

@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
 import InteractionBar from './InteractionBar';
 import { User, Loader2 } from 'lucide-react';
+import { Photo } from '../types';
 
-const PhotoCard = ({ photo }) => {
+interface PhotoCardProps {
+    photo: Photo & { photographer_profile_picture?: string };
+}
+
+const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
     let imageUrl = photo.thumbnail || photo.image;
     if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
         // if it's missing leading slash, add it
@@ -60,7 +65,7 @@ const PhotoCard = ({ photo }) => {
                         ${isProcessing ? 'blur-md scale-105' : 'group-hover:scale-105'}
                     `}
                     onError={(e) => {
-                        e.target.style.display = 'none';
+                        (e.target as HTMLImageElement).style.display = 'none';
                     }}
                 />
             </Link>

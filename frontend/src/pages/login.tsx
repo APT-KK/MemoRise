@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../api/axios'; 
+import api from '../api/axios';
+import { AxiosError } from 'axios';
 
-const Login = () => {
+const Login: React.FC = () => {
     
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,7 +13,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-    const loginUser = async (email, password) => {
+    const loginUser = async (email: string, password: string) => {
         const response = await api.post('/api/auth/login/', {
                 email: email, 
                 password: password
@@ -26,7 +27,7 @@ const Login = () => {
     return response;
  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!email || !password) {
@@ -37,7 +38,8 @@ const Login = () => {
         try {
             await loginUser(email, password);
         } catch (err) {
-            const errorMsg = err.response?.data?.detail || "Login failed.";
+            const axiosError = err as AxiosError<{ detail?: string }>;
+            const errorMsg = axiosError.response?.data?.detail || "Login failed.";
             // Handles unverified email case
             if (String(errorMsg).toLowerCase().includes("not verified")) {
                 toast((t) => (

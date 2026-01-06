@@ -2,5 +2,9 @@
   "dependencies": {
     "date-fns": "^4.1.0",
     "react-dropzone": "^14.3.8"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
   }
 }

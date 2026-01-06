@@ -4,11 +4,13 @@ import api from '../api/axios';
 import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Loader2, Search } from 'lucide-react'; 
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
+import { Event, User as UserType } from '../types';
+import { AxiosError } from 'axios';
 
-const Home = () => {
-    const [events, setEvents] = useState([]);
+const Home: React.FC = () => {
+    const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState<UserType | null>(null);
     const [logoutLoading, setLogoutLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -28,7 +30,8 @@ const Home = () => {
 
             } catch (err) {
                 console.error("Failed to load events", err);
-                if (err.response?.status === 401 || err.response?.status === 403) {
+                const axiosError = err as AxiosError;
+                if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
                     toast.error("Please log in to view the events");
                     navigate('/login');
                 } else {

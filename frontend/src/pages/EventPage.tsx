@@ -1,17 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Upload, ArrowLeft, MapPin, Calendar, Loader2, FolderOpen, Image as ImageIcon, Plus } from 'lucide-react';
 import PhotoCard from '../components/PhotoCard';
 import AlbumCard from '../components/AlbumCard';
+import { Event, Album, Photo } from '../types';
 
-const EventPage = () => {
+const EventPage: React.FC = () => {
     const { id } = useParams();
-    const [event, setEvent] = useState(null);
-    const [albums, setAlbums] = useState([]);
-    const [photos, setPhotos] = useState([]); 
+    const [event, setEvent] = useState<Event | null>(null);
+    const [albums, setAlbums] = useState<Album[]>([]);
+    const [photos, setPhotos] = useState<Photo[]>([]); 
     const [loading, setLoading] = useState(true);
-    const pollIntervalRef = useRef(null);
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
         // fetching event data, albums, and loose photos
@@ -26,31 +27,31 @@ const EventPage = () => {
                 setAlbums(albumsRes.data.results || albumsRes.data);
 
                 const photosRes = await api.get(`/api/gallery/photos/?event=${id}`);
-                const allPhotos = photosRes.data.results || photosRes.data;
+                const allPhotos: Photo[] = photosRes.data.results || photosRes.data;
 
-                const loosePhotos = allPhotos.filter(photo => photo.album === null); 
+                const loosePhotos = allPhotos.filter((photo: Photo) => photo.album === null); 
                 // these are photos in event without an album
                 setPhotos(loosePhotos);
                 
                 // DEBUG :- Start polling only if there are unprocessed photos
                 //  fetches data from backend every 2 secs
-                const hasUnprocessed = loosePhotos.some(photo => photo.is_processed === false);
+                const hasUnprocessed = loosePhotos.some((photo: Photo) => photo.is_processed === false);
                 if (hasUnprocessed && !pollIntervalRef.current) {
                     pollIntervalRef.current = setInterval(async () => {
                         try {
                             const photosRes = await api.get(`/api/gallery/photos/?event=${id}`);
-                            const allPhotos = photosRes.data.results || photosRes.data;
-                            const loosePhotos = allPhotos.filter(photo => photo.album === null);
+                            const allPhotos: Photo[] = photosRes.data.results || photosRes.data;
+                            const loosePhotos = allPhotos.filter((photo: Photo) => photo.album === null);
                             setPhotos(loosePhotos);
                             // Stop polling if all photos are processed
-                            const stillUnprocessed = loosePhotos.some(photo => photo.is_processed === false);
+                            const stillUnprocessed = loosePhotos.some((photo: Photo) => photo.is_processed === false);
                             if (!stillUnprocessed && pollIntervalRef.current) {
                                 clearInterval(pollIntervalRef.current);
                                 pollIntervalRef.current = null;
                                 // Force one more refresh to ensure UI is up to date
                                 const finalPhotosRes = await api.get(`/api/gallery/photos/?event=${id}`);
-                                const finalAllPhotos = finalPhotosRes.data.results || finalPhotosRes.data;
-                                const finalLoosePhotos = finalAllPhotos.filter(photo => photo.album === null);
+                                const finalAllPhotos: Photo[] = finalPhotosRes.data.results || finalPhotosRes.data;
+                                const finalLoosePhotos = finalAllPhotos.filter((photo: Photo) => photo.album === null);
                                 setPhotos(finalLoosePhotos);
                             }
                         } catch (error) {

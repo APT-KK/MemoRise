@@ -1,8 +1,12 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Folder, Image as ImageIcon } from 'lucide-react';
+import { Album } from '../types';
 
-const AlbumCard = ({ album }) => {
+interface AlbumCardProps {
+    album: Album;
+}
+
+const AlbumCard: React.FC<AlbumCardProps> = ({ album }) => {
     return (
         <Link to={`/album/${album.id}`} className="group block">
             <div className="bg-white rounded-lg border border-black overflow-hidden hover:shadow-lg transition-all">

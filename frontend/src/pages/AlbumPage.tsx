@@ -5,19 +5,20 @@ import { useDropzone } from 'react-dropzone';
 import { ArrowLeft, User, Calendar, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PhotoCard from '../components/PhotoCard'; 
+import { Album, Photo, FileUpload } from '../types';
 
-const AlbumPage = () => {
+const AlbumPage: React.FC = () => {
     const { id } = useParams();
-    const [album, setAlbum] = useState(null);
+    const [album, setAlbum] = useState<Album | null>(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [uploadModal, setUploadModal] = useState(false);
-    const [files, setFiles] = useState([]);
+    const [files, setFiles] = useState<FileUpload[]>([]);
     const [overallProgress, setOverallProgress] = useState(0);
-    const pollIntervalRef = useRef(null);
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const onDrop = useCallback(acceptedFiles => {
-        const mappedFiles = acceptedFiles.map(file => ({
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        const mappedFiles: FileUpload[] = acceptedFiles.map(file => ({
             file,
             id: Math.random().toString(36).substring(2, 9),
             preview: URL.createObjectURL(file),
@@ -41,14 +42,14 @@ const AlbumPage = () => {
                 
                 // Start polling only if there are unprocessed photos
                 // same logic as EventPage.jsx polling
-                const hasUnprocessed = res.data.photos?.some(photo => photo.is_processed === false);
+                const hasUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed === false);
                 if (hasUnprocessed && !pollIntervalRef.current) {
                     pollIntervalRef.current = setInterval(async () => {
                         try {
                             const res = await api.get(`/api/gallery/albums/${id}/`);
                             setAlbum(res.data);
                             
-                            const stillUnprocessed = res.data.photos?.some(photo => photo.is_processed === false);
+                            const stillUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed === false);
                             if (!stillUnprocessed && pollIntervalRef.current) {
                                 clearInterval(pollIntervalRef.current);
                                 pollIntervalRef.current = null;
@@ -79,8 +80,8 @@ const AlbumPage = () => {
         return () => files.forEach(file => URL.revokeObjectURL(file.preview));
     }, [files]);
 
-    const removeFile = (id) => {
-        setFiles(files.filter(file => file.id !== id));
+    const removeFile = (fileId: string) => {
+        setFiles(files.filter(file => file.id !== fileId));
     };
 
     const handleUpload = async () => {
@@ -101,7 +102,7 @@ const AlbumPage = () => {
             try {
                 const formData = new FormData();
                 formData.append('image', fileObj.file);
-                formData.append('album', album.id);
+                formData.append('album', String(album!.id));
                 
                 await api.post('/api/gallery/photos/', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }

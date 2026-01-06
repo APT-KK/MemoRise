@@ -1,15 +1,36 @@
-import { createContext, useEffect, useState, useContext, useRef } from 'react';
+import { createContext, useEffect, useState, useContext, useRef, ReactNode } from 'react';
 import toast from 'react-hot-toast';
 
-// like a global container for websocket connection and notifications
-const WebSocketContext = createContext(null);
+interface NotificationData {
+    id?: number;
+    actor?: { full_name?: string; email?: string };
+    verb?: string;
+    target?: { image?: string };
+    message?: string;
+    is_read?: boolean;
+    created_at?: string;
+}
 
-export const WebSocketProvider = ({ children }) => {
-    const [socket, setSocket] = useState(null);
-    const [notifications, setNotifications] = useState([]);
+interface WebSocketContextType {
+    socket: WebSocket | null;
+    notifications: NotificationData[];
+    unreadCount: number;
+    markAllAsRead: () => void;
+}
+
+// like a global container for websocket connection and notifications
+const WebSocketContext = createContext<WebSocketContextType | null>(null);
+
+interface WebSocketProviderProps {
+    children: ReactNode;
+}
+
+export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
+    const [socket] = useState<WebSocket | null>(null);
+    const [notifications, setNotifications] = useState<NotificationData[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const socketRef = useRef(null);
+    const socketRef = useRef<WebSocket | null>(null);
 
 
     useEffect(() => {
@@ -45,7 +66,7 @@ export const WebSocketProvider = ({ children }) => {
         };
     }, []);
 
-    const handleNewNotification = (data) => {
+    const handleNewNotification = (data: NotificationData) => {
         setNotifications((prev) => [data, ...prev]);
         setUnreadCount((prev) => prev + 1);
 
@@ -53,7 +74,7 @@ export const WebSocketProvider = ({ children }) => {
         const verb = data.verb || "performed an action";
         const text = `${actorName} ${verb}`;
 
-        let imageUrl = null;
+        let imageUrl: string | null = null;
         // to resolve relative paths from django
         if (data.target?.image) {
             imageUrl = data.target.image.startsWith('http') 
@@ -98,11 +119,10 @@ export const WebSocketProvider = ({ children }) => {
     );
 };
 
-export const useWebSocket = () => useContext(WebSocketContext);
-
-
-
-
-
-
-        
+export const useWebSocket = () => {
+    const context = useContext(WebSocketContext);
+    if (!context) {
+        throw new Error('useWebSocket must be used within a WebSocketProvider');
+    }
+    return context;
+};

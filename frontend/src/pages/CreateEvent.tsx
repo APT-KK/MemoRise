@@ -96,7 +96,7 @@ const CreateEvent = () => {
                         <textarea 
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            rows="4"
+                            rows={4}
                             className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="Describe the event..."
                         />
