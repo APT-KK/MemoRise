@@ -130,7 +130,6 @@ const PhotoDetail = () => {
                 </Button>
 
                 <Grid container spacing={3}>
-                    {/* LEFT SIDE - Photo */}
                     <Grid size={{ xs: 12, md: 7, lg: 8 }}>
                         <Card sx={{ borderRadius: 2, border: 1, borderColor: 'grey.300', overflow: 'hidden', height: 'fit-content' }}>
                             <CardHeader
@@ -174,7 +173,6 @@ const PhotoDetail = () => {
                                 />
                             </Box>
 
-                            {/* Description under photo */}
                             {photo.description && (
                                 <CardContent sx={{ py: 2, px: 3 }}>
                                     <Typography variant="body1">
@@ -185,10 +183,8 @@ const PhotoDetail = () => {
                         </Card>
                     </Grid>
 
-                    {/* RIGHT SIDE - Interactions, Tags, EXIF, Download */}
                     <Grid size={{ xs: 12, md: 5, lg: 4 }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, position: { md: 'sticky' }, top: { md: 24 } }}>
-                            {/* Likes & Comments */}
                             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                                 <InteractionBar 
                                     photoId={photo.id} 
@@ -197,7 +193,6 @@ const PhotoDetail = () => {
                                 />
                             </Paper>
 
-                            {/* Download Button */}
                             <Button
                                 onClick={handleDownload}
                                 disabled={isDownloading}
@@ -214,7 +209,6 @@ const PhotoDetail = () => {
                                 {isDownloading ? 'Downloading...' : 'Download Photo'}
                             </Button>
 
-                            {/* Tags Section */}
                             {((photo.manual_tags && photo.manual_tags.length > 0) || (photo.auto_tags && photo.auto_tags.length > 0)) && (
                                 <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                                     <Typography variant="overline" fontWeight="bold" sx={{ mb: 1, display: 'block' }}>
@@ -252,7 +246,6 @@ const PhotoDetail = () => {
                                 </Paper>
                             )}
 
-                            {/* People Tagged Section */}
                             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                                 <Typography variant="overline" fontWeight="bold" sx={{ mb: 1, display: 'block' }}>
                                     People Tagged
@@ -261,14 +254,19 @@ const PhotoDetail = () => {
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                                     {photo.tagged_users_details && photo.tagged_users_details.length > 0 ? (
                                         photo.tagged_users_details.map((user: { id: number; full_name?: string; email: string }) => (
-                                            <Chip
+                                            <Link
                                                 key={user.id}
-                                                icon={<PersonIcon sx={{ fontSize: 16 }} />}
-                                                label={user.full_name || user.email}
-                                                size="small"
-                                                sx={{ bgcolor: 'primary.50', color: 'primary.main', borderColor: 'primary.200' }}
-                                                variant="outlined"
-                                            />
+                                                to={`/profile/${encodeURIComponent(user.email)}`}
+                                                style={{ textDecoration: 'none' }}
+                                            >
+                                                <Chip
+                                                    icon={<PersonIcon sx={{ fontSize: 16 }} />}
+                                                    label={user.full_name || user.email}
+                                                    size="small"
+                                                    sx={{ bgcolor: 'primary.50', color: 'primary.main', borderColor: 'primary.200', cursor: 'pointer', '&:hover': { bgcolor: 'primary.100' } }}
+                                                    variant="outlined"
+                                                />
+                                            </Link>
                                         ))
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">
@@ -293,7 +291,6 @@ const PhotoDetail = () => {
                                 </Button>
                             </Paper>
 
-                            {/* EXIF Data Section */}
                             {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
                                 <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                                     <Typography 
