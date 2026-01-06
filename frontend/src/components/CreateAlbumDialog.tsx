@@ -83,9 +83,7 @@ const CreateAlbumDialog = ({ open, onClose, eventId, onSuccess }: CreateAlbumDia
             onClose={handleClose}
             maxWidth="sm"
             fullWidth
-            PaperProps={{
-                sx: { borderRadius: 3 },
-            }}
+            sx={{ '& .MuiDialog-paper': { borderRadius: 3 } }}
         >
             <DialogTitle
                 sx={{

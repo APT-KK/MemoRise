@@ -107,33 +107,26 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
             onClose={onClose}
             maxWidth="sm"
             fullWidth
-            PaperProps={{
-                sx: {
-                    bgcolor: 'grey.900',
-                    borderRadius: 3,
-                },
-            }}
+            sx={{ '& .MuiDialog-paper': { borderRadius: 3 } }}
         >
             <DialogTitle
                 sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    borderBottom: 1,
-                    borderColor: 'grey.800',
-                    color: 'white',
+                    pb: 1,
                 }}
             >
-                <Typography variant="h6" fontWeight={600}>
+                <Typography variant="h5" fontWeight="bold">
                     Tag People
                 </Typography>
-                <IconButton onClick={onClose} sx={{ color: 'grey.400' }}>
+                <IconButton onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
 
-            <DialogContent sx={{ p: 0 }}>
-                <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'grey.800' }}>
+            <DialogContent dividers sx={{ p: 0 }}>
+                <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'grey.200' }}>
                     <TextField
                         fullWidth
                         placeholder="Search users..."
@@ -148,20 +141,6 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
                                         <SearchIcon sx={{ color: 'grey.500' }} />
                                     </InputAdornment>
                                 ),
-                                sx: {
-                                    bgcolor: 'grey.950',
-                                    borderRadius: 2,
-                                    color: 'white',
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'grey.800',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'grey.700',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'primary.main',
-                                    },
-                                },
                             },
                         }}
                     />
@@ -169,7 +148,7 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
 
                 <List sx={{ maxHeight: 256, overflow: 'auto', p: 1.5 }}>
                     {searchResults.length === 0 && query.length > 2 && (
-                        <Typography color="grey.500" textAlign="center" py={3}>
+                        <Typography color="text.secondary" textAlign="center" py={3}>
                             No users found.
                         </Typography>
                     )}
@@ -183,26 +162,26 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
                                     borderRadius: 2,
                                     mb: 0.5,
                                     border: 1,
-                                    borderColor: isSelected ? 'primary.main' : 'transparent',
-                                    bgcolor: isSelected ? 'primary.dark' : 'transparent',
+                                    borderColor: isSelected ? 'black' : 'transparent',
+                                    bgcolor: isSelected ? 'grey.100' : 'transparent',
                                     '&:hover': {
-                                        bgcolor: isSelected ? 'primary.dark' : 'grey.800',
+                                        bgcolor: isSelected ? 'grey.200' : 'grey.100',
                                     },
                                 }}
                             >
                                 <ListItemAvatar>
-                                    <Avatar sx={{ bgcolor: 'grey.800', color: 'white', fontWeight: 'bold' }}>
+                                    <Avatar sx={{ bgcolor: 'black', color: 'white', fontWeight: 'bold' }}>
                                         {(user.full_name ? user.full_name[0] : user.email[0]).toUpperCase()}
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={user.full_name || user.email}
                                     secondary={user.email}
-                                    primaryTypographyProps={{ color: 'white', fontWeight: 500 }}
-                                    secondaryTypographyProps={{ color: 'grey.400', fontSize: '0.75rem' }}
+                                    primaryTypographyProps={{ fontWeight: 500 }}
+                                    secondaryTypographyProps={{ color: 'text.secondary', fontSize: '0.75rem' }}
                                 />
                                 {isSelected ? (
-                                    <CheckIcon sx={{ color: 'primary.light' }} />
+                                    <CheckIcon sx={{ color: 'black' }} />
                                 ) : (
                                     <PersonAddIcon sx={{ color: 'grey.500' }} />
                                 )}
@@ -215,13 +194,10 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
             <DialogActions
                 sx={{
                     justifyContent: 'space-between',
-                    borderTop: 1,
-                    borderColor: 'grey.800',
                     p: 2.5,
-                    bgcolor: 'grey.900',
                 }}
             >
-                <Typography variant="caption" color="grey.400">
+                <Typography variant="caption" color="text.secondary">
                     {selectedIds.length} person{selectedIds.length !== 1 && 's'} selected
                 </Typography>
                 <Button
@@ -230,10 +206,11 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
                     variant="contained"
                     sx={{
                         px: 4,
-                        borderRadius: 2,
+                        bgcolor: 'black',
+                        '&:hover': { bgcolor: 'grey.800' },
                     }}
                 >
-                    {isSaving ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+                    {isSaving ? <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} /> : null}
                     {isSaving ? 'Saving...' : 'Done'}
                 </Button>
             </DialogActions>

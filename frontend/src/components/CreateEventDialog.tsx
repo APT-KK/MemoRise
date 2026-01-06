@@ -81,9 +81,7 @@ const CreateEventDialog = ({ open, onClose, onSuccess }: CreateEventDialogProps)
             onClose={handleClose}
             maxWidth="sm"
             fullWidth
-            PaperProps={{
-                sx: { borderRadius: 3 },
-            }}
+            sx={{ '& .MuiDialog-paper': { borderRadius: 3 } }} // To paper props(underneath screen)
         >
             <DialogTitle
                 sx={{
