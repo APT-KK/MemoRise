@@ -70,4 +70,43 @@ class LikeToggleView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-  
+class CommentLikeToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, comment_id):
+        """Fetch total likes and user like status for a specific comment"""
+        comment = get_object_or_404(Comment, id=comment_id)
+        user = request.user
+
+        is_liked = comment.likes.filter(id=user.id).exists()
+        total_likes = comment.likes.count()
+
+        return Response({
+            "liked": is_liked,
+            "total_likes": total_likes
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request, comment_id):
+        """Toggle like status"""
+        try:
+            comment = get_object_or_404(Comment, id=comment_id)
+            user = request.user
+            
+            # Check if user already liked this comment
+            if comment.likes.filter(id=user.id).exists():
+                comment.likes.remove(user)
+                liked = False
+            else:
+                comment.likes.add(user)
+                liked = True
+
+            return Response({
+                "message": "Success",
+                "liked": liked,
+                "total_likes": comment.likes.count()
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
