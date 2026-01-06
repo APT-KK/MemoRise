@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Send, CornerDownRight, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, MessageCircle, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import { IconButton, Typography, Button, TextField, Box } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ReplyIcon from '@mui/icons-material/Reply';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import SendIcon from '@mui/icons-material/Send';
 
 interface CommentReply {
     id: number;
     user: string;
     content: string;
+    likes_count?: number;
+    is_liked?: boolean;
     replies?: CommentReply[];
 }
 
@@ -14,6 +23,8 @@ interface CommentData {
     id: number;
     user: string;
     content: string;
+    likes_count?: number;
+    is_liked?: boolean;
     replies?: CommentReply[];
 }
 
@@ -27,6 +38,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, photoId, onReplyPost
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [showReplies, setShowReplies] = useState(false);
+    const [liked, setLiked] = useState(comment.is_liked || false);
+    const [likesCount, setLikesCount] = useState(comment.likes_count || 0);
+
+    const handleLikeComment = async () => {
+        try {
+            const res = await api.post(`/api/interactions/comments/${comment.id}/like/`);
+            setLiked(res.data.liked);
+            setLikesCount(res.data.total_likes);
+        } catch (err) {
+            console.error("Failed to like comment", err);
+            toast.error("Could not like comment");
+        }
+    };
 
     const handleSendReply = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,59 +76,122 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, photoId, onReplyPost
 
     return (
         <div className="mb-3">
-            <div className="bg-white border border-black p-3 rounded-lg text-sm group relative">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <span className="font-bold mr-2 text-black">{comment.user}</span>
-                        <span className="text-black">{comment.content}</span>
-                    </div>
-                </div>
+            <Box sx={{ 
+                bgcolor: 'white', 
+                border: 1, 
+                borderColor: 'grey.300', 
+                p: 2, 
+                borderRadius: 2 
+            }}>
+                <Box sx={{ mb: 1 }}>
+                    <Typography component="span" fontWeight="bold" sx={{ mr: 1 }}>
+                        {comment.user}
+                    </Typography>
+                    <Typography component="span" color="text.primary">
+                        {comment.content}
+                    </Typography>
+                </Box>
                 
-                <div className="flex items-center gap-4 mt-2">
-                    <button 
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                            onClick={handleLikeComment} 
+                            size="small"
+                            sx={{ p: 0.5 }}
+                        >
+                            {liked ? (
+                                <FavoriteIcon sx={{ fontSize: 18, color: 'black' }} />
+                            ) : (
+                                <FavoriteBorderIcon sx={{ fontSize: 18, color: 'grey.500' }} />
+                            )}
+                        </IconButton>
+                        {likesCount > 0 && (
+                            <Typography variant="caption" color="text.secondary">
+                                {likesCount}
+                            </Typography>
+                        )}
+                    </Box>
+
+                    <Button
                         onClick={() => setIsReplying(!isReplying)}
-                        className="text-xs text-gray-600 hover:text-black font-medium flex items-center gap-1"
+                        size="small"
+                        startIcon={<ReplyIcon sx={{ fontSize: 16 }} />}
+                        sx={{ 
+                            color: isReplying ? 'black' : 'grey.600',
+                            textTransform: 'none',
+                            fontSize: '0.75rem',
+                            minWidth: 'auto',
+                            px: 1,
+                            '&:hover': { color: 'black', bgcolor: 'grey.100' }
+                        }}
                     >
-                        <MessageSquare className="w-3 h-3" /> Reply
-                    </button>
+                        Reply
+                    </Button>
 
                     {hasReplies && (
-                        <button 
+                        <Button
                             onClick={() => setShowReplies(!showReplies)}
-                            className="text-xs text-black hover:underline font-medium flex items-center gap-1"
+                            size="small"
+                            endIcon={showReplies ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                            sx={{ 
+                                color: 'black',
+                                textTransform: 'none',
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                                minWidth: 'auto',
+                                px: 1,
+                                '&:hover': { bgcolor: 'grey.100' }
+                            }}
                         >
-                            {showReplies ? (
-                                <>Hide Replies <ChevronUp className="w-3 h-3" /></>
-                            ) : (
-                                <>View {comment.replies.length} Replies <ChevronDown className="w-3 h-3" /></>
-                            )}
-                        </button>
+                            {showReplies ? 'Hide' : `${comment.replies!.length} Replies`}
+                        </Button>
                     )}
-                </div>
-            </div>
+                </Box>
+            </Box>
 
             {isReplying && (
-                <form onSubmit={handleSendReply} className="ml-6 mt-2 flex gap-2">
-                    <CornerDownRight className="w-4 h-4 text-gray-600 mt-2" />
-                    <div className="flex-1 flex gap-2">
-                        <input 
-                            autoFocus
-                            type="text" 
-                            className="flex-1 p-2 border border-black text-xs rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black"
-                            placeholder={`Reply to ${comment.user}...`}
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                        />
-                        <button type="submit" className="text-black hover:text-gray-800">
-                            <Send className="h-4 w-4" />
-                        </button>
-                    </div>
-                </form>
+                <Box 
+                    component="form" 
+                    onSubmit={handleSendReply} 
+                    sx={{ 
+                        ml: 3, 
+                        mt: 1, 
+                        display: 'flex', 
+                        gap: 1,
+                        alignItems: 'center'
+                    }}
+                >
+                    <ReplyIcon sx={{ color: 'grey.400', fontSize: 20, transform: 'scaleX(-1)' }} />
+                    <TextField
+                        autoFocus
+                        size="small"
+                        fullWidth
+                        placeholder={`Reply to ${comment.user}...`}
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                fontSize: '0.875rem',
+                            }
+                        }}
+                    />
+                    <IconButton 
+                        type="submit" 
+                        sx={{ 
+                            bgcolor: 'black', 
+                            color: 'white',
+                            '&:hover': { bgcolor: 'grey.800' },
+                            p: 1
+                        }}
+                    >
+                        <SendIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                </Box>
             )}
             
             {showReplies && hasReplies && (
-                <div className="ml-6 mt-2 border-l-2 border-black pl-3">
-                    {comment.replies.map(reply => (
+                <Box sx={{ ml: 3, mt: 1, borderLeft: 2, borderColor: 'grey.300', pl: 2 }}>
+                    {comment.replies!.map(reply => (
                         <CommentItem 
                             key={reply.id} 
                             comment={reply} 
@@ -112,7 +199,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, photoId, onReplyPost
                             onReplyPosted={onReplyPosted} 
                         />
                     ))}
-                </div>
+                </Box>
             )}
         </div>
     );
@@ -185,7 +272,6 @@ const InteractionBar: React.FC<InteractionBarProps> = ({ photoId, initialLikesCo
 
     return (
         <div className="mt-3">
-            {/* Actions Bar */}
             <div className="flex items-center gap-4 mb-2">
                 <button 
                     onClick={handleLike} 
@@ -209,7 +295,6 @@ const InteractionBar: React.FC<InteractionBarProps> = ({ photoId, initialLikesCo
                 </button>
             </div>
 
-            {/* Comments List */}
             {showComments && (
                 <div className="bg-white p-3 rounded-lg mt-2 border border-black">
                     <form onSubmit={handlePostComment} className="flex gap-2 mb-4">
