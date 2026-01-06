@@ -117,7 +117,7 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => 
                     pb: 1,
                 }}
             >
-                <Typography variant="h5" fontWeight="bold">
+                <Typography component="h2" variant="h6" fontWeight="bold">
                     Tag People
                 </Typography>
                 <IconButton onClick={onClose}>

@@ -10,7 +10,7 @@ from interactions.models import Like, Comment
 
 def send_socket_message(notification,recipient):
     channel_layer = get_channel_layer()
-    group_name = f'notifications_{recipient.id}'
+    group_name = f"notifications_{recipient.id}"
 
     serializer = NotificationSerializer(notification)
     data = serializer.data

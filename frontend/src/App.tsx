@@ -16,7 +16,7 @@ const RootRedirect: React.FC = () => {
   const authTokens = localStorage.getItem('authTokens');
   return authTokens ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
 };
-// replace renews the old browser history
+// "replace" renews the old browser history
 
 function App() {
   return (
