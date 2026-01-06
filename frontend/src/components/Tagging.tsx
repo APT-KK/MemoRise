@@ -1,16 +1,62 @@
 import { useState, useEffect } from 'react';
-import { X, Search, UserPlus, Check } from 'lucide-react';
-import api from '../api/axios'; 
+import api from '../api/axios';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Box,
+    TextField,
+    Typography,
+    IconButton,
+    List,
+    ListItemButton,
+    ListItemAvatar,
+    ListItemText,
+    Avatar,
+    Button,
+    CircularProgress,
+    InputAdornment,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CheckIcon from '@mui/icons-material/Check';
 
-const TaggingComp = ({ photo, isOpen, onClose, onUpdate }) => {
+interface User {
+    id: number;
+    full_name?: string;
+    email: string;
+}
 
-    if (!isOpen) return null;
+interface Photo {
+    id: number;
+    tagged_users_details?: User[];
+}
+
+interface TaggingCompProps {
+    photo: Photo;
+    isOpen: boolean;
+    onClose: () => void;
+    onUpdate: (data: Photo) => void;
+}
+
+const TaggingComp = ({ photo, isOpen, onClose, onUpdate }: TaggingCompProps) => {
     const [query, setQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [selectedIds, setSelectedIds] = useState(
+    const [searchResults, setSearchResults] = useState<User[]>([]);
+    const [selectedIds, setSelectedIds] = useState<number[]>(
         photo.tagged_users_details ? photo.tagged_users_details.map(u => u.id) : []
     ); // to send ids to backend
     const [isSaving, setIsSaving] = useState(false);
+
+    // Reset state when dialog opens
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedIds(photo.tagged_users_details ? photo.tagged_users_details.map(u => u.id) : []);
+            setQuery('');
+            setSearchResults([]);
+        }
+    }, [isOpen, photo.tagged_users_details]);
 
     // this will search users via the query
     useEffect(() => {
@@ -32,11 +78,11 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }) => {
         return () => clearTimeout(findUsers);
     }, [query]);
 
-    const toggleUser = (userId) => {
-        setSelectedIds(prev => 
-            prev.includes(userId) 
-                ? prev.filter(id => id !== userId) //untag user 
-                : [...prev, userId] 
+    const toggleUser = (userId: number) => {
+        setSelectedIds(prev =>
+            prev.includes(userId)
+                ? prev.filter(id => id !== userId) //untag user
+                : [...prev, userId]
         );
     };
 
@@ -45,7 +91,7 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }) => {
         try {
             const payload = { tagged_user_ids: selectedIds };
             const res = await api.patch(`/api/gallery/photos/${photo.id}/`, payload);
-            onUpdate(res.data); 
+            onUpdate(res.data);
             onClose();
         } catch (err) {
             alert("Failed to update tags");
@@ -56,74 +102,142 @@ const TaggingComp = ({ photo, isOpen, onClose, onUpdate }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/90 backdrop-blur-sm">
-            <div className="bg-neutral-900 w-full max-w-lg rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden">
-                <div className="p-5 border-b border-neutral-800 flex justify-between items-center">
-                    <h3 className="text-white font-semibold text-lg tracking-tight">Tag People</h3>
-                    <button onClick={onClose} className="text-neutral-400 hover:text-white transition-colors">
-                        <X size={22} />
-                    </button>
-                </div>
+        <Dialog
+            open={isOpen}
+            onClose={onClose}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{
+                sx: {
+                    bgcolor: 'grey.900',
+                    borderRadius: 3,
+                },
+            }}
+        >
+            <DialogTitle
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: 1,
+                    borderColor: 'grey.800',
+                    color: 'white',
+                }}
+            >
+                <Typography variant="h6" fontWeight={600}>
+                    Tag People
+                </Typography>
+                <IconButton onClick={onClose} sx={{ color: 'grey.400' }}>
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
 
-                <div className="p-5 border-b border-neutral-800/60">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3 text-neutral-400 w-5 h-5" />
-                        <input
-                            type="text"
-                            placeholder="Search users..."
-                            className="w-full bg-neutral-950 text-white rounded-xl pl-11 pr-4 py-2.5 border border-neutral-800 focus:border-blue-500 focus:outline-none placeholder:text-neutral-500 text-base"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            autoFocus
-                        />
-                    </div>
-                </div>
+            <DialogContent sx={{ p: 0 }}>
+                <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'grey.800' }}>
+                    <TextField
+                        fullWidth
+                        placeholder="Search users..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        autoFocus
+                        size="small"
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon sx={{ color: 'grey.500' }} />
+                                    </InputAdornment>
+                                ),
+                                sx: {
+                                    bgcolor: 'grey.950',
+                                    borderRadius: 2,
+                                    color: 'white',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'grey.800',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'grey.700',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'primary.main',
+                                    },
+                                },
+                            },
+                        }}
+                    />
+                </Box>
 
-                <div className="max-h-64 overflow-y-auto p-3">
+                <List sx={{ maxHeight: 256, overflow: 'auto', p: 1.5 }}>
                     {searchResults.length === 0 && query.length > 2 && (
-                        <p className="text-center text-neutral-500 py-6">No users found.</p>
+                        <Typography color="grey.500" textAlign="center" py={3}>
+                            No users found.
+                        </Typography>
                     )}
                     {searchResults.map(user => {
                         const isSelected = selectedIds.includes(user.id);
                         return (
-                            <div
+                            <ListItemButton
                                 key={user.id}
                                 onClick={() => toggleUser(user.id)}
-                                className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors border ${
-                                    isSelected
-                                        ? 'bg-blue-700/20 border-blue-500/60 shadow-sm'
-                                        : 'border-transparent hover:bg-neutral-800/80'
-                                }`}
+                                sx={{
+                                    borderRadius: 2,
+                                    mb: 0.5,
+                                    border: 1,
+                                    borderColor: isSelected ? 'primary.main' : 'transparent',
+                                    bgcolor: isSelected ? 'primary.dark' : 'transparent',
+                                    '&:hover': {
+                                        bgcolor: isSelected ? 'primary.dark' : 'grey.800',
+                                    },
+                                }}
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center text-base font-bold text-white shadow-inner">
+                                <ListItemAvatar>
+                                    <Avatar sx={{ bgcolor: 'grey.800', color: 'white', fontWeight: 'bold' }}>
                                         {(user.full_name ? user.full_name[0] : user.email[0]).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p className="text-base font-medium text-white leading-tight">{user.full_name || user.email}</p>
-                                        <p className="text-xs text-neutral-400 leading-tight">{user.email}</p>
-                                    </div>
-                                </div>
-                                {isSelected ? <Check size={18} className="text-blue-400" /> : <UserPlus size={18} className="text-neutral-500" />}
-                            </div>
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={user.full_name || user.email}
+                                    secondary={user.email}
+                                    primaryTypographyProps={{ color: 'white', fontWeight: 500 }}
+                                    secondaryTypographyProps={{ color: 'grey.400', fontSize: '0.75rem' }}
+                                />
+                                {isSelected ? (
+                                    <CheckIcon sx={{ color: 'primary.light' }} />
+                                ) : (
+                                    <PersonAddIcon sx={{ color: 'grey.500' }} />
+                                )}
+                            </ListItemButton>
                         );
                     })}
-                </div>
+                </List>
+            </DialogContent>
 
-                <div className="p-5 border-t border-neutral-800 flex justify-between items-center bg-neutral-900">
-                    <span className="text-xs text-neutral-400">
-                        {selectedIds.length} person{selectedIds.length !== 1 && 's'} selected
-                    </span>
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="bg-blue-600 hover:bg-blue-500 text-white px-7 py-2.5 rounded-xl text-base font-semibold transition-all disabled:opacity-60 shadow-md"
-                    >
-                        {isSaving ? 'Saving...' : 'Done'}
-                    </button>
-                </div>
-            </div>
-        </div>
+            <DialogActions
+                sx={{
+                    justifyContent: 'space-between',
+                    borderTop: 1,
+                    borderColor: 'grey.800',
+                    p: 2.5,
+                    bgcolor: 'grey.900',
+                }}
+            >
+                <Typography variant="caption" color="grey.400">
+                    {selectedIds.length} person{selectedIds.length !== 1 && 's'} selected
+                </Typography>
+                <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    variant="contained"
+                    sx={{
+                        px: 4,
+                        borderRadius: 2,
+                    }}
+                >
+                    {isSaving ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+                    {isSaving ? 'Saving...' : 'Done'}
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

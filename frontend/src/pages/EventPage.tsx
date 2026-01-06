@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { Upload, ArrowLeft, MapPin, Calendar, Loader2, FolderOpen, Image as ImageIcon, Plus } from 'lucide-react';
 import PhotoCard from '../components/PhotoCard';
 import AlbumCard from '../components/AlbumCard';
+import CreateAlbumDialog from '../components/CreateAlbumDialog';
 import { Event, Album, Photo } from '../types';
 
 const EventPage: React.FC = () => {
@@ -12,6 +13,7 @@ const EventPage: React.FC = () => {
     const [albums, setAlbums] = useState<Album[]>([]);
     const [photos, setPhotos] = useState<Photo[]>([]); 
     const [loading, setLoading] = useState(true);
+    const [createAlbumOpen, setCreateAlbumOpen] = useState(false);
     const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
@@ -125,13 +127,25 @@ const EventPage: React.FC = () => {
                                     <FolderOpen className="w-6 h-6 text-black" />
                                     <h2 className="text-2xl font-bold text-black">Albums</h2>
                                 </div>
-                                <Link 
-                                    to={`/create-album?event=${id}`}
+                                <button 
+                                    onClick={() => setCreateAlbumOpen(true)}
                                     className="flex items-center gap-2 bg-white hover:bg-gray-50 text-black px-4 py-2 rounded-lg border border-black transition-all"
                                 >
                                     <Plus className="w-4 h-4" />
                                     <span className="font-medium text-sm">Create Album</span>
-                                </Link>
+                                </button>
+
+                                <CreateAlbumDialog
+                                    open={createAlbumOpen}
+                                    onClose={() => setCreateAlbumOpen(false)}
+                                    eventId={id || ''}
+                                    onSuccess={() => {
+                                        // Refresh albums list
+                                        api.get(`/api/gallery/albums/?event=${id}`).then(res => {
+                                            setAlbums(res.data.results || res.data);
+                                        });
+                                    }}
+                                />
                             </div>
 
                             {albums.length > 0 ? (

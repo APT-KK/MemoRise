@@ -1,9 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import CoverImagePicker from '../components/CoverImagePicker';
-import { ChevronDown, Loader2, ArrowLeft } from 'lucide-react';
+import {
+    Box,
+    Container,
+    Paper,
+    Typography,
+    TextField,
+    Button,
+    CircularProgress,
+    Link,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const CreateAlbum = () => {
     const navigate = useNavigate();
@@ -12,12 +22,12 @@ const CreateAlbum = () => {
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState('');
-    const [coverFile, setCoverFile] = useState(null);
+    const [coverFile, setCoverFile] = useState<File | null>(null);
 
     useEffect(() => {
     }, [preSelectedEventId]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
         if (!preSelectedEventId) {
@@ -51,56 +61,89 @@ const CreateAlbum = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white p-6 flex justify-center items-center">
-            <div className="max-w-2xl w-full bg-white border border-black rounded-lg p-8">       
-                <div className="mb-6">
-                    <a href="/home" className="inline-flex items-center gap-2 text-black hover:underline transition-colors font-medium">
-                        <ArrowLeft className="w-4 h-4" /> Back to Home
-                    </a>
-                </div>
-                <h2 className="text-3xl font-bold text-black mb-2">Create New Album</h2>
-                <p className="text-gray-600 mb-8">Organize photos within an event</p>
-                
-                <form onSubmit={handleSubmit} className="space-y-6">  
-                    <CoverImagePicker 
-                        label="Album Cover Image"
-                        onImageSelect={(file) => setCoverFile(file)} 
-                    />
+        <Box
+            sx={{
+                minHeight: '100vh',
+                bgcolor: 'background.default',
+                py: 4,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <Container maxWidth="sm">
+                <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+                    <Box sx={{ mb: 3 }}>
+                        <Link
+                            href="/home"
+                            underline="hover"
+                            sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                color: 'text.primary',
+                                fontWeight: 500,
+                            }}
+                        >
+                            <ArrowBackIcon fontSize="small" /> Back to Home
+                        </Link>
+                    </Box>
 
-                    <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Album Name</label>
-                        <input 
-                            type="text" 
+                    <Typography variant="h4" fontWeight="bold" gutterBottom>
+                        Create New Album
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+                        Organize photos within an event
+                    </Typography>
+
+                    <Box component="form" onSubmit={handleSubmit}>
+                        <Box sx={{ mb: 3 }}>
+                            <CoverImagePicker
+                                label="Album Cover Image"
+                                onImageSelect={(file: File | null) => setCoverFile(file)}
+                            />
+                        </Box>
+
+                        <TextField
+                            fullWidth
+                            label="Album Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="e.g. Wedding Ceremony, After Party"
                             required
+                            sx={{ mb: 3 }}
                         />
-                    </div>
 
-                    <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Description</label>
-                        <textarea 
+                        <TextField
+                            fullWidth
+                            label="Description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            rows={3}
-                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="What is this album about?"
+                            multiline
+                            rows={3}
+                            sx={{ mb: 3 }}
                         />
-                    </div>
 
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-black"
-                    >
-                        {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-                        {loading ? 'Creating Album...' : 'Create Album'}
-                    </button>
-                </form>
-            </div>
-        </div>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            disabled={loading}
+                            sx={{
+                                py: 1.5,
+                                bgcolor: 'black',
+                                '&:hover': { bgcolor: 'grey.800' },
+                            }}
+                        >
+                            {loading && <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />}
+                            {loading ? 'Creating Album...' : 'Create Album'}
+                        </Button>
+                    </Box>
+                </Paper>
+            </Container>
+        </Box>
     );
 };
 

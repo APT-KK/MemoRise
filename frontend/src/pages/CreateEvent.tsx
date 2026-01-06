@@ -1,9 +1,20 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import CoverImagePicker from '../components/CoverImagePicker';
-import { ArrowLeft } from 'lucide-react';
+import {
+    Box,
+    Container,
+    Paper,
+    Typography,
+    TextField,
+    Button,
+    CircularProgress,
+    Link,
+    Grid,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const CreateEvent = () => {
     const navigate = useNavigate();
@@ -12,9 +23,9 @@ const CreateEvent = () => {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
-    const [coverFile, setCoverFile] = useState(null); 
+    const [coverFile, setCoverFile] = useState<File | null>(null);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
 
@@ -28,13 +39,11 @@ const CreateEvent = () => {
         }
 
         try {
-
             await api.post('/api/gallery/events/', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.success('Event created successfully!');
             navigate('/home');
-
         } catch (error) {
             console.error(error);
             toast.error('Failed to create event.');
@@ -44,73 +53,112 @@ const CreateEvent = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white p-6 flex justify-center items-center">
-            <div className="max-w-2xl w-full bg-white border border-black rounded-lg p-8">
-                <div className="mb-6">
-                    <a href="/home" className="inline-flex items-center gap-2 text-black hover:underline transition-colors font-medium">
-                        <ArrowLeft className="w-4 h-4" /> Back to Home
-                    </a>
-                </div>
-                <h2 className="text-3xl font-bold text-black mb-8">Create New Event</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <CoverImagePicker 
-                        label="Event Cover Image"
-                        onImageSelect={(file) => setCoverFile(file)} 
-                    />
-                    <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Event Title</label>
-                        <input 
-                            type="text" 
+        <Box
+            sx={{
+                minHeight: '100vh',
+                bgcolor: 'background.default',
+                py: 4,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <Container maxWidth="sm">
+                <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+                    <Box sx={{ mb: 3 }}>
+                        <Link
+                            href="/home"
+                            underline="hover"
+                            sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                color: 'text.primary',
+                                fontWeight: 500,
+                            }}
+                        >
+                            <ArrowBackIcon fontSize="small" /> Back to Home
+                        </Link>
+                    </Box>
+
+                    <Typography variant="h4" fontWeight="bold" sx={{ mb: 4 }}>
+                        Create New Event
+                    </Typography>
+
+                    <Box component="form" onSubmit={handleSubmit}>
+                        <Box sx={{ mb: 3 }}>
+                            <CoverImagePicker
+                                label="Event Cover Image"
+                                onImageSelect={(file: File | null) => setCoverFile(file)}
+                            />
+                        </Box>
+
+                        <TextField
+                            fullWidth
+                            label="Event Title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="e.g. Summer Music Festival"
                             required
+                            sx={{ mb: 3 }}
                         />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-black text-sm font-semibold mb-2">Date</label>
-                            <input 
-                                type="date" 
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-black text-sm font-semibold mb-2">Location</label>
-                            <input
-                                type="text"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
-                                placeholder="e.g. Central Park, NY"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Description</label>
-                        <textarea 
+
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Date"
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    required
+                                    slotProps={{
+                                        inputLabel: { shrink: true },
+                                    }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Location"
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    placeholder="e.g. Central Park, NY"
+                                    required
+                                />
+                            </Grid>
+                        </Grid>
+
+                        <TextField
+                            fullWidth
+                            label="Description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            rows={4}
-                            className="w-full bg-white border border-black rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-black transition-all"
                             placeholder="Describe the event..."
+                            multiline
+                            rows={4}
+                            sx={{ mb: 3 }}
                         />
-                    </div>
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-black"
-                    >
-                        {loading ? 'Creating Event...' : 'Create Event'}
-                    </button>
-                </form>
-            </div>
-        </div>
+
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            disabled={loading}
+                            sx={{
+                                py: 1.5,
+                                bgcolor: 'black',
+                                '&:hover': { bgcolor: 'grey.800' },
+                            }}
+                        >
+                            {loading && <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />}
+                            {loading ? 'Creating Event...' : 'Create Event'}
+                        </Button>
+                    </Box>
+                </Paper>
+            </Container>
+        </Box>
     );
 };
 

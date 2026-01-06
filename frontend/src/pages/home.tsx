@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Loader2, Search } from 'lucide-react'; 
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
+import CreateEventDialog from '../components/CreateEventDialog';
 import { Event, User as UserType } from '../types';
 import { AxiosError } from 'axios';
 
@@ -12,6 +13,7 @@ const Home: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
     const [logoutLoading, setLogoutLoading] = useState(false);
+    const [createEventOpen, setCreateEventOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -106,13 +108,24 @@ const Home: React.FC = () => {
                         <p className="text-gray-600 mt-1">Manage specific collections and albums</p>
                     </div>
 
-                    <Link 
-                        to="/create-event"
+                    <button 
+                        onClick={() => setCreateEventOpen(true)}
                         className="flex items-center gap-2 bg-black text-white px-5 py-3 rounded-lg hover:bg-gray-900 transition font-medium border border-black"
                     >
                         <CalendarPlus className="w-5 h-5" />
                         <span>Create New Event</span>
-                    </Link>
+                    </button>
+
+                    <CreateEventDialog
+                        open={createEventOpen}
+                        onClose={() => setCreateEventOpen(false)}
+                        onSuccess={() => {
+                            // Refresh events list
+                            api.get('/api/gallery/events/').then(res => {
+                                setEvents(res.data.results || res.data);
+                            });
+                        }}
+                    />
                 </div>
 
                 {loading ? (

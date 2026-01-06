@@ -10,8 +10,6 @@ import UploadPage from './pages/UploadPage'
 import EventPage from './pages/EventPage'
 import AlbumPage from './pages/AlbumPage'
 import VerifyEmail from './pages/VerifyEmail'
-import CreateAlbum from './pages/CreateAlbum'
-import CreateEvent from './pages/CreateEvent'
 import SearchPage from './pages/SearchPage'
 
 const RootRedirect: React.FC = () => {
@@ -34,8 +32,6 @@ function App() {
       <Route path="/upload/:eventId" element={<UploadPage />} />
       <Route path="/album/:id" element={<AlbumPage />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/create-event" element={<CreateEvent />} />
-      <Route path="/create-album" element={<CreateAlbum />} />
       <Route path="/search" element={<SearchPage />} />
     </Routes>
   )
