@@ -7,6 +7,7 @@ from interactions.models import Comment, Like
 class NotificationSerializer(serializers.ModelSerializer):
     # as we need the acting user name as well not just id
     actor = CustomUserSerializer(read_only=True)
+    actor_name = serializers.SerializerMethodField()
     # as no target field exists in db yet
     target = serializers.SerializerMethodField()
 
@@ -16,9 +17,14 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = [
-                    'id', 'actor_name', 'message', 'notification_type', 
+                    'id', 'actor', 'actor_name', 'verb', 'target',
                     'is_read', 'created_at', 'resource_id', 'resource_type'
                 ]
+
+    def get_actor_name(self, obj):
+        if obj.actor:
+            return obj.actor.full_name or obj.actor.email
+        return None
 
     def get_resource_type(self, obj):
         return obj.content_type.model
@@ -48,13 +54,15 @@ class NotificationSerializer(serializers.ModelSerializer):
                 'title': obj.content_object.description or f"Photo {obj.content_object.id}",
                 'image': obj.content_object.image.url if obj.content_object.image else None
             }
-        # Comment target
+        # Comment target - include photo image for thumbnail
         if isinstance(obj.content_object, Comment):
+            photo = obj.content_object.photo
             return {
                 'type': 'comment',
                 'id': obj.content_object.id,
                 'content': obj.content_object.content,
-                'photo_id': obj.content_object.photo.id if obj.content_object.photo else None,
+                'photo_id': photo.id if photo else None,
+                'image': photo.image.url if photo and photo.image else None,
                 'user': str(obj.content_object.user)
             }
         # Fallback for unknown types

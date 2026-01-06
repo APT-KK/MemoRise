@@ -4,11 +4,15 @@ import toast from 'react-hot-toast';
 interface NotificationData {
     id?: number;
     actor?: { full_name?: string; email?: string };
+    actor_name?: string;
     verb?: string;
     target?: { image?: string };
     message?: string;
     is_read?: boolean;
     created_at?: string;
+    resource_id?: number;
+    resource_type?: string;
+    notification_type?: string;
 }
 
 interface WebSocketContextType {

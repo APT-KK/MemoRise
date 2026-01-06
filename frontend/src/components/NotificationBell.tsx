@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { useWebSocket } from '../context/WebSocketContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -6,8 +7,17 @@ import { formatDistanceToNow } from 'date-fns';
 const NotificationBell = () => {
     const { notifications, unreadCount, markAllAsRead } = useWebSocket();
     const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
 
     const dropdownRef = useRef(null);
+
+    // navigate to the resource from the notif
+    const handleNotificationClick = (notif: any) => {
+        if (notif.resource_id) {
+            setIsOpen(false);
+            navigate(`/photos/${notif.resource_id}`);
+        }
+    };
 
     // this will close the dropdown if clicked outside
     useEffect(() => {
@@ -55,7 +65,11 @@ const NotificationBell = () => {
                             </div>
                         ) : (
                             notifications.map((notif, index) => (
-                                <div key={index} className="p-3 border-b border-black hover:bg-gray-50 transition-colors flex gap-3 items-start">
+                                <div 
+                                    key={index} 
+                                    className={`p-3 border-b border-black hover:bg-gray-50 transition-colors flex gap-3 items-start ${notif.resource_id ? 'cursor-pointer' : ''}`}
+                                    onClick={() => handleNotificationClick(notif)}
+                                >
                                     {notif.target?.image ? (
                                         <img 
                                             src={notif.target.image.startsWith('http') ? notif.target.image : `http://127.0.0.1:8000${notif.target.image}`} 
@@ -70,8 +84,8 @@ const NotificationBell = () => {
 
                                     <div className="flex-1">
                                         <p className="text-sm text-black leading-snug">
-                                            <span className="font-semibold text-black">{notif.actor?.full_name}</span>
-                                            {' '}{notif.verb}
+                                            <span className="font-semibold text-black">{notif.actor_name || notif.actor?.full_name}</span>
+                                            {' '}{notif.message || notif.verb}
                                         </p>
                                         <p className="text-xs text-gray-600 mt-1">
                                             {notif.created_at 
