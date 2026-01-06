@@ -40,8 +40,7 @@ def notify_on_like(sender, instance, created, **kwargs):
             actor=actor,
             verb=verb,
             content_type=ContentType.objects.get_for_model(Photo),
-            object_id=photo.id,
-            content_object=photo
+            object_id=photo.id
         )
         send_socket_message(notification, recipient)
     except Exception as e:
@@ -65,8 +64,7 @@ def notify_on_comment(sender, instance, created, **kwargs):
                 actor=actor,
                 verb="replied to your comment",
                 content_type=ContentType.objects.get_for_model(Comment),
-                object_id=instance.id,
-                content_object=instance
+                object_id=instance.id
             )
             send_socket_message(notification, parent_user)
         except Exception as e:
@@ -81,8 +79,7 @@ def notify_on_comment(sender, instance, created, **kwargs):
                 actor=actor,
                 verb="commented on your photo",
                 content_type=ContentType.objects.get_for_model(Photo),
-                object_id=photo.id,
-                content_object=photo
+                object_id=photo.id
             )
             send_socket_message(notification, recipient)
         except Exception as e:

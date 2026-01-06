@@ -39,36 +39,25 @@ class LikeToggleView(APIView):
         }, status=status.HTTP_200_OK)
 
     def post(self, request, photo_id):
-        from django.db import IntegrityError
-        try:
-            user = request.user
-            photo = get_object_or_404(Photo, id=photo_id)
+        user = request.user
+        photo = get_object_or_404(Photo, id=photo_id)
 
-            like_query = Like.objects.filter(user=user, photo=photo)
+        like, created = Like.objects.get_or_create(user=user, photo=photo)
+        
+        if not created:
+            # Like already existed, so remove it (unlike)
+            like.delete()
             liked = False
+        else:
+            liked = True
 
-            if like_query.exists():
-                like_query.delete() # unlike as already liked
-                liked = False
-            else:
-                try:
-                    Like.objects.create(user=user, photo=photo)
-                    liked = True
-                except IntegrityError:
-                    # Like already exists due to race condition
-                    liked = True
-            # Get total likes count
-            total_likes = Like.objects.filter(photo=photo).count()
+        total_likes = Like.objects.filter(photo=photo).count()
 
-            return Response({
-                "message": "Success",
-                "liked": liked,
-                "total_likes": total_likes
-            }, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({
+            "message": "Success",
+            "liked": liked,
+            "total_likes": total_likes
+        }, status=status.HTTP_200_OK)
 
 class CommentLikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
