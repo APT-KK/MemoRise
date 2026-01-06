@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
@@ -70,14 +69,16 @@ const NotificationBell = () => {
                             <ListItemText primary={<Typography color="text.secondary">No new notifications</Typography>} />
                         </ListItem>
                     ) : (
-                        notifications.map((notif, index) => (
-                            <ListItem 
-                                key={index} 
-                                button={!!notif.resource_id}
-                                onClick={() => handleNotificationClick(notif)}
-                                alignItems="flex-start"
-                                sx={{ borderBottom: 1, borderColor: 'grey.100', cursor: notif.resource_id ? 'pointer' : 'default' }}
-                            >
+                        notifications.map((notif, index) => {
+                            const isButton = !!notif.resource_id;
+                            return (
+                                <ListItem
+                                    key={index}
+                                    {...(isButton ? { button: true } : {})}
+                                    onClick={isButton ? () => handleNotificationClick(notif) : undefined}
+                                    alignItems="flex-start"
+                                    sx={{ borderBottom: 1, borderColor: 'grey.100', cursor: isButton ? 'pointer' : 'default' }}
+                                >
                                 <ListItemAvatar>
                                     {notif.target?.image ? (
                                         <Avatar src={notif.target.image.startsWith('http') ? notif.target.image : `http://127.0.0.1:8000${notif.target.image}`} alt="preview" />
@@ -105,7 +106,8 @@ const NotificationBell = () => {
                                     }
                                 />
                             </ListItem>
-                        ))
+                        );
+                        })
                     )}
                 </List>
                 <Box sx={{ p: 1, textAlign: 'center' }}>
