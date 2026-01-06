@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Search } from 'lucide-react'; 
+import { Button, IconButton, Tooltip } from '@mui/material';
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
 import CreateEventDialog from '../components/CreateEventDialog';
@@ -119,14 +120,22 @@ const Home: React.FC = () => {
                         <p className="text-gray-600 mt-1">Manage specific collections and albums</p>
                     </div>
 
-                    <button 
+                    {/* <button 
                         onClick={() => setCreateEventOpen(true)}
                         className="flex items-center gap-2 bg-black text-white px-5 py-3 rounded-lg hover:bg-gray-900 transition font-medium border border-black"
                     >
                         <CalendarPlus className="w-5 h-5" />
                         <span>Create New Event</span>
-                    </button>
+                    </button> */}
 
+                    <Button
+                        onClick={() => setCreateEventOpen(true)}
+                        startIcon={<CalendarPlus className="w-5 h-5" />}
+                        variant="contained"
+                        sx={{ bgcolor: 'black', color: 'white', textTransform: 'none', px: 3, py: 1.5, borderRadius: 2, fontWeight: 500, '&:hover': { bgcolor: 'grey.900' } }}
+                    >
+                        Create New Event
+                    </Button>
                     <CreateEventDialog
                         open={createEventOpen}
                         onClose={() => setCreateEventOpen(false)}
