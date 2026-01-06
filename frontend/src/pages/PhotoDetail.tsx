@@ -1,10 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Camera, Aperture, Clock, Gauge, User, Tag, UserPlus, Download, Loader2 } from 'lucide-react';
+import { Camera, Aperture, Clock, Gauge, Tag } from 'lucide-react';
 import InteractionBar from '../components/InteractionBar';
 import TaggingComp from '../components/Tagging';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import {
+    Box,
+    Container,
+    Card,
+    CardHeader,
+    CardMedia,
+    CardContent,
+    Avatar,
+    Typography,
+    Button,
+    Chip,
+    CircularProgress,
+    Grid,
+    Paper,
+    IconButton,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PersonIcon from '@mui/icons-material/Person';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import DownloadIcon from '@mui/icons-material/Download';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
 const PhotoDetail = () => {
     const { id } = useParams();
@@ -62,15 +83,15 @@ const PhotoDetail = () => {
     }, [id]);
 
     if (isLoading) return (
-        <div className="min-h-screen bg-white flex items-center justify-center text-black">
-            Loading photo details...
-        </div>
+        <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <CircularProgress sx={{ color: 'black' }} />
+        </Box>
     );
     
     if (!photo) return (
-        <div className="min-h-screen bg-white flex items-center justify-center text-black">
-            Photo not found.
-        </div>
+        <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography>Photo not found.</Typography>
+        </Box>
     );
 
     let imageUrl = photo.image;
@@ -80,154 +101,216 @@ const PhotoDetail = () => {
         imageUrl = imageUrl.replace('http://127.0.0.1:8000', '');
     }
 
+    // Fix profile picture URL as well
+    let profilePicUrl = photo.photographer_profile_picture;
+    if (profilePicUrl && profilePicUrl.startsWith('http://127.0.0.1:8000')) {
+        profilePicUrl = profilePicUrl.replace('http://127.0.0.1:8000', '');
+    }
+
     // Fallback for date display!
     const dateString = new Date(photo.uploaded_at || photo.created_at || Date.now()).toLocaleDateString();
 
     return (
-        <div className="min-h-screen bg-white py-10 px-4">
-            <div className="max-w-4xl mx-auto"> 
-                
-                <Link to="/home" className="inline-flex items-center gap-2 text-black hover:underline mb-6 transition-colors">
-                    <ArrowLeft className="w-5 h-5" />
+        <Box sx={{ minHeight: '100vh', bgcolor: 'white', py: 5, px: 2 }}>
+            <Container maxWidth="md">
+                <Button
+                    component={Link}
+                    to="/home"
+                    startIcon={<ArrowBackIcon />}
+                    sx={{ 
+                        mb: 3, 
+                        color: 'black',
+                        textTransform: 'none',
+                        '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' }
+                    }}
+                >
                     Back to Feed
-                </Link>
+                </Button>
 
-                <div className="bg-white rounded-lg border border-black overflow-hidden">                    
-                    <div className="p-4 border-b border-black flex items-center gap-3 bg-white">
-                        <div className="bg-black p-2 rounded-full">
-                            <User className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="font-semibold text-black">
-                                {photo.photographer_email || "Unknown Photographer"}
-                            </p>
-                            <p className="text-xs text-gray-600">{dateString}</p>
-                        </div>
-                    </div>
+                <Card sx={{ borderRadius: 2, border: 1, borderColor: 'grey.300', overflow: 'hidden' }}>
+                    <CardHeader
+                        avatar={
+                            <Avatar
+                                src={profilePicUrl}
+                                sx={{ 
+                                    width: 40, 
+                                    height: 40, 
+                                    bgcolor: 'black'
+                                }}
+                            >
+                                <PersonIcon />
+                            </Avatar>
+                        }
+                        title={
+                            <Link 
+                                to={`/profile/${encodeURIComponent(photo.photographer_email || '')}`}
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
+                                <Typography fontWeight="bold" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+                                    {photo.photographer_email || "Unknown Photographer"}
+                                </Typography>
+                            </Link>
+                        }
+                        subheader={dateString}
+                        sx={{ borderBottom: 1, borderColor: 'grey.200' }}
+                    />
 
-                    <div className="bg-black flex justify-center py-4">
-                        <img 
-                            src={imageUrl} 
-                            alt={photo.description || "Photo detail"} 
-                            className="max-h-[85vh] w-auto object-contain"
+                    <Box sx={{ bgcolor: 'black', display: 'flex', justifyContent: 'center', py: 2 }}>
+                        <CardMedia
+                            component="img"
+                            image={imageUrl}
+                            alt={photo.description || "Photo detail"}
+                            sx={{ maxHeight: '85vh', width: 'auto', objectFit: 'contain' }}
                         />
-                    </div>
+                    </Box>
 
-                    <div className="p-6 md:p-8">
-                        <div className="mb-8">
-                            <h2 className="text-xl font-medium text-black mb-3">
-                                {photo.description || <span className="text-gray-400 italic"></span>}
-                            </h2>
-                            <>
+                    <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                {photo.description || ''}
+                            </Typography>
+
                             {photo.manual_tags && photo.manual_tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-4">
-                                    {photo.manual_tags.map((tag, idx) => (
-                                        <span key={"manual-"+idx} className="flex items-center gap-1 px-3 py-1 bg-white text-black text-sm rounded-full border border-black font-medium">
-                                            <Tag className="w-3 h-3" />
-                                            {tag}
-                                        </span>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
+                                    {photo.manual_tags.map((tag: string, idx: number) => (
+                                        <Chip
+                                            key={"manual-"+idx}
+                                            icon={<Tag className="w-3 h-3" />}
+                                            label={tag}
+                                            size="small"
+                                            variant="outlined"
+                                            sx={{ borderColor: 'black' }}
+                                        />
                                     ))}
-                                </div>
+                                </Box>
                             )}
-                            {photo.auto_tags && photo.auto_tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {photo.auto_tags.map((tag, idx) => (
-                                        <span key={"auto-"+idx} className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-black text-sm rounded-full border border-black font-medium">
-                                            <Tag className="w-3 h-3" />
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                            </>
 
-                            <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                                <h3 className="text-sm font-semibold text-gray-500 mr-2">People:</h3>
+                            {photo.auto_tags && photo.auto_tags.length > 0 && (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                                    {photo.auto_tags.map((tag: string, idx: number) => (
+                                        <Chip
+                                            key={"auto-"+idx}
+                                            icon={<Tag className="w-3 h-3" />}
+                                            label={tag}
+                                            size="small"
+                                            sx={{ bgcolor: 'grey.100' }}
+                                        />
+                                    ))}
+                                </Box>
+                            )}
+
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mt: 3, pt: 3, borderTop: 1, borderColor: 'grey.200' }}>
+                                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                                    People:
+                                </Typography>
                                 
-                                {photo.tagged_users_details && photo.tagged_users_details.map((user) => (
-                                    <span key={user.id} className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
-                                        <User className="w-3 h-3" />
-                                        {user.full_name ? user.full_name : user.email}
-                                    </span>
+                                {photo.tagged_users_details && photo.tagged_users_details.map((user: { id: number; full_name?: string; email: string }) => (
+                                    <Chip
+                                        key={user.id}
+                                        icon={<PersonIcon sx={{ fontSize: 16 }} />}
+                                        label={user.full_name || user.email}
+                                        size="small"
+                                        sx={{ bgcolor: 'primary.50', color: 'primary.main', borderColor: 'primary.200' }}
+                                        variant="outlined"
+                                    />
                                 ))}
 
-                                <button 
+                                <Button
                                     onClick={() => setTagCompOpen(true)}
-                                    className="flex items-center gap-1 px-3 py-1 bg-black text-white text-sm rounded-full hover:bg-gray-800 transition-colors"
+                                    size="small"
+                                    startIcon={<PersonAddIcon />}
+                                    variant="contained"
+                                    sx={{ 
+                                        bgcolor: 'black', 
+                                        borderRadius: 5,
+                                        textTransform: 'none',
+                                        '&:hover': { bgcolor: 'grey.800' }
+                                    }}
                                 >
-                                    <UserPlus className="w-3 h-3" />
                                     Tag
-                                </button>
-                            </div>
-                        </div>
+                                </Button>
+                            </Box>
+                        </Box>
 
                         {photo.exif_data && Object.keys(photo.exif_data).length > 0 && (
-                            <div className="mb-8 bg-white rounded-lg p-6 border border-black">
-                                <h3 className="text-xs font-bold text-black uppercase tracking-wider mb-5 flex items-center gap-2">
-                                    <Camera className="w-4 h-4" /> Technical Details
-                                </h3>
+                            <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 2 }}>
+                                <Typography 
+                                    variant="overline" 
+                                    fontWeight="bold" 
+                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
+                                >
+                                    <CameraAltIcon fontSize="small" /> Technical Details
+                                </Typography>
                                 
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                <Grid container spacing={3}>
                                     {photo.exif_data.Model && (
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">Camera</span>
-                                            <span className="text-sm font-medium text-black">{photo.exif_data.Model}</span>
-                                        </div>
+                                        <Grid size={{ xs: 6, md: 3 }}>
+                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                Camera
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500}>
+                                                {photo.exif_data.Model}
+                                            </Typography>
+                                        </Grid>
                                     )}
                                     {photo.exif_data.FNumber && (
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">Aperture</span>
-                                            <span className="text-sm font-medium text-black flex items-center gap-1">
-                                                <Aperture className="w-3.5 h-3.5 text-black" /> 
-                                                f/{photo.exif_data.FNumber}
-                                            </span>
-                                        </div>
+                                        <Grid size={{ xs: 6, md: 3 }}>
+                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                Aperture
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <Aperture className="w-3.5 h-3.5" /> f/{photo.exif_data.FNumber}
+                                            </Typography>
+                                        </Grid>
                                     )}
                                     {photo.exif_data.ISOSpeedRatings && (
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">ISO</span>
-                                            <span className="text-sm font-medium text-black flex items-center gap-1">
-                                                <Gauge className="w-3.5 h-3.5 text-black" /> 
-                                                {photo.exif_data.ISOSpeedRatings}
-                                            </span>
-                                        </div>
+                                        <Grid size={{ xs: 6, md: 3 }}>
+                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                ISO
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <Gauge className="w-3.5 h-3.5" /> {photo.exif_data.ISOSpeedRatings}
+                                            </Typography>
+                                        </Grid>
                                     )}
                                     {photo.exif_data.ExposureTime && (
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-600 uppercase font-bold mb-1">Shutter</span>
-                                            <span className="text-sm font-medium text-black flex items-center gap-1">
-                                                <Clock className="w-3.5 h-3.5 text-black" /> 
-                                                {photo.exif_data.ExposureTime}s
-                                            </span>
-                                        </div>
+                                        <Grid size={{ xs: 6, md: 3 }}>
+                                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                Shutter
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <Clock className="w-3.5 h-3.5" /> {photo.exif_data.ExposureTime}s
+                                            </Typography>
+                                        </Grid>
                                     )}
-                                </div>
-                            </div>
+                                </Grid>
+                            </Paper>
                         )}
 
-                        <div className="pt-6 border-t border-black flex items-center justify-between">
+                        <Box sx={{ pt: 3, borderTop: 1, borderColor: 'grey.300', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <InteractionBar 
                                 photoId={photo.id} 
                                 initialLikesCount={photo.likes_count} 
                                 initialLiked={photo.is_liked} 
                             />
                             
-                            <button
+                            <Button
                                 onClick={handleDownload}
                                 disabled={isDownloading}
-                                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
+                                variant="contained"
+                                startIcon={isDownloading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : <DownloadIcon />}
+                                sx={{ 
+                                    bgcolor: 'black',
+                                    '&:hover': { bgcolor: 'grey.800' },
+                                    '&:disabled': { opacity: 0.5 }
+                                }}
                             >
-                                {isDownloading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <Download className="w-5 h-5" />
-                                )}
-                                <span className="hidden sm:inline">Download</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Download</Box>
+                            </Button>
+                        </Box>
+                    </CardContent>
+                </Card>
+            </Container>
 
             {photo && (
                 <TaggingComp 
@@ -237,7 +320,7 @@ const PhotoDetail = () => {
                     onUpdate={(updatedPhoto) => setPhoto(updatedPhoto)}
                 />
             )}
-        </div>
+        </Box>
     );
 };
 
