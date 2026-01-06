@@ -3,135 +3,303 @@
 
 ![Project Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Django](https://img.shields.io/badge/Django-5.x-green.svg)
+![React](https://img.shields.io/badge/React-19-61DAFB.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg)
 
-**Memorise** is a web-based "Smart Gallery" platform designed to help photographers and event coordinators organize, manage, and showcase large collections of photos.
+**Memorise** is a full-stack "Smart Gallery" platform built for photographers and event coordinators to organize, manage, and showcase large photo collections with AI-powered tagging and real-time notifications.
 
-> 💡 **Concept:** Think of it as a custom-built version of Google Photos or Flickr, but structured specifically for **Events**.
+> 💡 Think Google Photos meets Flickr, but structured specifically for **Events** with role-based access control.
 
 ---
 
 ## 📖 Table of Contents
 - [The Core Concept](#-the-core-concept)
+- [Architecture Overview](#-architecture-overview)
+- [Data Models](#-data-models)
+- [API Layer](#-api-layer-views--serializers)
 - [Key Features](#-key-features)
-- [Target Audience](#-who-is-it-for)
-- [Tech Stack](#-tech-under-the-hood)
+- [Tech Stack](#-tech-stack)
 - [Getting Started](#-getting-started)
 
 ---
 
 ## 🧠 The Core Concept
 
-Instead of dumping thousands of photos into one big pile, **Memorise** uses a structured, two-tier hierarchy to keep memories organized:
+Instead of dumping thousands of photos into one big pile, **Memorise** uses a structured, two-tier hierarchy:
 
-```mermaid
-graph TD;
-    A[Event: John's Wedding] --> B[Album: Ceremony];
-    A[Event: John's Wedding] --> C[Album: Reception];
-    A[Event: John's Wedding] --> D[Loose Photos Stream];
 ```
-
-- **Events:** The main container (e.g., "John's Wedding" or "Tech Conference 2024").
-- **Albums (Folders):** Specific sub-collections inside an event (e.g., "Ceremony", "Keynote Speech").
-- **Loose Photos:** A general stream of photos that belong to the event but aren't sorted into specific folders.
+┌─────────────────────────────────────────────────────────┐
+│                    EVENT                                │
+│              (e.g., "John's Wedding")                   │
+│                                                         │
+│   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
+│   │   ALBUM     │  │   ALBUM     │  │   ALBUM     │    │
+│   │  Ceremony   │  │  Reception  │  │  After Party│    │
+│   │   📸📸📸    │  │   📸📸📸    │  │   📸📸📸    │    │
+│   └─────────────┘  └─────────────┘  └─────────────┘    │
+│                                                         │
+│   📸 📸 📸 📸  (Loose Photos - Event-level stream)     │
+└─────────────────────────────────────────────────────────┘
+```
 
 ---
 
+## 🏗 Architecture Overview
 
+```
+┌────────────────────────────────────────────────────────────────┐
+│                         FRONTEND                                │
+│                    React 19 + TypeScript                        │
+│          Material UI + Tailwind CSS + Vite                      │
+│                                                                 │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│   │  Pages   │  │Components│  │ Context  │  │   API    │       │
+│   │ (Routes) │  │ (UI/MUI) │  │(WebSocket│  │ (Axios)  │       │
+│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘       │
+└────────┼─────────────┼─────────────┼─────────────┼──────────────┘
+         │             │             │             │
+         ▼             ▼             ▼             ▼
+┌────────────────────────────────────────────────────────────────┐
+│                      REST API + WebSocket                       │
+│                    JWT Authentication                           │
+└────────────────────────────────────────────────────────────────┘
+         │                                         │
+         ▼                                         ▼
+┌─────────────────────────────┐    ┌─────────────────────────────┐
+│       DJANGO REST API       │    │     DJANGO CHANNELS         │
+│        (DRF ViewSets)       │    │   (WebSocket Consumers)     │
+│                             │    │                             │
+│  • EventViewSet             │    │  • NotificationConsumer     │
+│  • AlbumViewSet             │    │  • JWT Token Auth           │
+│  • PhotoViewSet             │    │  • User-specific Groups     │
+│  • LikeViewSet              │    │                             │
+│  • CommentViewSet           │    │                             │
+└──────────────┬──────────────┘    └──────────────┬──────────────┘
+               │                                   │
+               ▼                                   ▼
+┌─────────────────────────────┐    ┌─────────────────────────────┐
+│         MODELS              │    │       CELERY TASKS          │
+│   (PostgreSQL/SQLite)       │    │     (Redis Broker)          │
+│                             │    │                             │
+│  • CustomUser (5 roles)     │    │  • process_photo()          │
+│  • Event → Album → Photo    │    │    - Thumbnail generation   │
+│  • Like, Comment            │    │    - Watermark overlay      │
+│  • Notification (Generic)   │    │    - EXIF extraction        │
+│                             │    │  • AI Tagging (ResNet50)    │
+└─────────────────────────────┘    └─────────────────────────────┘
+```
+
+---
+
+## 📊 Data Models
+
+### User Model (`users/models.py`)
+Custom user with email-based auth and role-based permissions:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `email` | EmailField | Primary identifier (replaces username) |
+| `full_name` | CharField | Display name |
+| `role` | Choice | `Admin` / `Coordinator` / `Photographer` / `Member` / `Guest` |
+| `profile_picture` | ImageField | Avatar |
+| `email_otp` | CharField | PyOTP secret for email verification |
+| `is_verified` | Boolean | Email verification status |
+
+### Gallery Models (`gallery/models.py`)
+
+**Event** — Top-level container
+```python
+Event
+├── name, description, date, location
+├── cover_image
+└── coordinator → ForeignKey(User)  # Only coordinators can own events
+```
+
+**Album** — Sub-collection within an event
+```python
+Album
+├── name, description, cover_image
+├── event → ForeignKey(Event)
+└── owner → ForeignKey(User)
+```
+
+**Photo** — The core asset
+```python
+Photo
+├── image, thumbnail (generated)
+├── is_processed (Celery flag)
+├── exif_data (JSONField - extracted metadata)
+├── auto_tags (AI-generated via ResNet50)
+├── tagged_users → ManyToMany(User)
+├── photographer → ForeignKey(User)
+├── album → ForeignKey(Album)
+├── event → ForeignKey(Event)
+└── likes_cnt, download_cnt
+```
+
+### Interaction Models (`interactions/models.py`)
+
+```python
+Like
+├── user → ForeignKey(User)
+├── photo → ForeignKey(Photo)
+└── unique_together = ('user', 'photo')  # One like per user
+
+Comment
+├── user → ForeignKey(User)
+├── photo → ForeignKey(Photo)
+├── content (TextField)
+├── parent → ForeignKey(self)  # Nested replies support
+└── created_at
+```
+
+### Notification Model (`notifications/models.py`)
+Uses Django's **GenericForeignKey** for polymorphic notifications:
+
+```python
+Notification
+├── recipient → ForeignKey(User)
+├── actor → ForeignKey(User)
+├── verb (CharField)  # "liked your photo", "commented on"
+├── content_type → ForeignKey(ContentType)  # Generic relation
+├── object_id (PositiveIntegerField)
+├── content_object (GenericForeignKey)
+└── is_read, created_at
+```
+
+---
+
+## 🔌 API Layer (Views & Serializers)
+
+### ViewSets (`gallery/views.py`)
+
+| ViewSet | Endpoint | Features |
+|---------|----------|----------|
+| `PhotoViewSet` | `/api/gallery/photos/` | CRUD, filtering, ordering, download action |
+| `AlbumViewSet` | `/api/gallery/albums/` | CRUD, filter by event/owner, search |
+| `EventViewSet` | `/api/gallery/events/` | CRUD, auto-assigns coordinator |
+| `UserSearchView` | `/api/gallery/search/` | Debounced user search for tagging |
+
+### Key Serializer Patterns (`gallery/serializers.py`)
+
+```python
+# Dual-field pattern for user tagging:
+tagged_users_details = UserTagSerializer(read_only=True)   # GET: Full user objects
+tagged_user_ids = PrimaryKeyRelatedField(write_only=True)  # POST/PATCH: Just IDs
+
+# Computed fields:
+is_liked = SerializerMethodField()      # Check if current user liked
+likes_count = SerializerMethodField()   # Dynamic count
+auto_tags = SerializerMethodField()     # AI-generated tags
+```
+
+### Background Processing (`gallery/tasks.py`)
+Celery tasks triggered on photo upload via signals:
+
+```python
+@shared_task
+def process_photo(photo_id):
+    # 1. Generate 500x500 thumbnail
+    # 2. Apply watermark overlay ("© MemoRise")
+    # 3. Extract EXIF metadata
+    # 4. Set is_processed = True
+```
+
+---
 
 ## 🚀 Key Features
 
-- **Real-Time Notifications:**
-  - Receive instant toast and bell notifications for likes and comments on your photos, powered by Django Channels and WebSockets with secure JWT authentication.
-- **Robust Notification System:**
-  - All notification types (likes, comments, replies) are delivered in real time and displayed in the notification bell, with reliable serialization and delivery.
-- **Smart Uploading:**
-  - Forget manual sorting. When you upload photos to an Event page, the system automatically detects the context and links the photos to that specific event instantly.
-- **EXIF Data Extraction:**
-  - Automatically extracts and displays EXIF metadata (such as camera model, date taken, and geolocation) from uploaded photos for richer photo details and search.
-- **AI Tagging with ResNet50:**
-  - Integrates a ResNet50 deep learning model to auto-detect and tag objects in photos, making searching and categorization smarter and faster.
-- **Visual Customization:**
-  - Make your gallery look professional. Users can upload custom cover photos (banners) for both Events and Albums, creating a polished, portfolio-quality aesthetic.
-- **Visual-First Navigation:**
-  - Designed for browsing:
-    - Click an Event Card to see the event details.
-    - Select Albums to dive deeper into specific moments.
-    - Scroll through the Photo Grid for the general stream.
+| Feature | Implementation |
+|---------|---------------|
+| **Real-Time Notifications** | Django Channels + WebSocket + JWT auth |
+| **AI Photo Tagging** | ResNet50 deep learning model |
+| **EXIF Extraction** | Pillow/exifread on upload |
+| **Async Processing** | Celery + Redis for thumbnails/watermarks |
+| **User Tagging** | ManyToMany with debounced search |
+| **Nested Comments** | Self-referential ForeignKey (parent) |
+| **Role-Based Access** | 5 user roles with `limit_choices_to` |
+| **MUI Dialog Components** | Modal forms for Create Event/Album/Tagging |
 
 ---
 
-## 👥 Who is it for?
+## 🛠 Tech Stack
 
-- **Photographers:** Deliver organized work to clients in a branded environment.
-- **Event Coordinators:** A centralized hub to share memories from weddings, conferences, or parties.
-- **Archivists:** Anyone managing large libraries of image data.
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| Python 3.8+ | Language |
+| Django 5.x | Web framework |
+| Django REST Framework | API layer |
+| Django Channels | WebSocket support |
+| Celery + Redis | Async task queue |
+| PostgreSQL/SQLite | Database |
+| ResNet50 (TensorFlow) | AI image tagging |
+| PyOTP | Email OTP verification |
 
----
-
-## 🛠 Tech Under the Hood
-
-This project runs on a powerful Full-Stack architecture:
-
-
-
-### Backend (The Heavy Lifting)
-- **Language:** Python
-- **Framework:** Django & Django REST Framework (DRF)
-- **Database:** SQLite (Dev) / PostgreSQL (Prod)
-- **Key Logic:** Complex data modeling for Event → Album → Photo relationships.
-- **EXIF Extraction:** Uses Python libraries (e.g., Pillow, exifread) to extract photo metadata on upload.
-- **AI Integration:** Utilizes ResNet50 (via TensorFlow/Keras or PyTorch) for automatic image tagging and object detection.
-- **Real-Time Engine:** Django Channels with WebSocket JWT authentication for secure, instant notifications.
-- **Security:** Environment variables for secrets, CORS and JWT setup, robust error handling for all real-time features.
-
-
-### Frontend (The Experience)
-- **Library:** React.js (Vite)
-- **Styling:** Tailwind CSS
-- **Icons:** Lucide React
-- **HTTP Client:** Axios
-- **Features:** Drag-and-drop uploads, dynamic routing, modal interactions, real-time toast and bell notifications, and robust WebSocket integration.
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| React 19 | UI library |
+| TypeScript 5.x | Type safety |
+| Vite 7.x | Build tool |
+| Material UI 7.x | Component library |
+| Tailwind CSS | Utility styling |
+| Axios | HTTP client |
+| react-hot-toast | Notifications |
+| Lucide React | Icons |
 
 ---
 
 ## ⚡ Getting Started
 
 ### Prerequisites
-- Node.js & npm
+- Node.js 18+ & npm
 - Python 3.8+
+- Redis (for Celery)
 
-### 1. Clone the Repository
+### 1. Clone & Setup Backend
 ```bash
 git clone https://github.com/yourusername/memorise-gallery.git
-cd memorise-gallery
-```
+cd memorise-gallery/backend
 
-### 2. Backend Setup (Django)
-```bash
-cd backend
 python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # macOS/Linux
+
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
 
-### 3. Frontend Setup (React)
+### 2. Start Celery Worker
+```bash
+celery -A config worker -l info
+```
+
+### 3. Setup Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Visit [http://localhost:5173](http://localhost:5173) to view the app!
+Visit **http://localhost:5173** 🚀
 
 ---
 
-## 🔮 Future Roadmap
+## 🔮 Roadmap
 
-- [ ] Cloud Storage Integration: Integrate AWS S3
-- [x] Real-Time Notification System: WebSocket-based, JWT-authenticated notifications for all user interactions
-- [ ] Batch Download: Download entire albums as ZIP files
+- [x] Real-Time Notifications (WebSocket + JWT)
+- [x] TypeScript Migration
+- [x] Material UI Dialog Components
+- [ ] AWS S3 Cloud Storage
+- [ ] Batch ZIP Download
+- [ ] Face Recognition Tagging
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) for details.
