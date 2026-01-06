@@ -76,14 +76,6 @@ const EventPage = () => {
         };
     }, [id]);
 
-    if (loading) return (
-        <div className="min-h-screen bg-white flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-black" />
-        </div>
-    );
-
-    if (!event) return <div className="min-h-screen bg-white flex items-center justify-center text-black">Event not found.</div>;
-
     return (
         <div className="min-h-screen bg-white p-6">
             <div className="max-w-7xl mx-auto">
@@ -92,80 +84,93 @@ const EventPage = () => {
                     Back to Events
                 </Link>
 
-                <div className="bg-white rounded-lg p-8 border border-black mb-10">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div>
-                            <h1 className="text-4xl font-bold text-black mb-3">{event.name}</h1>
-                            <div className="flex flex-wrap gap-4 text-gray-600 text-sm">
-                                <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {event.date}</span>
-                                <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {event.location}</span>
+                {loading ? (
+                    <div className="text-center py-20">
+                        <Loader2 className="h-8 w-8 animate-spin text-black mx-auto" />
+                        <p className="mt-4 text-gray-600">Loading event...</p>
+                    </div>
+                ) : !event ? (
+                    <div className="text-center py-20">
+                        <p className="text-black">Event not found.</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="bg-white rounded-lg p-8 border border-black mb-10">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div>
+                                    <h1 className="text-4xl font-bold text-black mb-3">{event.name}</h1>
+                                    <div className="flex flex-wrap gap-4 text-gray-600 text-sm">
+                                        <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {event.date}</span>
+                                        <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {event.location}</span>
+                                    </div>
+                                    <p className="mt-4 text-gray-700 max-w-2xl">{event.description}</p>
+                                </div>
+                                
+                                <div className="flex gap-3">
+                                    <Link 
+                                        to={`/upload/${id}`} 
+                                        className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition flex items-center gap-2 border border-black"
+                                    >
+                                        <Upload className="w-5 h-5" />
+                                        Upload Photos
+                                    </Link>
+                                </div>
                             </div>
-                            <p className="mt-4 text-gray-700 max-w-2xl">{event.description}</p>
                         </div>
-                        
-                        <div className="flex gap-3">
-                            <Link 
-                                to={`/upload/${id}`} 
-                                className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition flex items-center gap-2 border border-black"
-                            >
-                                <Upload className="w-5 h-5" />
-                                Upload Photos
-                            </Link>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="mb-12">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <FolderOpen className="w-6 h-6 text-black" />
-                            <h2 className="text-2xl font-bold text-black">Albums</h2>
-                        </div>
-                        <Link 
-                            to={`/create-album?event=${id}`}
-                            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-black px-4 py-2 rounded-lg border border-black transition-all"
-                        >
-                            <Plus className="w-4 h-4" />
-                            <span className="font-medium text-sm">Create Album</span>
-                        </Link>
-                    </div>
+                        <div className="mb-12">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-2">
+                                    <FolderOpen className="w-6 h-6 text-black" />
+                                    <h2 className="text-2xl font-bold text-black">Albums</h2>
+                                </div>
+                                <Link 
+                                    to={`/create-album?event=${id}`}
+                                    className="flex items-center gap-2 bg-white hover:bg-gray-50 text-black px-4 py-2 rounded-lg border border-black transition-all"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span className="font-medium text-sm">Create Album</span>
+                                </Link>
+                            </div>
 
-                    {albums.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {albums.map(album => (
-                                <AlbumCard key={album.id} album={album} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-10 bg-white rounded-lg border border-dashed border-black">
-                            <p className="text-gray-600 text-sm">No albums yet. Organize your photos by creating one.</p>
-                        </div>
-                    )}
-                </div>
-
-                <div>
-                    <div className="flex items-center gap-2 mb-6">
-                        <ImageIcon className="w-6 h-6 text-black" />
-                        <h2 className="text-2xl font-bold text-black">
-                            {albums.length > 0 ? "Other Photos" : "Photos"}
-                        </h2>
-                    </div>
-
-                    {photos.length === 0 ? (
-                        <div className="text-center py-12 bg-white rounded-lg border border-dashed border-black">
-                            <p className="text-gray-600">No loose photos found.</p>
-                            {albums.length === 0 && (
-                                <p className="text-gray-500 text-sm mt-1">This event is empty.</p>
+                            {albums.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                    {albums.map(album => (
+                                        <AlbumCard key={album.id} album={album} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-10 bg-white rounded-lg border border-dashed border-black">
+                                    <p className="text-gray-600 text-sm">No albums yet. Organize your photos by creating one.</p>
+                                </div>
                             )}
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {photos.map(photo => (
-                                <PhotoCard key={photo.id} photo={photo} /> 
-                            ))}
+
+                        <div>
+                            <div className="flex items-center gap-2 mb-6">
+                                <ImageIcon className="w-6 h-6 text-black" />
+                                <h2 className="text-2xl font-bold text-black">
+                                    {albums.length > 0 ? "Other Photos" : "Photos"}
+                                </h2>
+                            </div>
+
+                            {photos.length === 0 ? (
+                                <div className="text-center py-12 bg-white rounded-lg border border-dashed border-black">
+                                    <p className="text-gray-600">No loose photos found.</p>
+                                    {albums.length === 0 && (
+                                        <p className="text-gray-500 text-sm mt-1">This event is empty.</p>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {photos.map(photo => (
+                                        <PhotoCard key={photo.id} photo={photo} /> 
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
+                    </>
+                )}
             </div>
         </div>
     );

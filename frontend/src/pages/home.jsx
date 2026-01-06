@@ -52,17 +52,6 @@ const Home = () => {
         }, 800); 
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-center">
-                    <Loader2 className="animate-spin h-12 w-12 text-white mx-auto" />
-                    <p className="mt-4 text-gray-400">Loading events...</p>
-                </div>
-            </div>
-        );
-    }
-
   return (
         <div className="min-h-screen bg-white text-black">
             <header className="bg-white border-b border-black/10 sticky top-0 z-50">
@@ -123,7 +112,12 @@ const Home = () => {
                     </Link>
                 </div>
 
-                {events.length === 0 ? (
+                {loading ? (
+                    <div className="text-center py-20">
+                        <Loader2 className="animate-spin h-12 w-12 text-black mx-auto" />
+                        <p className="mt-4 text-gray-600">Loading events...</p>
+                    </div>
+                ) : events.length === 0 ? (
                     <div className="text-center py-20 bg-gray-100 rounded-lg border border-dashed border-black/20">
                         <div className="bg-black/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-black/20">
                             <Calendar className="h-10 w-10 text-black/50" />
