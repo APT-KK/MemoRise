@@ -1,9 +1,10 @@
 import os
 from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .filters import PhotoFilter
 from .models import Photo, Album, Event
-from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, UserTagSerializer
+from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, PublicAlbumSerializer, UserTagSerializer
 from rest_framework import viewsets, permissions, parsers, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,7 +12,7 @@ from .models import Album
 from .ai_utils import generate_tags  
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes, api_view
 
 User = get_user_model()
 
@@ -85,7 +86,6 @@ class PhotoViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(f"Error generating AI tags: {e}")
 
-
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all().order_by('-created_at')
     serializer_class = AlbumSerializer
@@ -124,3 +124,29 @@ class UserSearchView(generics.ListAPIView):
         ).distinct()[:10]
         # icontains = insensitive contains (case insensitive)
         # Q is for OR operation
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def view_shared_album(request,share_token):
+        
+    album = get_object_or_404(Album, share_token=share_token)
+
+    if not album.is_public:
+        return Response({"error": "Album is not public"}, status=403)
+    
+    serializer = PublicAlbumSerializer(album, context={'request': request})
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def toggle_public_link(request,album_id):
+    album = get_object_or_404(Album, id=album_id, owner=request.user)
+
+    album.is_public = not album.is_public
+    album.save()
+
+    return Response({
+        "is_public": album.is_public,
+        "share_token": str(album.share_token) if album.is_public else None,
+        "full_url": f"http://localhost:8000/share/{album.share_token}" if album.is_public else None
+    })
