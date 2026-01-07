@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .filters import PhotoFilter
 from .models import Photo, Album, Event
-from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, PublicAlbumSerializer, UserTagSerializer
+from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, PublicAlbumSerializer, UserTagSerializer, PublicPhotoShareSerializer
 from rest_framework import viewsets, permissions, parsers, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -149,4 +149,25 @@ def toggle_public_link(request,album_id):
         "is_public": album.is_public,
         "share_token": str(album.share_token) if album.is_public else None,
         "full_url": f"http://localhost:8000/share/{album.share_token}" if album.is_public else None
+    })
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def view_shared_photo(request, share_token):
+    photo = get_object_or_404(Photo, share_token=share_token)
+    if not photo.is_public:
+        return Response({"error": "Photo is not public"}, status=403)
+    serializer = PublicPhotoShareSerializer(photo, context={'request': request})
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def toggle_public_photo_link(request, photo_id):
+    photo = get_object_or_404(Photo, id=photo_id, photographer=request.user)
+    photo.is_public = not photo.is_public
+    photo.save()
+    return Response({
+        "is_public": photo.is_public,
+        "share_token": str(photo.share_token) if photo.is_public else None,
+        "full_url": f"http://localhost:8000/share/photos/{photo.share_token}" if photo.is_public else None
     })

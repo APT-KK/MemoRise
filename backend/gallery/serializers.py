@@ -110,27 +110,18 @@ class EventSerializer(serializers.ModelSerializer):
         photos_qs = obj.photos.all().order_by('-uploaded_at')
         return PhotoSerializer(photos_qs, many=True, context=self.context).data
 
-class PublicPhotoSerializer(serializers.ModelSerializer):
+class PublicPhotoShareSerializer(serializers.ModelSerializer):
     photographer_name = serializers.CharField(source='photographer.full_name', read_only=True)
-
+    
     class Meta:
         model = Photo
         fields = [
-            'id', 
-            'image', 
-            'thumbnail', 
-            'manual_tags', 
-            'auto_tags', 
-            'exif_data', 
-            'description', 
-            'photographer_name',
-            'likes_cnt',
+            'id', 'image', 'thumbnail', 'manual_tags', 'auto_tags', 'exif_data', 'description', 'photographer_name', 'likes_cnt',
         ]
 
 class PublicAlbumSerializer(serializers.ModelSerializer):
     owner_name = serializers.CharField(source='owner.full_name', read_only=True)
-    photos = PublicPhotoSerializer(many=True, read_only=True)
-
+    photos = PublicPhotoShareSerializer(many=True, read_only=True)
     class Meta:
         model = Album
         fields = [
