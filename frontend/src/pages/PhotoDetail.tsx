@@ -26,6 +26,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DownloadIcon from '@mui/icons-material/Download';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import ShareIcon from '@mui/icons-material/Share';
+import ShareDialog from '../components/ShareDialog';
 
 const PhotoDetail = () => {
     const { id } = useParams();
@@ -34,6 +36,10 @@ const PhotoDetail = () => {
     const [isTagCompOpen, setTagCompOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [shareDialogOpen, setShareDialogOpen] = useState(false);
+    const [shareLoading, setShareLoading] = useState(false);
+    const [shareUrl, setShareUrl] = useState<string | null>(null);
+    const [isPublic, setIsPublic] = useState(false);
 
     const handleDownload = async () => {
         setIsDownloading(true);
@@ -109,6 +115,12 @@ const PhotoDetail = () => {
             }
         };
         fetchSinglePhoto();
+
+        // Set initial share state if photo has share_url/is_public
+        if (photo) {
+            setShareUrl(photo.share_url || null);
+            setIsPublic(photo.is_public || false);
+        }
         
         // Cleanup polling on unmount
         return () => {
@@ -151,19 +163,49 @@ const PhotoDetail = () => {
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'white', py: 3, px: 2 }}>
             <Container maxWidth="xl">
-                <Button
-                    component={Link}
-                    to="/home"
-                    startIcon={<ArrowBackIcon />}
-                    sx={{ 
-                        mb: 2, 
-                        color: 'black',
-                        textTransform: 'none',
-                        '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' }
-                    }}
-                >
-                    Back to Feed
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Button
+                        component={Link}
+                        to="/home"
+                        startIcon={<ArrowBackIcon />}
+                        sx={{ 
+                            color: 'black',
+                            textTransform: 'none',
+                            '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' }
+                        }}
+                    >
+                        Back to Feed
+                    </Button>
+                    <Button
+                        startIcon={<ShareIcon />}
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setShareDialogOpen(true)}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Share
+                    </Button>
+                </Box>
+            <ShareDialog
+                open={shareDialogOpen}
+                onClose={() => setShareDialogOpen(false)}
+                shareUrl={shareUrl}
+                isPublic={isPublic}
+                loading={shareLoading}
+                type="photo"
+                onTogglePublic={async () => {
+                    setShareLoading(true);
+                    try {
+                        const res = await api.post(`/api/gallery/photos/${photo.id}/share/`);
+                        setIsPublic(res.data.is_public);
+                        setShareUrl(res.data.share_url || null);
+                    } catch (err) {
+                        toast.error('Failed to toggle sharing');
+                    } finally {
+                        setShareLoading(false);
+                    }
+                }}
+            />
 
                 <Grid container spacing={3}>
                     <Grid size={{ xs: 12, md: 7, lg: 8 }}>
