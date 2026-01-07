@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import InteractionBar from './InteractionBar';
 import { Photo } from '../types';
 import {
@@ -17,27 +19,85 @@ interface PhotoCardProps {
     photo: Photo & { photographer_profile_picture?: string };
 }
 
-const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
+const PhotoCard: React.FC<PhotoCardProps> = ({ photo: initialPhoto }) => {
+    const [photo, setPhoto] = useState(initialPhoto);
+
+    const isProcessing = photo.is_processed !== true;
+
+    // --- POLLING LOGIC ---
+    useEffect(() => {
+        let intervalId: NodeJS.Timeout;
+
+        if (isProcessing) {
+            intervalId = setInterval(async () => {
+                try {
+
+                    let accessToken = null;
+                    const authTokensString = localStorage.getItem('authTokens');
+                    if (authTokensString) {
+                        try {
+                            const tokens = JSON.parse(authTokensString);
+                            accessToken = tokens.access;
+                        } catch (e) {
+                            accessToken = authTokensString;
+                        }
+                    }
+                    if (!accessToken) accessToken = localStorage.getItem('access');
+
+                    // Poll the API to update photo status
+                    // We use the relative URL to work with Vite proxy, or fallback to absolute if needed
+                    const pollUrl = `http://localhost:8000/api/gallery/photos/${photo.id}/?_=${Date.now()}`;
+                    const response = await axios.get(pollUrl, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    });
+
+                    const serverIsProcessed = response.data.is_processed === true || response.data.isProcessed === true;
+
+                    if (serverIsProcessed) {
+                        setPhoto(prev => ({
+                            ...prev,
+                            ...response.data,
+                            is_processed: true
+                        }));
+                        clearInterval(intervalId);
+                    }
+                } catch (error) {
+                }
+            }, 3000);
+        }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [isProcessing, photo.id]);
+
     let imageUrl = photo.thumbnail || photo.image;
-    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
-        // if it's missing leading slash, add it
-        imageUrl = '/' + imageUrl;
-    } else if (imageUrl && imageUrl.startsWith('http://127.0.0.1:8000')) {
-        // Convert absolute backend URL to relative for proxy of vite
-        imageUrl = imageUrl.replace('http://127.0.0.1:8000', '');
+
+    if (imageUrl) {
+        // normalize URL paths
+        if (!imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+            imageUrl = '/' + imageUrl;
+        } else if (imageUrl.startsWith('http://127.0.0.1:8000')) {
+            imageUrl = imageUrl.replace('http://127.0.0.1:8000', '');
+        }
+
+        //DEBUG: Cache Busting: Force browser to re-fetch image after processing finishes
+        if (!isProcessing) {
+            const timestamp = photo.updated_at ? new Date(photo.updated_at).getTime() : Date.now();
+            imageUrl = `${imageUrl}?t=${timestamp}`;
+        }
     }
 
     const photographerEmail = photo.photographer_email || "Unknown User";
-    const isProcessing = photo.is_processed === false;
 
     return (
-        <Card 
-            sx={{ 
+        <Card
+            sx={{
                 borderRadius: 2,
                 border: 1,
                 borderColor: 'grey.300',
                 transition: 'all 0.3s',
-                '&:hover': { 
+                '&:hover': {
                     boxShadow: 4,
                     '& .photo-image': { transform: 'scale(1.05)' }
                 }
@@ -47,9 +107,9 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
                 avatar={
                     <Avatar
                         src={photo.photographer_profile_picture}
-                        sx={{ 
-                            width: 32, 
-                            height: 32, 
+                        sx={{
+                            width: 32,
+                            height: 32,
                             bgcolor: 'black',
                             border: 1,
                             borderColor: 'grey.300'
@@ -59,14 +119,14 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
                     </Avatar>
                 }
                 title={
-                    <Link 
+                    <Link
                         to={`/profile/${encodeURIComponent(photographerEmail)}`}
                         style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                        <Typography 
-                            variant="body2" 
+                        <Typography
+                            variant="body2"
                             fontWeight={500}
-                            sx={{ 
+                            sx={{
                                 '&:hover': { textDecoration: 'underline' },
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -83,14 +143,14 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
             <Link to={`/photos/${photo.id}`} style={{ display: 'block' }}>
                 <Box sx={{ position: 'relative', aspectRatio: '1', bgcolor: 'black', overflow: 'hidden' }}>
                     {isProcessing && (
-                        <Box 
-                            sx={{ 
-                                position: 'absolute', 
-                                inset: 0, 
-                                zIndex: 10, 
-                                display: 'flex', 
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                inset: 0,
+                                zIndex: 10,
+                                display: 'flex',
                                 flexDirection: 'column',
-                                alignItems: 'center', 
+                                alignItems: 'center',
                                 justifyContent: 'center',
                                 bgcolor: 'rgba(0,0,0,0.6)',
                                 backdropFilter: 'blur(4px)'
@@ -118,11 +178,11 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
             </Link>
 
             <CardContent sx={{ p: 2 }}>
-                <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    sx={{ 
-                        mb: 2, 
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        mb: 2,
                         height: 40,
                         overflow: 'hidden',
                         display: '-webkit-box',
@@ -134,9 +194,9 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
                 </Typography>
 
                 <Box sx={{ pt: 2, borderTop: 1, borderColor: 'grey.200' }}>
-                    <InteractionBar 
-                        photoId={photo.id} 
-                        initialLikesCount={photo.likes_count} 
+                    <InteractionBar
+                        photoId={photo.id}
+                        initialLikesCount={photo.likes_count}
                         initialLiked={photo.is_liked}
                     />
                 </Box>

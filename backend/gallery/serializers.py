@@ -19,6 +19,8 @@ class PhotoSerializer(serializers.ModelSerializer):
     auto_tags = serializers.SerializerMethodField()
     updated_at = serializers.DateTimeField(read_only=True)
 
+    is_processed = serializers.BooleanField(read_only=True)
+
     # post response to frontend
     tagged_users_details = UserTagSerializer(source='tagged_users', many=True, read_only=True)
     # get response from frontend
@@ -44,7 +46,8 @@ class PhotoSerializer(serializers.ModelSerializer):
             'likes_count',
             'download_cnt', 
             'photographer',
-            'photographer_email'
+            'photographer_email',
+            'is_processed'  
         ]
 
     def get_auto_tags(self, obj):
@@ -102,7 +105,6 @@ class EventSerializer(serializers.ModelSerializer):
         ]
 
     def get_photos(self, obj):
-        # DEBUG: Always fetch fresh photos from DB to ensure we get latest is_processed status
         photos_qs = obj.photos.all().order_by('-uploaded_at')
         return PhotoSerializer(photos_qs, many=True, context=self.context).data
 

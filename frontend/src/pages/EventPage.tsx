@@ -37,7 +37,7 @@ const EventPage: React.FC = () => {
                 
                 // DEBUG :- Start polling only if there are unprocessed photos
                 //  fetches data from backend every 2 secs
-                const hasUnprocessed = loosePhotos.some((photo: Photo) => photo.is_processed === false);
+                const hasUnprocessed = loosePhotos.some((photo: Photo) => photo.is_processed !== true);
                 if (hasUnprocessed && !pollIntervalRef.current) {
                     pollIntervalRef.current = setInterval(async () => {
                         try {
@@ -45,8 +45,7 @@ const EventPage: React.FC = () => {
                             const allPhotos: Photo[] = photosRes.data.results || photosRes.data;
                             const loosePhotos = allPhotos.filter((photo: Photo) => photo.album === null);
                             setPhotos(loosePhotos);
-                            // Stop polling if all photos are processed
-                            const stillUnprocessed = loosePhotos.some((photo: Photo) => photo.is_processed === false);
+                            const stillUnprocessed = loosePhotos.some((photo: Photo) => photo.is_processed !== true);
                             if (!stillUnprocessed && pollIntervalRef.current) {
                                 clearInterval(pollIntervalRef.current);
                                 pollIntervalRef.current = null;
@@ -56,10 +55,18 @@ const EventPage: React.FC = () => {
                                 const finalLoosePhotos = finalAllPhotos.filter((photo: Photo) => photo.album === null);
                                 setPhotos(finalLoosePhotos);
                             }
-                        } catch (error) {
-                            console.error("Error polling for photo updates", error);
+                        } catch (error: any) {
+                            if (error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
+                                if (pollIntervalRef.current) {
+                                    clearInterval(pollIntervalRef.current);
+                                    pollIntervalRef.current = null;
+                                    console.warn("Stopped polling due to network/CORS error. Please check if Django server is running.");
+                                }
+                            } else {
+                                console.error("Error polling for photo updates", error);
+                            }
                         }
-                    }, 2000);
+                    }, 3000); // Increased to 3 seconds to reduce load
                 }
 
             } catch (error) {

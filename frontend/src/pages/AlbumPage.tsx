@@ -42,22 +42,32 @@ const AlbumPage: React.FC = () => {
                 
                 // Start polling only if there are unprocessed photos
                 // same logic as EventPage.jsx polling
-                const hasUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed === false);
+                const hasUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed !== true);
                 if (hasUnprocessed && !pollIntervalRef.current) {
                     pollIntervalRef.current = setInterval(async () => {
                         try {
                             const res = await api.get(`/api/gallery/albums/${id}/`);
                             setAlbum(res.data);
                             
-                            const stillUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed === false);
+                            const stillUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed !== true);
                             if (!stillUnprocessed && pollIntervalRef.current) {
                                 clearInterval(pollIntervalRef.current);
                                 pollIntervalRef.current = null;
                             }
-                        } catch (error) {
-                            console.error("Error polling for album updates", error);
+                        } catch (error: any) {
+                            // Only log network errors, don't spam console
+                            if (error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
+                                // Server might be down or CORS issue - stop polling to avoid spam
+                                if (pollIntervalRef.current) {
+                                    clearInterval(pollIntervalRef.current);
+                                    pollIntervalRef.current = null;
+                                    console.warn("Stopped polling due to network/CORS error. Please check if Django server is running.");
+                                }
+                            } else {
+                                console.error("Error polling for album updates", error);
+                            }
                         }
-                    }, 2000); 
+                    }, 3000); // Increased to 3 seconds to reduce load 
                 }
             } catch (error) {
                 console.error("Error fetching album", error);

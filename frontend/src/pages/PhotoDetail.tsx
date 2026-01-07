@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Camera, Aperture, Clock, Gauge, Tag } from 'lucide-react';
 import InteractionBar from '../components/InteractionBar';
@@ -33,6 +33,7 @@ const PhotoDetail = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isTagCompOpen, setTagCompOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const handleDownload = async () => {
         setIsDownloading(true);
@@ -72,7 +73,35 @@ const PhotoDetail = () => {
         const fetchSinglePhoto = async () => {
             try {
                 const res = await api.get(`/api/gallery/photos/${id}/`);
-                setPhoto(res.data);
+                const photoData = res.data;
+                setPhoto(photoData);
+                
+                // Start polling if photo is not processed
+                if (photoData.is_processed !== true && !pollIntervalRef.current) {
+                    pollIntervalRef.current = setInterval(async () => {
+                        try {
+                            const pollRes = await api.get(`/api/gallery/photos/${id}/`);
+                            const updatedPhoto = pollRes.data;
+                            setPhoto(updatedPhoto);
+                            
+                            // Stop polling if photo is now processed
+                            if (updatedPhoto.is_processed === true && pollIntervalRef.current) {
+                                clearInterval(pollIntervalRef.current);
+                                pollIntervalRef.current = null;
+                            }
+                        } catch (error: any) {
+                            if (error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
+                                if (pollIntervalRef.current) {
+                                    clearInterval(pollIntervalRef.current);
+                                    pollIntervalRef.current = null;
+                                    console.warn("Stopped polling due to network/CORS error. Please check if Django server is running.");
+                                }
+                            } else {
+                                console.error("Error polling for photo updates", error);
+                            }
+                        }
+                    }, 3000); 
+                }
             } catch (err) {
                 console.error("Failed to load photo", err);
             } finally {
@@ -80,6 +109,14 @@ const PhotoDetail = () => {
             }
         };
         fetchSinglePhoto();
+        
+        // Cleanup polling on unmount
+        return () => {
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+            }
+        };
     }, [id]);
 
     if (isLoading) return (
@@ -101,7 +138,6 @@ const PhotoDetail = () => {
         imageUrl = imageUrl.replace('http://127.0.0.1:8000', '');
     }
 
-    // Fix profile picture URL as well
     let profilePicUrl = photo.photographer_profile_picture;
     if (profilePicUrl && !profilePicUrl.startsWith('http') && !profilePicUrl.startsWith('/')) {
         profilePicUrl = '/' + profilePicUrl;

@@ -30,7 +30,8 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'CHANGE_ME_IN_ENV')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
+# Allow localhost and 127.0.0.1 for development
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
     'daphne',
     'channels',
     'interactions',
-    'gallery',
+    'gallery.apps.GalleryConfig',  # Explicitly use GalleryConfig to ensure signals are loaded
     'users',
     'notifications',
     'django_filters',
@@ -55,7 +56,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
+    'corsheaders.middleware.CorsMiddleware',  # Must be at the top for CORS to work
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -100,6 +101,15 @@ CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_HEADERS = ['*']
 CORS_EXPOSE_HEADERS = ['*']
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+] if DEBUG else []
+# Allow preflight requests
+CORS_PREFLIGHT_MAX_AGE = 86400
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -189,3 +199,6 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'  # Must match task serializer
+CELERY_TIMEZONE = TIME_ZONE  # Use Django's timezone setting
+CELERY_ENABLE_UTC = True

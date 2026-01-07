@@ -32,6 +32,10 @@ class PhotoViewSet(viewsets.ModelViewSet):
     filterset_class = PhotoFilter
     ordering_fields = ['uploaded_at', 'likes_cnt']
 
+    def get_queryset(self):
+        queryset = Photo.objects.all().order_by('-uploaded_at')
+        return queryset.select_related('photographer', 'event', 'album')
+
     # to construct absolute URL for the image
     def get_serializer_context(self):
         context = super().get_serializer_context()

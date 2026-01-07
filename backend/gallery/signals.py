@@ -7,6 +7,9 @@ from django.db import transaction
 from django.db.models.signals import m2m_changed
 from notifications.models import Notification 
 from django.contrib.auth import get_user_model
+import logging
+
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 #m2m = many to many relationship & through = intermediate table
@@ -34,6 +37,7 @@ def trigger_async_photo_processing(sender, instance, created, **kwargs):
         try:
             # this ensures the task runs only after
             # the transaction is committed (in background)
+            logger.info(f"Triggering async photo processing for photo_id: {instance.id}")
             transaction.on_commit(lambda: process_photo.delay(instance.id))
         except Exception as e:
-            print(f"Error triggering async processing for photo {instance.id}: {e}")
+            logger.error(f"Error triggering async processing for photo {instance.id}: {e}", exc_info=True)
