@@ -151,14 +151,15 @@ def toggle_public_link(request,album_id):
         "full_url": f"http://localhost:8000/share/{album.share_token}" if album.is_public else None
     })
 
+from django.shortcuts import render
+
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def view_shared_photo(request, share_token):
     photo = get_object_or_404(Photo, share_token=share_token)
     if not photo.is_public:
-        return Response({"error": "Photo is not public"}, status=403)
-    serializer = PublicPhotoShareSerializer(photo, context={'request': request})
-    return Response(serializer.data)
+        return render(request, 'shared_photo.html', {'error': 'Photo is not public'}, status=403)
+    return render(request, 'shared_photo.html', {'photo': photo})
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

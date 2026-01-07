@@ -116,7 +116,6 @@ const PhotoDetail = () => {
         };
         fetchSinglePhoto();
 
-        // Set initial share state if photo has share_url/is_public
         if (photo) {
             setShareUrl(photo.share_url || null);
             setIsPublic(photo.is_public || false);
@@ -198,7 +197,7 @@ const PhotoDetail = () => {
                     try {
                         const res = await api.post(`/api/gallery/photos/${photo.id}/share/`);
                         setIsPublic(res.data.is_public);
-                        setShareUrl(res.data.share_url || null);
+                        setShareUrl(res.data.full_url || null);
                     } catch (err) {
                         toast.error('Failed to toggle sharing');
                     } finally {
