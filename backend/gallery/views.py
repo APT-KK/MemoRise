@@ -6,6 +6,7 @@ from .filters import PhotoFilter
 from .models import Photo, Album, Event
 from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, PublicAlbumSerializer, UserTagSerializer, PublicPhotoShareSerializer
 from rest_framework import viewsets, permissions, parsers, generics
+from .permissions import IsEventCoordinatorOrAdmin, CanUploadPhotoOrCreateAlbum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Album
@@ -21,12 +22,16 @@ User = get_user_model()
 class PhotoViewSet(viewsets.ModelViewSet):
     queryset = Photo.objects.all().order_by('-uploaded_at')
     serializer_class = PhotoSerializer
-    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [
         parsers.MultiPartParser,
         parsers.FormParser,
         parsers.JSONParser
     ]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [CanUploadPhotoOrCreateAlbum()]
+        return [permissions.IsAuthenticated()]
 
     #filtering using django-filters
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -61,7 +66,6 @@ class PhotoViewSet(viewsets.ModelViewSet):
         album = self.request.data.get('album')
         event = self.request.data.get('event')
         event_instance = None
-        # If album is provided then we set event from album
         if album and not event:
             try:
                 album_obj = Album.objects.get(pk=album)
@@ -86,10 +90,22 @@ class PhotoViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(f"Error generating AI tags: {e}")
 
+    def perform_update(self, serializer):
+        # Only allow owner/photographer to update tagged users
+        photo = self.get_object()
+        if 'tagged_user_ids' in self.request.data:
+            if photo.photographer != self.request.user:
+                raise PermissionError("Only the owner/photographer can tag users in this photo.")
+        serializer.save()
+
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all().order_by('-created_at')
     serializer_class = AlbumSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [CanUploadPhotoOrCreateAlbum()]
+        return [permissions.IsAuthenticated()]
 
     #filtering using django-filters
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -102,7 +118,11 @@ class AlbumViewSet(viewsets.ModelViewSet):
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all().order_by('-date')
     serializer_class = EventSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsEventCoordinatorOrAdmin()]
+        return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
         serializer.save(coordinator=self.request.user)
