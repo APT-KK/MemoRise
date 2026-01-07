@@ -58,6 +58,8 @@ class Album(models.Model):
 
 
 class Photo(models.Model):
+    is_public = models.BooleanField(default=False)
+    share_token = models.UUIDField(default=uuid.uuid4, editable=False)
 
     event = models.ForeignKey(
         Event, 
