@@ -295,8 +295,7 @@ Visit **http://localhost:5173** 🚀
 - [x] TypeScript Migration
 - [x] Material UI Dialog Components
 - [ ] AWS S3 Cloud Storage
-- [ ] Batch ZIP Download
-- [ ] share albums/photos
+- [x] share albums/photos
 
 ---
 
