@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -49,6 +50,9 @@ class Album(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     cover_image = models.ImageField(upload_to='album_covers/', null=True, blank=True)
 
+    is_public = models.BooleanField(default=False)
+    share_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)  
+   # to generate shareable public link
     def __str__(self):
         return self.name
 
