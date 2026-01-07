@@ -1,5 +1,6 @@
 import './App.css'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import SharedAlbumPage from './pages/SharedAlbumPage';
 import Login from './pages/login'
 import Signup from './pages/signup'
 import PhotoDetail from './pages/PhotoDetail'
@@ -33,6 +34,7 @@ function App() {
       <Route path="/album/:id" element={<AlbumPage />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/search" element={<SearchPage />} />
+      <Route path="/share/:share_token" element={<SharedAlbumPage />} />
     </Routes>
   )
 }
