@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Upload, ArrowLeft, MapPin, Calendar, Loader2, FolderOpen, Image as ImageIcon, Plus } from 'lucide-react';
-import PhotoCard from '../components/PhotoCard';
 import AlbumCard from '../components/AlbumCard';
 import CreateAlbumDialog from '../components/CreateAlbumDialog';
 import { Event, Album, Photo } from '../types';
@@ -38,8 +37,8 @@ const EventPage: React.FC = () => {
                     allPhotos = allPhotos.concat(nextRes.data.results || []);
                     next = nextRes.data.next;
                 }
-                const loosePhotos = allPhotos.filter((photo: Photo) => photo.album === null); 
-                // these are photos in event without an album
+                // Only show loose photos for this event (not in any album)
+                const loosePhotos = allPhotos.filter((photo: Photo) => photo.album === null && String(photo.event) === String(id));
                 setPhotos(loosePhotos);
                 
                 // DEBUG :- Start polling only if there are unprocessed photos
@@ -191,19 +190,27 @@ const EventPage: React.FC = () => {
                                     )}
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
+                                <div
+                                    className="columns-2 sm:columns-3 md:columns-4 xl:columns-6 gap-4 space-y-4"
+                                    style={{ width: '100%' }}
+                                >
                                     {photos.map(photo => {
                                         let imageUrl = photo.thumbnail || photo.image;
                                         if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
                                             imageUrl = '/' + imageUrl;
                                         }
                                         return (
-                                            <img
+                                            <Link
                                                 key={photo.id}
-                                                src={imageUrl}
-                                                alt={photo.title || 'Event photo'}
-                                                className="w-full h-48 object-cover rounded-lg border border-black/10 shadow-sm hover:shadow-md transition"
-                                            />
+                                                to={`/photos/${photo.id}`}
+                                                style={{ display: 'block' }}
+                                            >
+                                                <img
+                                                    src={imageUrl}
+                                                    alt={photo.title || 'Event photo'}
+                                                    className="mb-4 w-full rounded-lg border border-black/10 shadow-sm hover:shadow-md transition break-inside-avoid cursor-pointer"
+                                                />
+                                            </Link>
                                         );
                                     })}
                                 </div>

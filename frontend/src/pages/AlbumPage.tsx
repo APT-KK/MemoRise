@@ -4,7 +4,6 @@ import api from '../api/axios';
 import { useDropzone } from 'react-dropzone';
 import { ArrowLeft, User, Calendar, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
-import PhotoCard from '../components/PhotoCard'; 
 import { Album, Photo, FileUpload } from '../types';
 
 const AlbumPage: React.FC = () => {
@@ -294,21 +293,31 @@ const AlbumPage: React.FC = () => {
                                     <p className="text-gray-600 font-medium">This album is empty.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-                                    {album.photos.map(photo => {
-                                        let imageUrl = photo.thumbnail || photo.image;
-                                        if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
-                                            imageUrl = '/' + imageUrl;
-                                        }
-                                        return (
-                                            <img
-                                                key={photo.id}
-                                                src={imageUrl}
-                                                alt={photo.title || 'Album photo'}
-                                                className="w-full h-48 object-cover rounded-lg border border-black/10 shadow-sm hover:shadow-md transition"
-                                            />
-                                        );
-                                    })}
+                                <div
+                                    className="columns-2 sm:columns-3 md:columns-4 xl:columns-6 gap-4 space-y-4"
+                                    style={{ width: '100%' }}
+                                >
+                                    {album.photos
+                                        .filter(photo => String(photo.album) === String(id))
+                                        .map(photo => {
+                                            let imageUrl = photo.thumbnail || photo.image;
+                                            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+                                                imageUrl = '/' + imageUrl;
+                                            }
+                                            return (
+                                                <Link
+                                                    key={photo.id}
+                                                    to={`/photos/${photo.id}`}
+                                                    style={{ display: 'block' }}
+                                                >
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={photo.title || 'Album photo'}
+                                                        className="mb-4 w-full rounded-lg border border-black/10 shadow-sm hover:shadow-md transition break-inside-avoid cursor-pointer"
+                                                    />
+                                                </Link>
+                                            );
+                                        })}
                                 </div>
                             )}
                         </div>

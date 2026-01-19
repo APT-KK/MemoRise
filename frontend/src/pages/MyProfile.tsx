@@ -275,10 +275,29 @@ const MyProfile = () => {
                             <p className="text-gray-600">This user hasn't uploaded any photos yet.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {photos.map((photo) => (
-                                <PhotoCard key={photo.id} photo={photo} />
-                            ))}
+                        <div
+                            className="columns-2 sm:columns-3 md:columns-4 xl:columns-6 gap-4 space-y-4"
+                            style={{ width: '100%' }}
+                        >
+                            {photos.map(photo => {
+                                let imageUrl = photo.thumbnail || photo.image;
+                                if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+                                    imageUrl = '/' + imageUrl;
+                                }
+                                return (
+                                    <Link
+                                        key={photo.id}
+                                        to={`/photos/${photo.id}`}
+                                        style={{ display: 'block' }}
+                                    >
+                                        <img
+                                            src={imageUrl}
+                                            alt={photo.title || 'User photo'}
+                                            className="mb-4 w-full rounded-lg border border-black/10 shadow-sm hover:shadow-md transition break-inside-avoid cursor-pointer"
+                                        />
+                                    </Link>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
