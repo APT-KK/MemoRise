@@ -28,9 +28,16 @@ const EventPage: React.FC = () => {
                 const albumsRes = await api.get(`/api/gallery/albums/?event=${id}`);
                 setAlbums(albumsRes.data.results || albumsRes.data);
 
-                const photosRes = await api.get(`/api/gallery/photos/?event=${id}`);
-                const allPhotos: Photo[] = photosRes.data.results || photosRes.data;
-
+                // Fetch all paginated photos for this event
+                let photosRes = await api.get(`/api/gallery/photos/?event=${id}`);
+                let allPhotos: Photo[] = photosRes.data.results || photosRes.data;
+                let next = photosRes.data.next;
+                while (next) {
+                    const url = next.startsWith('http') ? next : `${window.location.origin}${next}`;
+                    const nextRes = await api.get(url);
+                    allPhotos = allPhotos.concat(nextRes.data.results || []);
+                    next = nextRes.data.next;
+                }
                 const loosePhotos = allPhotos.filter((photo: Photo) => photo.album === null); 
                 // these are photos in event without an album
                 setPhotos(loosePhotos);
@@ -156,7 +163,7 @@ const EventPage: React.FC = () => {
                             </div>
 
                             {albums.length > 0 ? (
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
                                     {albums.map(album => (
                                         <AlbumCard key={album.id} album={album} />
                                     ))}
@@ -184,7 +191,7 @@ const EventPage: React.FC = () => {
                                     )}
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
                                     {photos.map(photo => (
                                         <PhotoCard key={photo.id} photo={photo} /> 
                                     ))}

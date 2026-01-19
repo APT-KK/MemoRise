@@ -33,7 +33,25 @@ const Home: React.FC = () => {
             try {
                 const res = await api.get('/api/gallery/events/');
                 // this handles pagination results or direct array
-                setEvents(res.data.results || res.data);
+                // Always flatten paginated results to show all events
+                let eventsArr = res.data;
+                if (Array.isArray(eventsArr)) {
+                    setEvents(eventsArr);
+                } else if (Array.isArray(eventsArr.results)) {
+                    let allResults = [...eventsArr.results];
+                    let next = eventsArr.next;
+                    // Use a for-loop with await for proper async handling
+                    for (let i = 0; next; i++) {
+                        const url = next.startsWith('http') ? next : `${window.location.origin}${next}`;
+                        // eslint-disable-next-line no-await-in-loop
+                        const nextRes = await api.get(url);
+                        allResults = allResults.concat(nextRes.data.results || []);
+                        next = nextRes.data.next;
+                    }
+                    setEvents(allResults);
+                } else {
+                    setEvents([]);
+                }
 
                 try {
                     const userRes = await api.get('/api/auth/users/me/');
@@ -139,11 +157,25 @@ const Home: React.FC = () => {
                     <CreateEventDialog
                         open={createEventOpen}
                         onClose={() => setCreateEventOpen(false)}
-                        onSuccess={() => {
+                        onSuccess={async () => {
                             // Refresh events list
-                            api.get('/api/gallery/events/').then(res => {
-                                setEvents(res.data.results || res.data);
-                            });
+                            const res = await api.get('/api/gallery/events/');
+                            let eventsArr = res.data;
+                            if (Array.isArray(eventsArr)) {
+                                setEvents(eventsArr);
+                            } else if (Array.isArray(eventsArr.results)) {
+                                let allResults = [...eventsArr.results];
+                                let next = eventsArr.next;
+                                for (let i = 0; next; i++) {
+                                    const url = next.startsWith('http') ? next : `${window.location.origin}${next}`;
+                                    const nextRes = await api.get(url);
+                                    allResults = allResults.concat(nextRes.data.results || []);
+                                    next = nextRes.data.next;
+                                }
+                                setEvents(allResults);
+                            } else {
+                                setEvents([]);
+                            }
                         }}
                     />
                 </div>

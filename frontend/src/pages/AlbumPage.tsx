@@ -38,26 +38,57 @@ const AlbumPage: React.FC = () => {
         const fetchAlbum = async () => {
             try {
                 const res = await api.get(`/api/gallery/albums/${id}/`);
-                setAlbum(res.data);
-                
+                let albumData = res.data;
+                if (albumData.photos && albumData.photos.length && albumData.photos.length < (albumData.photo_count || 100000)) {
+                    let allPhotos = [...albumData.photos];
+                    let next = albumData.photos_next || null;
+                    if (!next && albumData.id) {
+                        // This fetches all photos for this album
+                        let photosRes = await api.get(`/api/gallery/photos/?album=${albumData.id}`);
+                        allPhotos = photosRes.data.results || photosRes.data;
+                        next = photosRes.data.next;
+                        while (next) {
+                            const url = next.startsWith('http') ? next : `${window.location.origin}${next}`;
+                            const nextRes = await api.get(url);
+                            allPhotos = allPhotos.concat(nextRes.data.results || []);
+                            next = nextRes.data.next;
+                        }
+                    }
+                    albumData.photos = allPhotos;
+                }
+                setAlbum(albumData);
                 // Start polling only if there are unprocessed photos
-                // same logic as EventPage.jsx polling
-                const hasUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed !== true);
+                const hasUnprocessed = albumData.photos?.some((photo: Photo) => photo.is_processed !== true);
                 if (hasUnprocessed && !pollIntervalRef.current) {
                     pollIntervalRef.current = setInterval(async () => {
                         try {
-                            const res = await api.get(`/api/gallery/albums/${id}/`);
-                            setAlbum(res.data);
-                            
-                            const stillUnprocessed = res.data.photos?.some((photo: Photo) => photo.is_processed !== true);
+                            // Fetch all paginated photos again for polling
+                            let res = await api.get(`/api/gallery/albums/${id}/`);
+                            let albumData = res.data;
+                            if (albumData.photos && albumData.photos.length && albumData.photos.length < (albumData.photo_count || 100000)) {
+                                let allPhotos = [...albumData.photos];
+                                let next = albumData.photos_next || null;
+                                if (!next && albumData.id) {
+                                    let photosRes = await api.get(`/api/gallery/photos/?album=${albumData.id}`);
+                                    allPhotos = photosRes.data.results || photosRes.data;
+                                    next = photosRes.data.next;
+                                    while (next) {
+                                        const url = next.startsWith('http') ? next : `${window.location.origin}${next}`;
+                                        const nextRes = await api.get(url);
+                                        allPhotos = allPhotos.concat(nextRes.data.results || []);
+                                        next = nextRes.data.next;
+                                    }
+                                }
+                                albumData.photos = allPhotos;
+                            }
+                            setAlbum(albumData);
+                            const stillUnprocessed = albumData.photos?.some((photo: Photo) => photo.is_processed !== true);
                             if (!stillUnprocessed && pollIntervalRef.current) {
                                 clearInterval(pollIntervalRef.current);
                                 pollIntervalRef.current = null;
                             }
                         } catch (error: any) {
-                            // Only log network errors, don't spam console
                             if (error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
-                                // Server might be down or CORS issue - stop polling to avoid spam
                                 if (pollIntervalRef.current) {
                                     clearInterval(pollIntervalRef.current);
                                     pollIntervalRef.current = null;
@@ -67,7 +98,7 @@ const AlbumPage: React.FC = () => {
                                 console.error("Error polling for album updates", error);
                             }
                         }
-                    }, 3000); // Increased to 3 seconds to reduce load 
+                    }, 3000);
                 }
             } catch (error) {
                 console.error("Error fetching album", error);
@@ -263,7 +294,7 @@ const AlbumPage: React.FC = () => {
                                     <p className="text-gray-600 font-medium">This album is empty.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
                                     {album.photos.map(photo => (
                                         <PhotoCard key={photo.id} photo={photo} /> 
                                     ))}
