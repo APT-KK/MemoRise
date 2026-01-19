@@ -294,10 +294,21 @@ const AlbumPage: React.FC = () => {
                                     <p className="text-gray-600 font-medium">This album is empty.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
-                                    {album.photos.map(photo => (
-                                        <PhotoCard key={photo.id} photo={photo} /> 
-                                    ))}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
+                                    {album.photos.map(photo => {
+                                        let imageUrl = photo.thumbnail || photo.image;
+                                        if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+                                            imageUrl = '/' + imageUrl;
+                                        }
+                                        return (
+                                            <img
+                                                key={photo.id}
+                                                src={imageUrl}
+                                                alt={photo.title || 'Album photo'}
+                                                className="w-full h-48 object-cover rounded-lg border border-black/10 shadow-sm hover:shadow-md transition"
+                                            />
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
