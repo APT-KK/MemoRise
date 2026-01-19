@@ -4,6 +4,7 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import PhotoCard from '../components/PhotoCard'; 
 import { ArrowLeft, User, Grid, Heart, Image as ImageIcon, Pencil, Camera, Trash2 } from 'lucide-react';
+import IconButton from '@mui/material/IconButton';
 
 const MyProfile = () => {
     const [userId, setUserId] = useState(null);
@@ -233,13 +234,14 @@ const MyProfile = () => {
                                 <div>
                                     <h1 className="text-2xl font-bold text-black mb-1 flex items-center gap-2">
                                         {profile.full_name || profile.email}
-                                        <button
+                                        <IconButton
                                             onClick={() => setEditing(true)}
-                                            className="ml-2 text-gray-600 hover:text-black"
+                                            size="small"
+                                            sx={{ ml: 1, color: 'grey.600', '&:hover': { color: 'black' } }}
                                             title="Edit Profile"
                                         >
                                             <Pencil className="w-4 h-4" />
-                                        </button>
+                                        </IconButton>
                                     </h1>
                                     <p className="text-gray-600 text-sm mb-2">{profile.email}</p>
                                     <p className="text-black">{profile.bio || "No bio yet."}</p>

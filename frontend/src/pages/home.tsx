@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Calendar, MapPin, LogOut, User, Camera, CalendarPlus, Search } from 'lucide-react'; 
+import { Calendar, MapPin, Camera, CalendarPlus, User } from 'lucide-react';
+import SearchIcon from '@mui/icons-material/Search';
+
+import LogoutIcon from '@mui/icons-material/Logout';
 import { Button, IconButton, Tooltip } from '@mui/material';
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/NotificationBell';
@@ -102,7 +105,7 @@ const Home: React.FC = () => {
                         <div className="flex items-center gap-4">
                             <Link to="/search" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
                                 <div className="bg-black/10 p-2 rounded-full border border-black/20">
-                                    <Search className="h-5 w-5 text-black" />
+                                    <SearchIcon sx={{ fontSize: 20, color: 'black' }} />
                                 </div>
                                 <span className="hidden sm:inline font-medium">Search</span>
                             </Link>
@@ -118,14 +121,15 @@ const Home: React.FC = () => {
 
                             <NotificationBell />
                             
-                            <button
+                            <Button
                                 onClick={handleLogout}
                                 disabled={logoutLoading}
-                                className="text-white hover:bg-black/10 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-black/20 hover:border-black/40 disabled:opacity-50"
+                                startIcon={<LogoutIcon />}
+                                variant="outlined"
+                                sx={{ color: 'black', borderColor: 'black', textTransform: 'none', px: 2, py: 1, borderRadius: 2, fontWeight: 500, '&:hover': { bgcolor: 'grey.100', borderColor: 'grey.800' } }}
                             >
-                                <LogOut className="h-5 w-5" />
                                 <span className="hidden sm:inline">Logout</span>
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -137,14 +141,6 @@ const Home: React.FC = () => {
                         <h1 className="text-3xl font-bold text-black">Your Events</h1>
                         <p className="text-gray-600 mt-1">Manage specific collections and albums</p>
                     </div>
-
-                    {/* <button 
-                        onClick={() => setCreateEventOpen(true)}
-                        className="flex items-center gap-2 bg-black text-white px-5 py-3 rounded-lg hover:bg-gray-900 transition font-medium border border-black"
-                    >
-                        <CalendarPlus className="w-5 h-5" />
-                        <span>Create New Event</span>
-                    </button> */}
 
                     <Button
                         onClick={() => setCreateEventOpen(true)}
