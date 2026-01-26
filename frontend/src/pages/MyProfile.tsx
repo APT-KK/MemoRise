@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom'; 
-import api from '../api/axios'; 
+import { Link } from 'react-router-dom';
+import api from '../api/axios';
 import toast from 'react-hot-toast';
-import PhotoCard from '../components/PhotoCard'; 
-import { ArrowLeft, User, Grid, Heart, Image as ImageIcon, Pencil, Camera, Trash2 } from 'lucide-react';
+import PhotoCard from '../components/PhotoCard';
+import { ArrowLeft, User, Grid, Heart, Image as ImageIcon, Pencil, Camera, Trash2, Tag } from 'lucide-react';
 import IconButton from '@mui/material/IconButton';
 
 const MyProfile = () => {
@@ -17,7 +17,11 @@ const MyProfile = () => {
         role: '',
         is_verified: false
     });
-    const [photos, setPhotos] = useState([]);
+    const [activeTab, setActiveTab] = useState('uploads'); // 'uploads', 'liked', 'tagged'
+    const [uploads, setUploads] = useState([]);
+    const [likedPhotos, setLikedPhotos] = useState([]);
+    const [taggedPhotos, setTaggedPhotos] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [profileLoading, setProfileLoading] = useState(true);
     const [profileSaving, setProfileSaving] = useState(false);
@@ -45,26 +49,40 @@ const MyProfile = () => {
     }, []);
 
     useEffect(() => {
-        if (!profile.email) return;
-        const fetchUserPhotos = async () => {
+        const fetchPhotos = async () => {
+            setLoading(true);
             try {
-                const res = await api.get(`/api/gallery/photos/`);
-                const allPhotos = res.data.results || res.data;
-                const userPhotos = allPhotos.filter(photo => photo.photographer_email === profile.email);
-                setPhotos(userPhotos);
-                const totalLikes = userPhotos.reduce((sum, photo) => sum + (photo.likes_count || 0), 0);
+                const [uploadsRes, likedRes, taggedRes] = await Promise.all([
+                    api.get('/api/gallery/photos/my_photos/'),
+                    api.get('/api/gallery/photos/liked/'),
+                    api.get('/api/gallery/photos/tagged/')
+                ]);
+
+                // Handle both paginated and non-paginated responses
+                const uploadsData = uploadsRes.data.results || uploadsRes.data;
+                const likedData = likedRes.data.results || likedRes.data;
+                const taggedData = taggedRes.data.results || taggedRes.data;
+
+                setUploads(uploadsData);
+                setLikedPhotos(likedData);
+                setTaggedPhotos(taggedData);
+
+                const totalLikes = uploadsData.reduce((sum, photo) => sum + (photo.likes_count || 0), 0);
                 setStats({
                     totalLikes,
-                    totalPhotos: userPhotos.length
+                    totalPhotos: uploadsData.length
                 });
             } catch (err) {
-                toast.error("Failed to load user photos");
+                toast.error("Failed to load photos");
             } finally {
                 setLoading(false);
             }
         };
-        fetchUserPhotos();
-    }, [profile.email]);
+
+        if (userId) {
+            fetchPhotos();
+        }
+    }, [userId]);
 
     const handleChange = (e) => {
         setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -157,14 +175,14 @@ const MyProfile = () => {
                 <div className="bg-white rounded-lg border border-black p-8 mb-8">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         <div className="relative group">
-                            <div 
+                            <div
                                 className="w-24 h-24 rounded-full border-4 border-black overflow-hidden cursor-pointer bg-black"
                                 onClick={handleProfilePictureClick}
                             >
                                 {profile.profile_picture_url ? (
-                                    <img 
-                                        src={profile.profile_picture_url} 
-                                        alt="Profile" 
+                                    <img
+                                        src={profile.profile_picture_url}
+                                        alt="Profile"
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
@@ -268,20 +286,64 @@ const MyProfile = () => {
                 </div>
 
                 <div>
-                    <div className="flex items-center gap-2 mb-6">
-                        <Grid className="w-5 h-5 text-black" />
-                        <h2 className="text-lg font-semibold text-black">Gallery</h2>
+                    <div className="flex justify-center border-b border-black mb-8 gap-2">
+                        <button
+                            onClick={() => setActiveTab('uploads')}
+                            className={`flex items-center gap-2 px-8 py-3 text-sm font-semibold border-b-2 rounded-t focus:outline-none focus-visible:ring-2 focus-visible:ring-black transition-all duration-150
+                                ${activeTab === 'uploads'
+                                    ? 'border-black text-black bg-gray-100 shadow-sm'
+                                    : 'border-transparent text-gray-400 hover:text-black hover:bg-gray-50'}
+                            `}
+                            tabIndex={0}
+                            aria-current={activeTab === 'uploads' ? 'page' : undefined}
+                        >
+                            <Grid className="w-4 h-4" />
+                            UPLOADED
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('liked')}
+                            className={`flex items-center gap-2 px-8 py-3 text-sm font-semibold border-b-2 rounded-t focus:outline-none focus-visible:ring-2 focus-visible:ring-black transition-all duration-150
+                                ${activeTab === 'liked'
+                                    ? 'border-black text-black bg-gray-100 shadow-sm'
+                                    : 'border-transparent text-gray-400 hover:text-black hover:bg-gray-50'}
+                            `}
+                            tabIndex={0}
+                            aria-current={activeTab === 'liked' ? 'page' : undefined}
+                        >
+                            <Heart className={`w-4 h-4 ${activeTab === 'liked' ? 'fill-current' : ''}`} />
+                            LIKED
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('tagged')}
+                            className={`flex items-center gap-2 px-8 py-3 text-sm font-semibold border-b-2 rounded-t focus:outline-none focus-visible:ring-2 focus-visible:ring-black transition-all duration-150
+                                ${activeTab === 'tagged'
+                                    ? 'border-black text-black bg-gray-100 shadow-sm'
+                                    : 'border-transparent text-gray-400 hover:text-black hover:bg-gray-50'}
+                            `}
+                            tabIndex={0}
+                            aria-current={activeTab === 'tagged' ? 'page' : undefined}
+                        >
+                            <Tag className="w-4 h-4" />
+                            TAGGED
+                        </button>
                     </div>
-                    {photos.length === 0 ? (
+
+                    {((activeTab === 'uploads' && uploads.length === 0) ||
+                        (activeTab === 'liked' && likedPhotos.length === 0) ||
+                        (activeTab === 'tagged' && taggedPhotos.length === 0)) ? (
                         <div className="text-center py-20 bg-white rounded-lg border border-dashed border-black">
-                            <p className="text-gray-600">This user hasn't uploaded any photos yet.</p>
+                            <p className="text-gray-600">
+                                {activeTab === 'uploads' && "You haven't uploaded any photos yet."}
+                                {activeTab === 'liked' && "You haven't liked any photos yet."}
+                                {activeTab === 'tagged' && "You haven't been tagged in any photos yet."}
+                            </p>
                         </div>
                     ) : (
                         <div
                             className="columns-2 sm:columns-3 md:columns-4 xl:columns-6 gap-4 space-y-4"
                             style={{ width: '100%' }}
                         >
-                            {photos.map(photo => {
+                            {(activeTab === 'uploads' ? uploads : activeTab === 'liked' ? likedPhotos : taggedPhotos).map(photo => {
                                 let imageUrl = photo.thumbnail || photo.image;
                                 if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
                                     imageUrl = '/' + imageUrl;

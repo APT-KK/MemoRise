@@ -97,6 +97,36 @@ class PhotoViewSet(viewsets.ModelViewSet):
                 raise PermissionError("Only the owner/photographer can tag users in this photo.")
         serializer.save()
 
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_photos(self, request):
+        queryset = Photo.objects.filter(photographer=request.user).order_by('-uploaded_at')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def liked(self, request):
+        queryset = Photo.objects.filter(likes__user=request.user).order_by('-uploaded_at')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def tagged(self, request):
+        queryset = Photo.objects.filter(tagged_users=request.user).order_by('-uploaded_at')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all().order_by('-created_at')
     serializer_class = AlbumSerializer
