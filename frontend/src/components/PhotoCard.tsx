@@ -24,7 +24,7 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo: initialPhoto }) => {
 
     const isProcessing = photo.is_processed !== true;
 
-    // --- POLLING LOGIC ---
+    // polling logic
     useEffect(() => {
         let intervalId: NodeJS.Timeout;
 

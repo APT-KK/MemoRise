@@ -13,7 +13,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .permissions import IsOwnerOrReadOnly
 from .utils import send_otp_email
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.conf import settings
+from django.shortcuts import redirect
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 import pyotp
+import requests
+
 
 User = get_user_model()
 
@@ -110,6 +116,59 @@ class ResendOTPView(views.APIView):
             return Response({"message": "New OTP sent."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+class OmniportLoginView(views.APIView):
+    permission_classes = [permissions.AllowAny]
 
+    def get(self, request):
+        client_id = settings.OMNIPORT_CLIENT_ID
+        redirect_uri = settings.OMNIPORT_REDIRECT_URI
+        oauth_url = f"https://omniport.com/oauth/authorize?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}"
+        return redirect(oauth_url)
 
+class OmniportCallbackView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        # exhange auth code for access & refresh tokens
+        code = request.GET.get('code')
+        if not code:
+            return redirect(f"{settings.BASE_FRONTEND_URL}/login?error=no_code")
+
+        token_url = "https://omniport.iitr.ac.in/open_auth/token/"
+        data = {
+            'client_id': settings.OMNIPORT_CLIENT_ID,
+            'client_secret': settings.OMNIPORT_CLIENT_SECRET,
+            'grant_type': 'authorization_code',
+            'redirect_uri': settings.OMNIPORT_REDIRECT_URI,
+            'code': code,
+        }
+        # post req to get tokens from callback
+        response = requests.post(token_url, data=data) 
+
+        if response.status_code != 200:
+            return redirect(f"{settings.BASE_FRONTEND_URL}/login?error=token_exchange_failed")
+
+        access_token_omni    = response.json().get('access_token')
+
+        # now we get user data
+        user_url = "https://omniport.iitr.ac.in/open_auth/get_user_data/"
+        headers = {'Authorization': f'Bearer {access_token_omni}'}
+        user_response = requests.get(user_url, headers=headers)
+
+        if user_response.status_code != 200:
+            return redirect(f"{settings.BASE_FRONTEND_URL}/login?error=user_info_failed")
+
+        user_data = user_response.json()
+        email = user_data.get('contactInformation', {}).get('instituteWebmailAddress')
+        full_name = user_data.get('person', {}).get('fullName')
+
+        user, created = User.objects.get_or_create(email=email)
+        if created:
+            user.full_name = full_name
+            user.is_verified = True
+            user.save()
+
+        # generate JWT tokens for our frontend
+        refresh = RefreshToken.for_user(user)
+
+        return redirect(f"{settings.BASE_FRONTEND_URL}/auth/callback?access={str(refresh.access_token)}&refresh={str(refresh)}")

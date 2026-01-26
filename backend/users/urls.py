@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import (
+    OmniportCallbackView,
+    OmniportLoginView,
     RegisterView, 
     UserProfileView, 
     CurrentUserView,
@@ -21,4 +23,6 @@ urlpatterns = [
     path('logout/', TokenBlacklistView.as_view(), name='logout'),
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/omniport/login/', OmniportLoginView.as_view(), name='omniport_login'),
+    path('auth/omniport/callback/', OmniportCallbackView.as_view(), name='omniport_callback'),  
 ]
