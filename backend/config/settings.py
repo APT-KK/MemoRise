@@ -177,6 +177,12 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Omniport Settings
+OMNIPORT_CLIENT_SECRET = os.getenv('OMNIPORT_CLIENT_SECRET', '')
+OMNIPORT_REDIRECT_URI = os.getenv('OMNIPORT_REDIRECT_URI', '')
+BASE_FRONTEND_URL = os.getenv('BASE_FRONTEND_URL', 'http://localhost:5173')
+OMNIPORT_CLIENT_ID = os.getenv('OMNIPORT_CLIENT_ID', '')
+
 # for jwt customisation
 from datetime import timedelta
 

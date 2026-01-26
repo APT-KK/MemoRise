@@ -4,6 +4,7 @@ import { UserPlus, Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
+import omniportLogo from '../assets/omniport.png';
 
 const Signup = () => {
 
@@ -54,10 +55,11 @@ const Signup = () => {
 
         <button
           type="button"
-          onClick={() => window.location.href = 'http://127.0.0.1:8000/api/auth/omniport/login/'}
-          className="w-full mb-6 bg-[#f3f4f6] text-black border border-gray-300 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition duration-200"
+          onClick={() => window.location.href = 'http://127.0.0.1:8000/api/auth/omniport/login/' }
+          className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-[#f3f4f6] to-[#e0e7ef] text-black border border-gray-300 font-semibold py-2.5 rounded-lg shadow-sm hover:bg-gradient-to-r hover:from-[#e0e7ef] hover:to-[#f3f4f6] transition duration-200 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          Sign up with Omniport
+          <img src={omniportLogo} alt="Omniport Logo" className="h-6 w-6 rounded-full object-cover border border-gray-300 bg-white" />
+          <span className="text-base">Sign up with Omniport</span>
         </button>
 
         <div className="relative mb-6">
