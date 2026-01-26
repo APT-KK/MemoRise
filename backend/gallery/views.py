@@ -1,6 +1,7 @@
 import os
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from grpc import Status
 from rest_framework.response import Response
 from .filters import PhotoFilter
 from .models import Photo, Album, Event
@@ -192,3 +193,14 @@ def toggle_public_photo_link(request, photo_id):
         "share_token": str(photo.share_token) if photo.is_public else None,
         "full_url": f"http://localhost:8000/share/photos/{photo.share_token}" if photo.is_public else None
     })
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, IsEventCoordinatorOrAdmin])
+def mass_delete_photos(request):
+    ids = request.data.get('ids', [])
+
+    if not isinstance(ids, list):
+        return Response({'detail': 'Invalid data.'}, status=Status.HTTP_400_BAD_REQUEST)
+    
+    Photo.objects.filter(id__in=ids).delete()
+    return Response({'detail': 'Deleted successfully.'}, status=Status.HTTP_200_OK)

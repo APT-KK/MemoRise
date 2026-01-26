@@ -159,13 +159,6 @@ class OmniportCallbackView(views.APIView):
 
         user_data = user_response.json()
         email = user_data.get('contactInformation', {}).get('emailAddress')
-
-        # Fallback: Construct from enrollment/username if needed
-        # if not email:
-        #      username = user_data.get('username')
-        #      if username:
-        #          email = f"{username}@iitr.ac.in"
-        
         full_name = user_data.get('person', {}).get('fullName') 
             
         if not email:
@@ -176,6 +169,10 @@ class OmniportCallbackView(views.APIView):
             user.full_name = full_name
             user.is_verified = True
             user.set_unusable_password() # since login is via Omniport
+            user.role = "photographer"
+            user.save()
+        elif not user.role:
+            user.role = "photographer"
             user.save()
 
         # generate JWT tokens for our frontend
