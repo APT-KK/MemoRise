@@ -155,9 +155,6 @@ const AlbumPage: React.FC = () => {
         if (allSuccess) {
             toast.success('All photos uploaded successfully!');
             setFiles([]);
-            const [photos, setPhotos] = useState<any[]>([]);
-            const [selected, setSelected] = useState<number[]>([]);
-            const [user, setUser] = useState<any>(null);
             try {
                 const res = await api.get(`/api/gallery/albums/${album.id}/`);
                 setAlbum(res.data);
@@ -175,7 +172,7 @@ const AlbumPage: React.FC = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await api.get('/users/me/');
+                const res = await api.get('/api/auth/users/me/');
                 setUser(res.data);
             } catch (e) {
                 setUser(null);
@@ -184,7 +181,11 @@ const AlbumPage: React.FC = () => {
         fetchUser();
     }, []);
 
-    const canDelete = user && (user.is_superuser || user.role === 'Coordinator');
+    const canDelete = user && (
+        user.is_superuser ||
+        ['Coordinator', 'Admin'].includes(user.role) ||
+        ['coordinator', 'admin'].includes(user.role)
+    );
 
     const handleSelect = (id: number) => {
         setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -193,7 +194,7 @@ const AlbumPage: React.FC = () => {
     const handleConfirmDelete = async () => {
         if (selected.length === 0) return;
         if (window.confirm('Delete selected photos?')) {
-            await api.post('/gallery/photos/mass-delete/', { ids: selected });
+            await api.post('/api/gallery/mass-delete-photos/', { ids: selected });
             if (album) {
                 setAlbum({ ...album, photos: album.photos.filter((p: Photo) => !selected.includes(p.id)) });
             }
@@ -204,7 +205,9 @@ const AlbumPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white p-6">
-            <div className="text-xs text-red-600 mb-2">user.role: {user?.role || 'N/A'}</div>
+            {/* {user && (
+                <div className="text-xs text-red-600 mb-2">user.role: {user.role || 'N/A'}</div>
+            )} */}
             <Link
                 to="/home"
                 className="inline-flex items-center gap-2 text-black hover:underline mb-6 transition"

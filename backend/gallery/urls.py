@@ -14,6 +14,6 @@ urlpatterns = [
     path('albums/<uuid:share_token>/', view_shared_album, name='view_shared'),
     path('albums/<int:album_id>/share/', toggle_public_link, name='toggle_public_link'),
     path('search/', UserSearchView.as_view(), name='user_search'),
-    path('photos/mass-delete/', mass_delete_photos, name='mass_delete_photos'),
+    path('mass-delete-photos/', mass_delete_photos, name='mass_delete_photos'),
     path('', include(router.urls)),
 ]

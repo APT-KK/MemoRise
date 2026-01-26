@@ -13,6 +13,9 @@ const EventPage: React.FC = () => {
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [loading, setLoading] = useState(true);
     const [createAlbumOpen, setCreateAlbumOpen] = useState(false);
+    const [selected, setSelected] = useState<number[]>([]);
+    const [user, setUser] = useState<any>(null);
+    const [deleteMode, setDeleteMode] = useState(false);
     const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
@@ -86,6 +89,42 @@ const EventPage: React.FC = () => {
             }
         };
     }, [id]);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await api.get('/api/auth/users/me/');
+                setUser(res.data);
+            } catch (e) {
+                setUser(null);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const canDelete = user && (
+        user.is_superuser ||
+        ['Coordinator', 'Admin'].includes(user.role) ||
+        ['coordinator', 'admin'].includes(user.role)
+    );
+
+    const handleSelect = (id: number) => {
+        setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (selected.length === 0) return;
+        if (window.confirm('Delete selected photos?')) {
+            try {
+                await api.post('/api/gallery/mass-delete-photos/', { ids: selected });
+                setPhotos(prevPhotos => prevPhotos.filter(p => !selected.includes(p.id)));
+                setSelected([]);
+                setDeleteMode(false);
+            } catch (error) {
+                console.error("Error deleting photos", error);
+            }
+        }
+    };
 
     return (
         <div className="min-h-screen bg-white p-6">
@@ -175,7 +214,37 @@ const EventPage: React.FC = () => {
                                 <h2 className="text-2xl font-bold text-black">
                                     {albums.length > 0 ? "Other Photos" : "Photos"}
                                 </h2>
+                                {/* {user && (
+                                    <span className="text-xs text-red-600">user.role: {user.role || 'N/A'}</span>
+                                )} */}
                             </div>
+
+                            {canDelete && photos.length > 0 && !deleteMode && (
+                                <button
+                                    className="bg-red-600 text-white px-4 py-2 rounded mb-6 font-medium hover:bg-red-700 transition"
+                                    onClick={() => setDeleteMode(true)}
+                                >
+                                    Delete Photos
+                                </button>
+                            )}
+
+                            {canDelete && deleteMode && (
+                                <div className="mb-6 flex gap-3">
+                                    <button
+                                        className="bg-gray-200 text-black px-4 py-2 rounded font-medium hover:bg-gray-300 transition"
+                                        onClick={() => { setDeleteMode(false); setSelected([]); }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="bg-red-600 text-white px-4 py-2 rounded font-medium hover:bg-red-700 transition disabled:opacity-50"
+                                        onClick={handleConfirmDelete}
+                                        disabled={selected.length === 0}
+                                    >
+                                        Confirm Delete ({selected.length})
+                                    </button>
+                                </div>
+                            )}
 
                             {photos.length === 0 ? (
                                 <div className="text-center py-12 bg-white rounded-lg border border-dashed border-black">
@@ -195,17 +264,28 @@ const EventPage: React.FC = () => {
                                             imageUrl = '/' + imageUrl;
                                         }
                                         return (
-                                            <Link
-                                                key={photo.id}
-                                                to={`/photos/${photo.id}`}
-                                                style={{ display: 'block' }}
-                                            >
-                                                <img
-                                                    src={imageUrl}
-                                                    alt={photo.title || 'Event photo'}
-                                                    className="mb-4 w-full rounded-lg border border-black/10 shadow-sm hover:shadow-md transition break-inside-avoid cursor-pointer"
-                                                />
-                                            </Link>
+                                            <div key={photo.id} className="relative mb-4 break-inside-avoid group">
+                                                {canDelete && deleteMode && (
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selected.includes(photo.id)}
+                                                        onChange={() => handleSelect(photo.id)}
+                                                        className="absolute top-3 left-3 w-5 h-5 z-20 cursor-pointer accent-red-600"
+                                                    />
+                                                )}
+                                                <Link
+                                                    to={`/photos/${photo.id}`}
+                                                    style={{ display: 'block' }}
+                                                    onClick={(e) => deleteMode && e.preventDefault()}
+                                                >
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={photo.title || 'Event photo'}
+                                                        className={`w-full rounded-lg border border-black/10 shadow-sm transition hover:shadow-md cursor-pointer ${deleteMode && selected.includes(photo.id) ? 'ring-4 ring-red-600 opacity-80' : ''
+                                                            }`}
+                                                    />
+                                                </Link>
+                                            </div>
                                         );
                                     })}
                                 </div>

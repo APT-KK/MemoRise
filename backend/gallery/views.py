@@ -1,16 +1,14 @@
 import os
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from grpc import Status
+from rest_framework import viewsets, permissions, parsers, generics, status
 from rest_framework.response import Response
 from .filters import PhotoFilter
 from .models import Photo, Album, Event
 from .serializers import PhotoSerializer, AlbumSerializer, EventSerializer, PublicAlbumSerializer, UserTagSerializer, PublicPhotoShareSerializer
-from rest_framework import viewsets, permissions, parsers, generics
 from .permissions import IsEventCoordinatorOrAdmin, CanUploadPhotoOrCreateAlbum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import Album
 from .ai_utils import generate_tags  
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -194,13 +192,13 @@ def toggle_public_photo_link(request, photo_id):
         "full_url": f"http://localhost:8000/share/photos/{photo.share_token}" if photo.is_public else None
     })
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated, IsEventCoordinatorOrAdmin])
 def mass_delete_photos(request):
     ids = request.data.get('ids', [])
 
     if not isinstance(ids, list):
-        return Response({'detail': 'Invalid data.'}, status=Status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Invalid data.'}, status=status.HTTP_400_BAD_REQUEST)
     
     Photo.objects.filter(id__in=ids).delete()
-    return Response({'detail': 'Deleted successfully.'}, status=Status.HTTP_200_OK)
+    return Response({'detail': 'Deleted successfully.'}, status=status.HTTP_200_OK)
