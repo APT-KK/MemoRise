@@ -12,6 +12,7 @@ import EventPage from './pages/EventPage'
 import AlbumPage from './pages/AlbumPage'
 import VerifyEmail from './pages/VerifyEmail'
 import SearchPage from './pages/SearchPage'
+import Callback from './pages/Callback';
 
 const RootRedirect: React.FC = () => {
   const authTokens = localStorage.getItem('authTokens');
@@ -24,6 +25,7 @@ function App() {
     <Routes>
       <Route path="/" element={<RootRedirect />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/auth/callback" element={<Callback />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/photos/:id" element={<PhotoDetail />} />

@@ -73,6 +73,14 @@ const Login: React.FC = () => {
                       <p className="mt-2 text-sm text-gray-600">Login to access your gallery</p>
                   </div>
   
+                  <button
+                      type="button"
+                      onClick={() => window.location.href = 'http://127.0.0.1:8000/api/auth/omniport/login/'}
+                      className="w-full bg-[#f3f4f6] text-black border border-gray-300 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition duration-200 mb-3"
+                  >
+                      Login with Omniport
+                  </button>
+
                   <div className="space-y-4">
                       <div className="relative">
                           <div className="absolute inset-0 flex items-center">
@@ -83,7 +91,7 @@ const Login: React.FC = () => {
                           </div>
                       </div>
                   </div>
-  
+
                   <form className="space-y-4" onSubmit={handleSubmit}>
                       <div className="flex items-center border border-black rounded-lg overflow-hidden">
                           <div className="h-full flex items-center px-3 text-gray-600">
@@ -119,6 +127,13 @@ const Login: React.FC = () => {
                           className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-2.5 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                           {loading ? 'Logging In...' : 'Log In'}
+                      </button>
+                      <button
+                          type="button"
+                          onClick={() => window.location.href = 'http://127.0.0.1:8000/api/auth/omniport/login/'}
+                          className="w-full bg-[#f3f4f6] text-black border border-gray-300 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition duration-200 mt-3"
+                      >
+                          Login with Omniport
                       </button>
                   </form>
   

@@ -26,10 +26,10 @@ const Signup = () => {
 
       toast.success('Account created successfully! Please log in.');
 
-      navigate('/verify-email', { 
-          state: { email: formData.email } 
+      navigate('/verify-email', {
+        state: { email: formData.email }
       });
-      
+
     } catch (err) {
       const errorMsg = err.response?.data
         ? Object.values(err.response.data).flat().join(' ')
@@ -41,7 +41,7 @@ const Signup = () => {
     }
   };
 
- return (
+  return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-lg border border-black p-8">
         <div className="text-center mb-8">
@@ -52,13 +52,21 @@ const Signup = () => {
           <div className="mb-4 p-3 bg-black text-white rounded text-sm border border-black">{error}</div>
         )}
 
+        <button
+          type="button"
+          onClick={() => window.location.href = 'http://127.0.0.1:8000/api/auth/omniport/login/'}
+          className="w-full mb-6 bg-[#f3f4f6] text-black border border-gray-300 font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition duration-200"
+        >
+          Sign up with Omniport
+        </button>
+
         <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-600">Or use email</span>
-            </div>
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-600">Or use email</span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -125,7 +133,7 @@ const Signup = () => {
             disabled={loading}
             className="w-full py-2.5 text-sm bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-           {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
