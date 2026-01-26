@@ -25,7 +25,7 @@ function App() {
     <Routes>
       <Route path="/" element={<RootRedirect />} />
       <Route path="/home" element={<Home />} />
-      <Route path="/auth/callback" element={<Callback />} />
+      <Route path="/oauth/callback" element={<Callback />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/photos/:id" element={<PhotoDetail />} />

@@ -121,54 +121,68 @@ class OmniportLoginView(views.APIView):
 
     def get(self, request):
         client_id = settings.OMNIPORT_CLIENT_ID
-        redirect_uri = settings.OMNIPORT_REDIRECT_URI
-        oauth_url = f"https://omniport.com/oauth/authorize?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}"
+        redirect_uri = "http://localhost:5173/oauth/callback"
+        oauth_url = f"https://channeli.in/oauth/authorise/?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}"
         return redirect(oauth_url)
 
 class OmniportCallbackView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
-    def get(self, request):
-        # exhange auth code for access & refresh tokens
-        code = request.GET.get('code')
+    def post(self, request):
+        code = request.data.get('code')
         if not code:
-            return redirect(f"{settings.BASE_FRONTEND_URL}/login?error=no_code")
+            return Response({"error": "No code provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        token_url = "https://omniport.iitr.ac.in/open_auth/token/"
+        token_url = "https://channeli.in/open_auth/token/"
         data = {
             'client_id': settings.OMNIPORT_CLIENT_ID,
             'client_secret': settings.OMNIPORT_CLIENT_SECRET,
             'grant_type': 'authorization_code',
-            'redirect_uri': settings.OMNIPORT_REDIRECT_URI,
+            'redirect_uri': "http://localhost:5173/oauth/callback",
             'code': code,
         }
         # post req to get tokens from callback
         response = requests.post(token_url, data=data) 
 
         if response.status_code != 200:
-            return redirect(f"{settings.BASE_FRONTEND_URL}/login?error=token_exchange_failed")
+            return Response(response.json(), status=status.HTTP_400_BAD_REQUEST)
 
-        access_token_omni    = response.json().get('access_token')
+        access_token_omni = response.json().get('access_token')
 
         # now we get user data
-        user_url = "https://omniport.iitr.ac.in/open_auth/get_user_data/"
+        user_url = "https://channeli.in/open_auth/get_user_data/"
         headers = {'Authorization': f'Bearer {access_token_omni}'}
         user_response = requests.get(user_url, headers=headers)
 
         if user_response.status_code != 200:
-            return redirect(f"{settings.BASE_FRONTEND_URL}/login?error=user_info_failed")
+            return Response({"error": "Failed to fetch user data"}, status=status.HTTP_400_BAD_REQUEST)
 
         user_data = user_response.json()
-        email = user_data.get('contactInformation', {}).get('instituteWebmailAddress')
-        full_name = user_data.get('person', {}).get('fullName')
+        email = user_data.get('contactInformation', {}).get('emailAddress')
+
+        # Fallback: Construct from enrollment/username if needed
+        # if not email:
+        #      username = user_data.get('username')
+        #      if username:
+        #          email = f"{username}@iitr.ac.in"
+        
+        full_name = user_data.get('person', {}).get('fullName') 
+            
+        if not email:
+             return Response({"error": "Could not retrieve email from Omniport"}, status=status.HTTP_400_BAD_REQUEST)
 
         user, created = User.objects.get_or_create(email=email)
         if created:
             user.full_name = full_name
             user.is_verified = True
+            user.set_unusable_password() # since login is via Omniport
             user.save()
 
         # generate JWT tokens for our frontend
         refresh = RefreshToken.for_user(user)
 
-        return redirect(f"{settings.BASE_FRONTEND_URL}/auth/callback?access={str(refresh.access_token)}&refresh={str(refresh)}")
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": CustomUserSerializer(user).data
+        })
